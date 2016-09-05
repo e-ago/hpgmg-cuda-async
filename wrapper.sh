@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#set -x
+
+exe=$1
+shift
+params=$*
+
+use_perf=0
+
+case ${HOSTNAME} in
+    *ivy0*) CUDA_VISIBLE_DEVICES=1; USE_CPU=0; USE_IB_HCA=mlx5_0;;
+    *ivy1*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; USE_IB_HCA=mlx5_0;;
+    *ivy2*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; USE_IB_HCA=mlx5_0;;
+    *ivy3*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; USE_IB_HCA=mlx5_0;;
+    *hsw0*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; USE_IB_HCA=mlx5_0;;
+    *hsw1*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; USE_IB_HCA=mlx5_0;;
+esac
+
+echo "${HOSTNAME}: picking GPU:$CUDA_VISIBLE_DEVICES CPU:$USE_CPU HCA:$USE_IB_HCA"
+ulimit -c 1000
+
+#ldd $exe
+
+PATH=$PATH:$PWD
+#echo "PATH=$PATH"
+#echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+#echo "COMM_USE_GDRDMA=$COMM_USE_GDRDMA"
+
+export \
+    PATH LD_LIBRARY_PATH \
+    CUDA_VISIBLE_DEVICES USE_IB_HCA USE_CPU USE_SINGLE_STREAM USE_GPU_ASYNC \
+    MP_ENABLE_DEBUG GDS_ENABLE_DEBUG HPGMG_ENABLE_DEBUG \
+    MP_DBREC_ON_GPU \
+    COMM_USE_COMM \
+    COMM_USE_ASYNC \
+    COMM_USE_GPU_COMM \
+    COMM_USE_GDRDMA \
+    MPI_ALLOC_PINNED MPI_ALLOC_ZERO_COPY \
+    CUDA_DISABLE_UNIFIED_MEMORY \
+    GDS_SIMULATE_WRITE64 GDS_DISABLE_INLINECOPY GDS_DISABLE_WEAK_CONSISTENCY GDS_DISABLE_MEMBAR \
+    CUDA_MANAGED_FORCE_DEVICE_ALLOC OMP_NUM_THREAD MV2_ENABLE_AFFINITY
+
+#exec $exe $params
+
+if [ "$use_perf" == "1" ]; then
+    perf record -F 99 -o /tmp/$HOSTNAME.prof $exe $params
+else
+    $exe $params
+fi
+
+#exec numactl --cpunodebind=$USE_CPU -l $exe $params
