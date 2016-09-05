@@ -1,0 +1,922 @@
+%% bare_conf.tex
+%% V1.4b
+%% 2015/08/26
+%% by Michael Shell
+%% See:
+%% http://www.michaelshell.org/
+%% for current contact information.
+%%
+%% This is a skeleton file demonstrating the use of IEEEtran.cls
+%% (requires IEEEtran.cls version 1.8b or later) with an IEEE
+%% conference paper.
+%%
+%% Support sites:
+%% http://www.michaelshell.org/tex/ieeetran/
+%% http://www.ctan.org/pkg/ieeetran
+%% and
+%% http://www.ieee.org/
+
+%%*************************************************************************
+%% Legal Notice:
+%% This code is offered as-is without any warranty either expressed or
+%% implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! 
+%% User assumes all risk.
+%% In no event shall the IEEE or any contributor to this code be liable for
+%% any damages or losses, including, but not limited to, incidental,
+%% consequential, or any other damages, resulting from the use or misuse
+%% of any information contained here.
+%%
+%% All comments are the opinions of their respective authors and are not
+%% necessarily endorsed by the IEEE.
+%%
+%% This work is distributed under the LaTeX Project Public License (LPPL)
+%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
+%% distributed and modified. A copy of the LPPL, version 1.3, is included
+%% in the base LaTeX documentation of all distributions of LaTeX released
+%% 2003/12/01 or later.
+%% Retain all contribution notices and credits.
+%% ** Modified files should be clearly indicated as such, including  **
+%% ** renaming them and changing author support contact information. **
+%%*************************************************************************
+
+
+% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
+% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
+% *** with production work. The IEEE's font choices and paper sizes can   ***
+% *** trigger bugs that do not appear when using other class files.       ***                          ***
+% The testflow support page is at:
+% http://www.michaelshell.org/tex/testflow/
+
+
+
+\documentclass[conference]{IEEEtran}
+% Some Computer Society conferences also require the compsoc mode option,
+% but others use the standard conference format.
+%
+% If IEEEtran.cls has not been installed into the LaTeX system files,
+% manually specify the path to it like:
+% \documentclass[conference]{../sty/IEEEtran}
+
+
+
+
+
+% Some very useful LaTeX packages include:
+% (uncomment the ones you want to load)
+
+
+% *** MISC UTILITY PACKAGES ***
+%
+%\usepackage{ifpdf}
+% Heiko Oberdiek's ifpdf.sty is very useful if you need conditional
+% compilation based on whether the output is pdf or dvi.
+% usage:
+% \ifpdf
+%   % pdf code
+% \else
+%   % dvi code
+% \fi
+% The latest version of ifpdf.sty can be obtained from:
+% http://www.ctan.org/pkg/ifpdf
+% Also, note that IEEEtran.cls V1.7 and later provides a builtin
+% \ifCLASSINFOpdf conditional that works the same way.
+% When switching from latex to pdflatex and vice-versa, the compiler may
+% have to be run twice to clear warning/error messages.
+
+
+
+
+
+
+% *** CITATION PACKAGES ***
+%
+%\usepackage{cite}
+% cite.sty was written by Donald Arseneau
+% V1.6 and later of IEEEtran pre-defines the format of the cite.sty package
+% \cite{} output to follow that of the IEEE. Loading the cite package will
+% result in citation numbers being automatically sorted and properly
+% "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6] without using
+% cite.sty will become [1], [2], [5]--[7], [9] using cite.sty. cite.sty's
+% \cite will automatically add leading space, if needed. Use cite.sty's
+% noadjust option (cite.sty V3.8 and later) if you want to turn this off
+% such as if a citation ever needs to be enclosed in parenthesis.
+% cite.sty is already installed on most LaTeX systems. Be sure and use
+% version 5.0 (2009-03-20) and later if using hyperref.sty.
+% The latest version can be obtained at:
+% http://www.ctan.org/pkg/cite
+% The documentation is contained in the cite.sty file itself.
+
+
+
+
+
+
+% *** GRAPHICS RELATED PACKAGES ***
+%
+\ifCLASSINFOpdf
+   \usepackage[pdftex]{graphicx}
+  % declare the path(s) where your graphic files are
+   \graphicspath{{.}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+   \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+\else
+  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
+  % will default to the driver specified in the system graphics.cfg if no
+  % driver is specified.
+  % \usepackage[dvips]{graphicx}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../eps/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.eps}
+\fi
+% graphicx was written by David Carlisle and Sebastian Rahtz. It is
+% required if you want graphics, photos, etc. graphicx.sty is already
+% installed on most LaTeX systems. The latest version and documentation
+% can be obtained at: 
+% http://www.ctan.org/pkg/graphicx
+% Another good source of documentation is "Using Imported Graphics in
+% LaTeX2e" by Keith Reckdahl which can be found at:
+% http://www.ctan.org/pkg/epslatex
+%
+% latex, and pdflatex in dvi mode, support graphics in encapsulated
+% postscript (.eps) format. pdflatex in pdf mode supports graphics
+% in .pdf, .jpeg, .png and .mps (metapost) formats. Users should ensure
+% that all non-photo figures use a vector format (.eps, .pdf, .mps) and
+% not a bitmapped formats (.jpeg, .png). The IEEE frowns on bitmapped formats
+% which can result in "jaggedy"/blurry rendering of lines and letters as
+% well as large increases in file sizes.
+%
+% You can find documentation about the pdfTeX application at:
+% http://www.tug.org/applications/pdftex
+
+
+
+
+
+% *** MATH PACKAGES ***
+%
+%\usepackage{amsmath}
+% A popular package from the American Mathematical Society that provides
+% many useful and powerful commands for dealing with mathematics.
+%
+% Note that the amsmath package sets \interdisplaylinepenalty to 10000
+% thus preventing page breaks from occurring within multiline equations. Use:
+%\interdisplaylinepenalty=2500
+% after loading amsmath to restore such page breaks as IEEEtran.cls normally
+% does. amsmath.sty is already installed on most LaTeX systems. The latest
+% version and documentation can be obtained at:
+% http://www.ctan.org/pkg/amsmath
+
+
+
+
+
+% *** SPECIALIZED LIST PACKAGES ***
+%
+%\usepackage{algorithmic}
+% algorithmic.sty was written by Peter Williams and Rogerio Brito.
+% This package provides an algorithmic environment fo describing algorithms.
+% You can use the algorithmic environment in-text or within a figure
+% environment to provide for a floating algorithm. Do NOT use the algorithm
+% floating environment provided by algorithm.sty (by the same authors) or
+% algorithm2e.sty (by Christophe Fiorio) as the IEEE does not use dedicated
+% algorithm float types and packages that provide these will not provide
+% correct IEEE style captions. The latest version and documentation of
+% algorithmic.sty can be obtained at:
+% http://www.ctan.org/pkg/algorithms
+% Also of interest may be the (relatively newer and more customizable)
+% algorithmicx.sty package by Szasz Janos:
+% http://www.ctan.org/pkg/algorithmicx
+
+
+
+
+% *** ALIGNMENT PACKAGES ***
+%
+%\usepackage{array}
+% Frank Mittelbach's and David Carlisle's array.sty patches and improves
+% the standard LaTeX2e array and tabular environments to provide better
+% appearance and additional user controls. As the default LaTeX2e table
+% generation code is lacking to the point of almost being broken with
+% respect to the quality of the end results, all users are strongly
+% advised to use an enhanced (at the very least that provided by array.sty)
+% set of table tools. array.sty is already installed on most systems. The
+% latest version and documentation can be obtained at:
+% http://www.ctan.org/pkg/array
+
+
+% IEEEtran contains the IEEEeqnarray family of commands that can be used to
+% generate multiline equations as well as matrices, tables, etc., of high
+% quality.
+
+
+
+
+% *** SUBFIGURE PACKAGES ***
+%\ifCLASSOPTIONcompsoc
+%  \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+%\else
+%  \usepackage[caption=false,font=footnotesize]{subfig}
+%\fi
+% subfig.sty, written by Steven Douglas Cochran, is the modern replacement
+% for subfigure.sty, the latter of which is no longer maintained and is
+% incompatible with some LaTeX packages including fixltx2e. However,
+% subfig.sty requires and automatically loads Axel Sommerfeldt's caption.sty
+% which will override IEEEtran.cls' handling of captions and this will result
+% in non-IEEE style figure/table captions. To prevent this problem, be sure
+% and invoke subfig.sty's "caption=false" package option (available since
+% subfig.sty version 1.3, 2005/06/28) as this is will preserve IEEEtran.cls
+% handling of captions.
+% Note that the Computer Society format requires a larger sans serif font
+% than the serif footnote size font used in traditional IEEE formatting
+% and thus the need to invoke different subfig.sty package options depending
+% on whether compsoc mode has been enabled.
+%
+% The latest version and documentation of subfig.sty can be obtained at:
+% http://www.ctan.org/pkg/subfig
+
+
+
+
+% *** FLOAT PACKAGES ***
+%
+%\usepackage{fixltx2e}
+% fixltx2e, the successor to the earlier fix2col.sty, was written by
+% Frank Mittelbach and David Carlisle. This package corrects a few problems
+% in the LaTeX2e kernel, the most notable of which is that in current
+% LaTeX2e releases, the ordering of single and double column floats is not
+% guaranteed to be preserved. Thus, an unpatched LaTeX2e can allow a
+% single column figure to be placed prior to an earlier double column
+% figure.
+% Be aware that LaTeX2e kernels dated 2015 and later have fixltx2e.sty's
+% corrections already built into the system in which case a warning will
+% be issued if an attempt is made to load fixltx2e.sty as it is no longer
+% needed.
+% The latest version and documentation can be found at:
+% http://www.ctan.org/pkg/fixltx2e
+
+
+%\usepackage{stfloats}
+% stfloats.sty was written by Sigitas Tolusis. This package gives LaTeX2e
+% the ability to do double column floats at the bottom of the page as well
+% as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
+% LaTeX2e). It also provides a command:
+%\fnbelowfloat
+% to enable the placement of footnotes below bottom floats (the standard
+% LaTeX2e kernel puts them above bottom floats). This is an invasive package
+% which rewrites many portions of the LaTeX2e float routines. It may not work
+% with other packages that modify the LaTeX2e float routines. The latest
+% version and documentation can be obtained at:
+% http://www.ctan.org/pkg/stfloats
+% Do not use the stfloats baselinefloat ability as the IEEE does not allow
+% \baselineskip to stretch. Authors submitting work to the IEEE should note
+% that the IEEE rarely uses double column equations and that authors should try
+% to avoid such use. Do not be tempted to use the cuted.sty or midfloat.sty
+% packages (also by Sigitas Tolusis) as the IEEE does not format its papers in
+% such ways.
+% Do not attempt to use stfloats with fixltx2e as they are incompatible.
+% Instead, use Morten Hogholm'a dblfloatfix which combines the features
+% of both fixltx2e and stfloats:
+%
+% \usepackage{dblfloatfix}
+% The latest version can be found at:
+% http://www.ctan.org/pkg/dblfloatfix
+
+
+
+
+% *** PDF, URL AND HYPERLINK PACKAGES ***
+%
+%\usepackage{url}
+% url.sty was written by Donald Arseneau. It provides better support for
+% handling and breaking URLs. url.sty is already installed on most LaTeX
+% systems. The latest version and documentation can be obtained at:
+% http://www.ctan.org/pkg/url
+% Basically, \url{my_url_here}.
+
+
+
+
+% *** Do not adjust lengths that control margins, column widths, etc. ***
+% *** Do not use packages that alter fonts (such as pslatex).         ***
+% There should be no need to do such things with IEEEtran.cls V1.6 and later.
+% (Unless specifically asked to do so by the journal or conference you plan
+% to submit to, of course. )
+
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+%\usepackage{algorithmic}
+\usepackage{pifont}
+%\usepackage{amsmath}
+\usepackage{marginnote}
+\usepackage{subfig}
+
+\begin{document}
+%
+% paper title
+% Titles are generally capitalized except for words such as a, an, and, as,
+% at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
+% not capitalized unless they are the first or last word of the title.
+% Linebreaks \\ can be used within to get better formatting as desired.
+% Do not put math or special symbols in the title.
+\title{An example of GPUDirect Async usage: HPGMG-FV benchmark}
+
+
+% author names and affiliations
+% use a multiple column layout for up to three different
+% affiliations
+\author{\IEEEauthorblockN{Elena Agostini}
+\IEEEauthorblockA{University "La Sapienza"\\
+Rome, Italy\\
+Email: elena.ago@gmail.com}
+\and
+\IEEEauthorblockN{Davide Rossetti}
+\IEEEauthorblockA{NVIDIA\\
+Santa Clara, CA, USA\\
+Email: drossetti@nvidia.com}
+\and
+\IEEEauthorblockN{Nikolay Sakharnykh\\}
+\IEEEauthorblockA{NVIDIA\\
+Santa Clara, CA, USA\\
+Email: nsakharnykh@nvidia.com}
+}
+% conference papers do not typically use \thanks and this command
+% is locked out in conference mode. If really needed, such as for
+% the acknowledgment of grants, issue a \IEEEoverridecommandlockouts
+% after \documentclass
+
+% for over three affiliations, or if they all won't fit within the width
+% of the page, use this alternative format:
+% 
+%\author{\IEEEauthorblockN{Michael Shell\IEEEauthorrefmark{1},
+%Homer Simpson\IEEEauthorrefmark{2},
+%James Kirk\IEEEauthorrefmark{3}, 
+%Montgomery Scott\IEEEauthorrefmark{3} and
+%Eldon Tyrell\IEEEauthorrefmark{4}}
+%\IEEEauthorblockA{\IEEEauthorrefmark{1}School of Electrical and Computer Engineering\\
+%Georgia Institute of Technology,
+%Atlanta, Georgia 30332--0250\\ Email: see http://www.michaelshell.org/contact.html}
+%\IEEEauthorblockA{\IEEEauthorrefmark{2}Twentieth Century Fox, Springfield, USA\\
+%Email: homer@thesimpsons.com}
+%\IEEEauthorblockA{\IEEEauthorrefmark{3}Starfleet Academy, San Francisco, California 96678-2391\\
+%Telephone: (800) 555--1212, Fax: (888) 555--1212}
+%\IEEEauthorblockA{\IEEEauthorrefmark{4}Tyrell Inc., 123 Replicant Street, Los Angeles, California 90210--4321}}
+
+
+
+
+% use for special paper notices
+%\IEEEspecialpapernotice{(Invited Paper)}
+
+
+
+
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract
+\begin{abstract}
+HPGMG is an HPC benchmarking effort based on geometric multigrid methods
+having two different implementation types: Finite Element and Finite
+Volume. NVIDIA developed a CUDA version of HPGMG-FV where, according to a
+threshold, finer (higher) levels are computed on GPU and coarser (lower)
+levels are computed on CPU. 
+During the HPGMG-FV execution there are three different types of
+communication periods: exchange boundaries (among a variable number for
+hosts), interpolation (lower level to higher level) and restriction
+(higher level to lower level), all of them using MPI.
+In this paper we show how by leveraging the GPUDirect Async technology it
+is possible to increase the speed of the communication phases by as much
+as 13\%. GPUDirect Async is a new technology introduced by
+NVIDIA in CUDA 8.0 which allows mutual direct control between the GPU and
+the interconnect device, a Mellanox Infiniband HCA in our case.
+\end{abstract}
+
+% no keywords
+
+
+
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \ifCLASSOPTIONpeerreview
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+% \fi
+%
+% For peerreview papers, this IEEEtran command inserts a page break and
+% creates the second title. It will be ignored for other modes.
+\IEEEpeerreviewmaketitle
+
+
+
+\section{Introduction}\label{sec:introduction}
+Linear solvers are probably the most common tool in scientific computing applications and can be divided in two basic classes: \emph{direct} and \emph{iterative}.
+% Direct methods are usually robust, but have additional computational complexity and memory capacity requirements, while iterative solvers require minimal memory overhead and feature better computational complexity. 
+\emph{Multi-grid} methods are iterative methods that can deliver linear complexity by solving elliptic PDEs $Ax=b$ using a hierarchical approach, i.e. the solution to an hard problem (finer grid of elements) is expressed as solution to an easier problem (coarser grid of element).
+There are two different types of \emph{Multi-grid} methods: algebric multi-grid (\emph{AMG}), where operator A is a sparse matrix, and geometric multi-grid (\emph{GMG}), where operator A is a stencil. While AMG method is a more general approach using an arbitrary graph, GMG method is more efficient on structured problems, since is can take advantage of the additional information from the geometric representation of the problem.\\
+
+An example of GMG is HPGMG \cite{HPGMG}, an HPC benchmarking effort developed by Lawrence Berkeley National Laboratory. In particular, HPGMG-FV solves variable-coefficient elliptic problems on isotropic Cartesian grids using the finite volume method (FV) \cite{finitevolume} and Full Multigrid (FMG) \cite{fullmultigrid}. It supports high-order discretizations, and is extremely fast and accurate; in case of multi-process execution, the workload is fairly distributed among processes because, in order to improve the parallelization, each problem level is divided into several same-size boxes.
+
+NVIDIA improved the HPGMG-FV implementation \cite{HPGMG_NVIDIA} using an hybrid solution (involving both CPU and GPU), achieving a great enhancement in performances. In Section \ref{sec:hpgmg_cuda} we explain the most important changes carried out by NVIDIA useful to understand the rest of the paper.\\
+
+Considering the NVIDIA hybrid implementation, in case of multi-GPU (multi-process) execution, communications play an important role in the algorithm. Section \ref{sec:gpudirect_async_hpgmg}, focus on the communication enhancement obtained by the use of GPUDirect Async, a new technology introduced by NVIDIA in CUDA 8.0 (see Section \ref{sec:gpudirect_async})
+
+\section{HPGMG-FV with CUDA}\label{sec:hpgmg_cuda}
+
+At the core of every multi-grid solver there is a V-cycle (Figure \ref{fig:hpgmg_vcycle}) computation pattern: starting from the finest structured grid, where a smoothing operation is applied to reduce high-frequency errors, the residual is calculated and propagated to the coarser grid. This process is repeated until the bottom level is reached, at which point the coarsest problem is solved directly, and then the solution is propagated back to the finest grid. The V-cycle is mainly dominated by the smoothing (GSRB smoother in our case), and residual operations at the top levels. These are usually 3D stencil operations on a structured grid.
+
+\begin{figure}[h]
+\includegraphics[scale=0.7]{hpgmg_v_cycle.png}
+\caption{V-Cycle}
+\label{fig:hpgmg_vcycle}
+\end{figure}
+
+HPGMG-FV implements an F-cycle, which starts at the bottom of the multi-grid hierarchy and performs multiple V-cycles, gradually adding finer levels. 
+HPGMG-FV takes as input the amount and the $log_2(size)$ of the finest level boxes, calculating the level total size; then it obtains the size of all the other (smaller) levels.
+The F-cycle is considered a state-of-the-art in multi-grid methods and converges much faster than a conventional V-cycle.\\
+NVIDIA analyzed the difference among levels in an F-Cycle: Top (fine) levels have lots of grid points and can run efficiently on throughput-oriented parallel architectures like GPUs, while bottom (coarse) levels will be latency limited on a GPU because there is not enough work to make efficient use of all the parallel cores. During an F-Cycle, coarse levels are visited progressively more often than the fine levels therefore their cost is significant in an F-Cycle. For those reasons, coarse grids are better suited for latency-optimized processors like CPUs.
+Thus, for optimal performance, an hybrid scheme is required to guarantee that each level is executed on the suitable architecture: if the size of a level is over a certain threshold (empirically set to 10000 elements), then it runs on GPU, otherwise on CPU (Figure \ref{fig:hpgmg_fcycle}).\\
+
+\begin{figure}[h]
+\includegraphics[scale=0.6]{hpgmg_f_cycle.png}
+\caption{F-Cycle with CPU-GPU threshold}
+\label{fig:hpgmg_fcycle}
+\end{figure}
+ 
+To enable GPU accelleration, the simplest way was to add corresponding GPU kernels for low-level stencil operators and update memory allocations using \textit{cudaMallocManaged()} instead of \textit{malloc()}, in order to use Unified Memory \cite{unifiedmemory} for memory used by GPU only, and use host pinned memory if it must be used by both CPU and GPU (i.e. communication buffers).
+
+In Figure \ref{fig:hpgmg_levels} there is a simplified operations timeline in case of coarse level (CPU) to fine level (GPU) and again coarse level (CPU).
+
+\begin{figure}[h]
+\includegraphics[scale=0.35]{hpgmg_levels.png}
+\caption{F-Cycle: moving from a coarse level to a finer level and then go back to the coarse level}
+\label{fig:hpgmg_levels}
+\end{figure}
+
+In Figure \ref{fig:hpgmg_ornl_bench} we report the enhancement obtained by NVIDIA using the hybrid solution in a benchmark on the ORNL Titan supercomputer \cite{ornl}. For further details, please refer to \cite{HPGMG_NVIDIA}
+
+\begin{figure}[h]
+\includegraphics[scale=0.7]{hpgmg_ornl_titan_perf_cuda.png}
+\caption{Performance of GPU-accelerated HPGMG on the ORNL Titan supercomputer. Results obtained by Sam Williams from Lawrence Berkeley National Lab.}
+\label{fig:hpgmg_ornl_bench}
+\end{figure}
+
+
+\subsection{Communication periods}\label{sec:hpgmg_cuda_communications}
+
+As described in Section \ref{sec:hpgmg_cuda}, in case of \emph{Multi-grid} methods the smoother is a stencil. According to a stencil-like code, in case of multi-GPU execution the smoother must exchange the boundary ghost regions with the other processes (\emph{intra-level} communication). On the contrary, (Figure \ref{fig:hpgmg_levels}) restriction and interpolation play a role in case of moving from a level to another (\emph{inter-level} communication).
+
+\subsubsection{Exchange Boundaries}
+
+This function implements the boundary region exchange doing a \{pack\}, \{send\}, \{interior\_compute\}, \{receive\}, \{unpack\} sequence among processes working on the same level. See Algorithm \ref{algo:exchange_boundaries} for the pseudo-code.
+\\
+\begin{algorithm}
+\small
+\caption{Exchange Boundaries function}
+\label{algo:exchange_boundaries}
+\begin{algorithmic}[1]
+\For{$i$ = 1 to PROCESSES }
+\State cudaMallocHost(sendBuffers$[i]$)
+\State cudaMallocHost(receiveBuffers$[i]$)
+\EndFor
+\State ...
+\Function{exchangeBoundaries()}{} \label{alg:b}
+	\For{$i$ = 1 to PROCESSES }
+		\State MPI\_Irecv(receiveBuffers$[i]$)    
+	\EndFor
+	\State cuda\_pack(sendBuffers)
+	\State cudaSynchronize()
+	\For{$i$ = 1 to PROCESSES }
+		\State MPI\_Isend(sendBuffers$[i]$)    
+	\EndFor
+	\State cuda\_interior\_compute(localBuffers)
+	\State MPI\_Waitall()
+	\State cuda\_unpack(receiveBuffers)
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+A \textit{cudaDeviceSynchronize()} is required between the CUDA kernel pack operation and the \textit{MPI\_Isend()} to guarantee correctly updated \textit{sendBuffers}.
+The \textit{exchangeBoundaries()} is the most used communication function during an HPGMG-FV execution.
+
+\subsubsection{Restriction}
+
+This function occurs when moving from a finer level to a coarser level; in case of GPU-to-CPU level, it is quite similar to \textit{exchangeBoundaries()}: GPU kernels works on \textit{sendBuffers}, then a \textit{cudaDeviceSynchronize()} is needed before the \textit{MPI\_Isend()}. Moreover, if the coarsest level is on CPU, an additional \textit{cudaDeviceSynchronize()} is required.
+
+\subsubsection{Interpolation}
+
+It occurs when moving from a coarser level to a finer level. It requires a \textit{cudaDeviceSynchronize()} before the \textit{MPI\_Isend()} but it doesn't needs to synchronize if the coarsest level is on CPU.\\
+
+Although communications are not the most expensive part of the algorithm, profiling the GPU levels execution we noticed that:
+
+\begin{itemize}
+\item the CPU launched a lot of CUDA kernels for residual and smoothing and each kernel launch required a lot of time, leaving sometime the GPU idle, waiting for an other kernel
+\item the high number of \textit{cudaDeviceSynchronize()} slowed the performances 
+\end{itemize}
+
+To hyde the kernel launches and remove as many   \textit{cudaDeviceSynchronize()} as possible, we used GPUDirect Async (see Section \ref{sec:gpudirect_async}) to improve performances of all the communications periods.
+
+In Figure \ref{fig:timeline_mpi} there is a simplified timeline to clarify how \textit{exchangeBoundaries()}, \textit{restriction()} and \textit{interpolation()} are used during a GPU level processing.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.25]{timeline_mpi.png}
+\caption{Synchronous \textit{exchangeBoundaries()} timeline}
+\label{fig:timeline_mpi}
+\end{figure}
+
+\section{GPUDirect Async}\label{sec:gpudirect_async}
+
+It's out of the scope of this paper to give a complete explaination of the GPUDirect Async implementation, but it is important to understand how it works and how it can be useful fo HPGMG-FV.
+
+GPUDirect \cite{GPUDirect} is a family of technologies where the common feature is that network and GPU device drivers can share pinned (page-locked) buffers, eliminating the need to make a redundant copy in host memory. In particular, GPUDirect RDMA eliminates CPU bandwidth and latency bottlenecks enabling a direct path for data exchange between the GPU and a third-party peer device using standard features of PCI Express.
+
+GPUDirect Async is a new technology introduced by NVIDIA in CUDA 8.0 RC belonging to the GPUDirect family; it allows mutual direct control between the GPU and the interconnect device, a Mellanox Infiniband HCA in our case.
+
+This means that a GPU is able to trigger communications on HCA and HCA is able to directly access the GPU memory without involving the CPU which has only to prepare and queue the compute and communication tasks on GPU.
+More specifically, the CPU:
+\begin{itemize}
+\item Tells the GPU the send/receive requests descriptors
+\item Allocates communication buffers (device or host pinned memory)
+\item Registers in device memory QPs and CQs (\textit{cuMemHostRegister()})
+\item Instructs a GPU stream with a sequence of tasks like:
+	\begin{itemize}
+		\item Ring the HCA doorbell
+		\item Start a CUDA kernel
+		\item Wait (polling) to receive data (CQE)
+	\end{itemize}
+\end{itemize}
+
+After having queued the GPU tasks, the CPU can do other work and then, when necessary, wait for the stream operations completion.
+
+GPUDirect Async software stack (Figure \ref{fig:gpudirectasync}) is composed by:
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.35]{gpudirectasync.png}
+\caption{GPUDirect Async Software stack}
+\label{fig:gpudirectasync}
+\end{figure}
+
+\subsubsection{libmlx5}(Mellanox)
+It's the bottom level. \emph{libmlx5} is a device-specific driver for Mellanox Connect-IB InfiniBand host channel adapters (HCAs) for the libibverbs library. This allows userspace processes to access Mellanox HCA hardware directly with low latency and low overhead.
+The standard implementation has been modified for the GPUDirect Async purpose.
+
+\subsubsection{libibverbs}(Mellanox)
+\emph{libibverbs} is a library that allows userspace processes to use InfiniBand/RDMA "verbs" directly. The standard implementation has been modified for the GPUDirect Async purpose.
+
+\subsubsection{LibGDSync}
+Developed by NVIDIA, it consist of a set of functions able to accomplish the GPUDirect Async goals using IB verbs and posting tasks on a GPU stream. It is responsible to create IB structures, check the verbs return codes, handle verbs errors, register pinned host memory, post send/receive instructions on the GPU stream, etc..
+
+\subsubsection{LibMP}
+It is at the top level and is a new library (similar to MPI), developed by NVIDIA, to allow a programmer to use the GPUDirect Async technology.
+It uses LibGDSync functions to execute basic communications like \textit{mp\_isend\_on\_stream()}, \textit{mp\_wait\_on\_stream()}, \textit{mp\_iput\_on\_stream()}, etc.. 
+\\
+
+GPUDirect Async has two different asynchronous modes:
+\begin{enumerate}
+\item Stream Async: to instruct a GPU stream, as exaplained before
+\item GPU-Initiated: to launch a single CUDA kernel in which communications and computations can be done by the same kernel within the code, using send/receive $\_\_device\_\_$ primitives\\
+\end{enumerate}
+
+Usually GPU-Initiated mode is faster than Stream Async mode, but it is more complicated because programmer needs to accurately assign different roles (send, receive or compute) to every CUDA kernel blocks according to the algorithm behaviour.
+
+We are working on a more detailed and complete paper about the GPUDirect Async implementation.
+
+
+\section{Asynchronous communications}\label{sec:gpudirect_async_hpgmg}
+
+We tried both the asynchronous modes in HPGMG-FV, to evaluate performances considering times of GPU levels only.
+
+\subsection{Stream Async mode}
+
+See Algorithm \ref{algo:exchange_boundaries_async} for the \textit{exchangeBoundariesAsync()} pseudo-code.
+
+\begin{algorithm}
+\small
+\caption{Exchange Boundaries Stream Async function}
+\label{algo:exchange_boundaries_async}
+\begin{algorithmic}[1]
+\For{$i$ = 1 to PROCESSES }
+\State cudaMallocHost(sendBuffers$[i]$)
+\State cudaMallocHost(receiveBuffers$[i]$)
+\EndFor
+\State ...
+\Function{exchangeBoundariesAsync(stream)}{} \label{alg:b}
+	\For{$i$ = 1 to PROCESSES }
+		\State mp\_irecv(receiveBuffers$[i]$, \&receiveDescriptors$[i]$)    
+	\EndFor
+	\State cuda\_pack(sendBuffers, stream)
+	\For{$i$ = 1 to PROCESSES }
+		\State mp\_isend\_on\_stream(sendBuffers$[i]$, \&sendDescriptors$[i]$, stream)    
+	\EndFor
+	\State cuda\_interior\_compute(localBuffers)
+	\State mp\_wait\_all\_on\_stream(receiveDescriptors)
+	\State cuda\_unpack(receiveBuffers)
+	\State mp\_wait\_all\_on\_stream(sendDescriptors)
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+The \textit{cudaDeviceSynchronize()} between \textit{cuda\_pack()} and \textit{mp\_isend\_on\_stream()} function is no more required. The GPU stream will:
+
+\begin{enumerate}
+\item Write on \textit{sendBuffers} using the \textit{cuda\_pack()} kernel
+\item Post the send requests
+\item Execute the \textit{cuda\_interior\_compute()} kernel
+\item Wait the receive completion
+\item Read the received data (\textit{receiveBuffers}) with the \textit{cuda\_unpack()} kernel
+\end{enumerate}
+
+Similar considerations can be done for \textit{restriction()} and \textit{interpolation()} functions.
+
+Stream Async is used only if the level is a GPU level: this means that only a \textit{cudaDeviceSynchronize()} is needed during the \textit{restriction()} function from the last GPU (higher) level to the first CPU (lower) level. During GPU levels, CPU can launch all the CUDA kernels without waiting, hiding the kernel launches times (Figure \ref{fig:timeline_async}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.3]{timeline_async.png}
+\caption{\textit{.}}
+\label{fig:timeline_async}
+\end{figure}
+
+\subsection{GPU-Initated mode}
+
+\begin{figure*}
+%\includegraphics[width=\textwidth]{hpgmg_gpu.png}
+\subfloat[exchange boundaries timeline]{\includegraphics[width=2.8in]{timeline_gpu.png}}
+\hfil
+\subfloat[cuda\_exchange\_kernel()]{\includegraphics[width=4.1in]{hpgmg_gpu.png}}
+\caption{GPU-Initiated mode}
+\label{fig:gpu_initited}
+\end{figure*}
+
+The algorithm from the CPU point of view is extremely simple (Figure \ref{fig:gpu_initited}a): it must prepare send/receive descriptors and launch a single CUDA kernel in which GPU will overlap, as much as possible, all the \textit{exchangeBoundaries()} operations (see Algorithm \ref{algo:exchange_boundaries_gpu}).
+
+\begin{algorithm}
+\small
+\caption{Exchange Boundaries GPU-Initiated function}
+\label{algo:exchange_boundaries_gpu}
+\begin{algorithmic}[1]
+\For{$i$ = 1 to PROCESSES }
+\State cudaMallocHost(sendBuffers$[i]$)
+\State cudaMallocHost(receiveBuffers$[i]$)
+\EndFor
+\State ...
+\Function{exchangeBoundariesGPUInitiated()}{}
+	\For{$i$ = 1 to PROCESSES }
+		\State mp\_irecv(receiveBuffers$[i]$, \&receiveDescriptors$[i]$)    
+	\EndFor
+	\For{$i$ = 1 to PROCESSES }
+		\State mp\_isend\_prepare(\&sendDescriptors$[i]$)
+	\EndFor
+	\State cuda\_exchange\_kernel(receiveDescriptors, sendDescriptors)
+	\State mp\_wait\_all\_on\_stream(sendDescriptors)
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+The most difficult part lies in the \textit{cuda\_exchange\_kernel()}. According to previous observations about stencils, we can distringuish three different groups of indipendent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack\rbrack; then we can execute them in parallel using different CUDA kernel blocks.
+Basically, the \textit{cuda\_exchange\_kernel()} needs N+M+1 blocks in a monodimensional grid, where N is the number of blocks required by the \textit{cuda\_pack()} and \textit{cuda\_interior\_compute()} and M is the number of blocks required by \textit{cuda\_unpack()} plus 1 block, used to receive data as explained in Figure \ref{fig:gpu_initited}b.
+
+The receive is the most expensive one, then the first incoming kernel block waits to receive all data (each block's thread receives from a single peer process); all the blocks from the second to the N-th work on the \lbrack pack, send\rbrack \ group of operations plus the \lbrack interior compute\rbrack. Finally the remaining M blocks wait for the the completion of the first block receive and then they will unpack received data, finishing the \textit{exchangeBoundaries()} execution.
+
+\begin{figure}[h]
+\includegraphics[scale=0.4]{global_lock.png}
+\caption{Global Lock among kernel blocks}
+\label{fig:global_lock}
+\end{figure}
+
+To force the last blocks to wait for the receive completion, we used a global lock as explained in Figure \ref{fig:global_lock}. All threads in wait blocks move to the \textit{\_\_syncthreds()} except for the first one: the Thread0 of all the wait blocks is waiting for the Thread0 of the receive block to set a global memory variable to 1. When this happens (after the receive completion), all the Thread0 in the wait blocks will reach the \textit{\_\_syncthreds()} and then they start to unpack received data.
+
+When using GPU-Initiate mode, it is very important that the receive (or wait for receive) operation is not preventing the send, otherwise you will have a deadlock.
+For example, having a GPU with 15 SM, if the first one is waiting on the receive and the others 14 are waiting for the receive completion, the \lbrack pack, send\rbrack \ operations will never occur.
+
+\section{Benchmarks and results}
+
+As described in Section \ref{sec:hpgmg_cuda}, HPGMG-FV takes as input the size and number of the boxes in the highest level; during our benchmarks we used 8 boxes varying the size in \lbrack 4,5,6,7\rbrack.
+According to Section \ref{sec:hpgmg_cuda}, the threshold size used during NVIDIA tests was 10000; considering 4 as minimun $log_2$ size for boxes, this means that the 3 smallest levels are always executed on CPU and all the others on GPU.\\
+We tried different threshold values (i.e. changing the number of GPU levels for each execution) during our asynchronous benchmarks but we found that the best values is always 10000.
+
+\subsection{First Benchmark: NVIDIA servers}
+
+For the first benchmark we used two NVIDIA servers, having both a GPU Tesla K40m with the clock boost to 875 MHz, OS RHEL 6.6 using an NVIDIA internal display driver.
+In Figure \ref{fig:gain_ivy} there is the time gain of Stream Async mode and GPU-Initiated mode on the MPI mode considering GPU levels only having 2 processes: the more the boxes size increases, the more performance gain decreases, because the messages size grows with the box size increasing.
+Moreover, GPU-Initiated mode is always a better solution than Stream Async mode.
+
+\begin{figure}[h]
+\includegraphics[scale=0.5]{gain_ivy.png}
+\caption{2 processes, Asynchronous time gain, NVIDIA servers}
+\label{fig:gain_ivy}
+\end{figure}
+
+%Davide: Come descrivo il driver installato sugli ivy?
+
+\subsection{Second Benchmark: Wilkes HPC}
+
+For this second benchmark, we used the Wilkes HPC (University of Cambridge, UK)\cite{wilkes}. The system consists of 128 Dell T620 servers, 256 NVIDIA Tesla K20c GPUs interconnected by 256 Mellanox Connect IB cards.
+We couldn't use all the 256 GPUs because we needed to install our GPUDirect Async libraries which requires some particular settings; for this reason during benchmark we used up to 16 different nodes (each one having a single GPU) using the 361.62 driver available along with the CUDA 8.0 RC package.
+To make a comparison with the first benchmark, we started using only 2 Wilkes nodes (see Figure \ref{fig:gain_wilkes}).
+
+\begin{figure}[h]
+\includegraphics[scale=0.5]{gain_wilkes.png}
+\caption{2 processes, Asynchronous time gain, Wilkes HPC}
+\label{fig:gain_wilkes}
+\end{figure}
+
+Although gain seems incredible (80\% in case of box size 7), the reason relies on MPI execution; we noticed that the Unified Memory with display driver 361.62 led to a lot of CPU page faults; moreover \textit{cudaDeviceSynchronize()} and CUDA kernel launches employed much more time than the same MPI execution in the first benchmark. We got the same result installing the 361.62 display driver on the NVIDIA servers.
+Finally, in Figure \ref{fig:gain_driver} there is the time gain of the asynchronous implementations using NVIDIA internal driver respect to the public 361.62 driver.\\
+
+\begin{figure}[h]
+\includegraphics[scale=0.5]{gain_driver.png}
+\caption{2 processes, Asynchronous time gain NVIDIA internal driver on 361.62 driver}
+\label{fig:gain_driver}
+\end{figure}
+
+Recently NVIDIA updated the display driver in CUDA 8.0 RC to the 361.77 version; we are waiting for the driver update on Wilkes HPC to perform the same benchmark again.
+
+
+\subsection{Third Benchmark: CNR Drake}
+
+........
+
+% An example of a floating figure using the graphicx package.
+% Note that \label must occur AFTER (or within) \caption.
+% For figures, \caption should occur after the \includegraphics.
+% Note that IEEEtran v1.7 and later has special internal code that
+% is designed to preserve the operation of \label within \caption
+% even when the captionsoff option is in effect. However, because
+% of issues like this, it may be the safest practice to put all your
+% \label just after \caption rather than within \caption{}.
+%
+% Reminder: the "draftcls" or "draftclsnofoot", not "draft", class
+% option should be used if it is desired that the figures are to be
+% displayed while in draft mode.
+%
+%\begin{figure}[!t]
+%\centering
+%\includegraphics[width=2.5in]{myfigure}
+% where an .eps filename suffix will be assumed under latex, 
+% and a .pdf suffix will be assumed for pdflatex; or what has been declared
+% via \DeclareGraphicsExtensions.
+%\caption{Simulation results for the network.}
+%\label{fig_sim}
+%\end{figure}
+
+% Note that the IEEE typically puts floats only at the top, even when this
+% results in a large percentage of a column being occupied by floats.
+
+
+% An example of a double column floating figure using two subfigures.
+% (The subfig.sty package must be loaded for this to work.)
+% The subfigure \label commands are set within each subfloat command,
+% and the \label for the overall figure must come after \caption.
+% \hfil is used as a separator to get equal spacing.
+% Watch out that the combined width of all the subfigures on a 
+% line do not exceed the text width or a line break will occur.
+%
+%\begin{figure*}[!t]
+%\centering
+%\subfloat[Case I]{\includegraphics[width=2.5in]{box}%
+%\label{fig_first_case}}
+%\hfil
+%\subfloat[Case II]{\includegraphics[width=2.5in]{box}%
+%\label{fig_second_case}}
+%\caption{Simulation results for the network.}
+%\label{fig_sim}
+%\end{figure*}
+%
+% Note that often IEEE papers with subfigures do not employ subfigure
+% captions (using the optional argument to \subfloat[]), but instead will
+% reference/describe all of them (a), (b), etc., within the main caption.
+% Be aware that for subfig.sty to generate the (a), (b), etc., subfigure
+% labels, the optional argument to \subfloat must be present. If a
+% subcaption is not desired, just leave its contents blank,
+% e.g., \subfloat[].
+
+
+% An example of a floating table. Note that, for IEEE style tables, the
+% \caption command should come BEFORE the table and, given that table
+% captions serve much like titles, are usually capitalized except for words
+% such as a, an, and, as, at, but, by, for, in, nor, of, on, or, the, to
+% and up, which are usually not capitalized unless they are the first or
+% last word of the caption. Table text will default to \footnotesize as
+% the IEEE normally uses this smaller font for tables.
+% The \label must come after \caption as always.
+%
+%\begin{table}[!t]
+%% increase table row spacing, adjust to taste
+%\renewcommand{\arraystretch}{1.3}
+% if using array.sty, it might be a good idea to tweak the value of
+% \extrarowheight as needed to properly center the text within the cells
+%\caption{An Example of a Table}
+%\label{table_example}
+%\centering
+%% Some packages, such as MDW tools, offer better commands for making tables
+%% than the plain LaTeX2e tabular which is used here.
+%\begin{tabular}{|c||c|}
+%\hline
+%One & Two\\
+%\hline
+%Three & Four\\
+%\hline
+%\end{tabular}
+%\end{table}
+
+
+% Note that the IEEE does not put floats in the very first column
+% - or typically anywhere on the first page for that matter. Also,
+% in-text middle ("here") positioning is typically not used, but it
+% is allowed and encouraged for Computer Society conferences (but
+% not Computer Society journals). Most IEEE journals/conferences use
+% top floats exclusively. 
+% Note that, LaTeX2e, unlike IEEE journals/conferences, places
+% footnotes above bottom floats. This can be corrected via the
+% \fnbelowfloat command of the stfloats package.
+
+
+
+
+\section{Conclusion}
+
+In this paper we presented the first application of the NVIDIA GPUDirect Async technology on the HPGMG-FV multi-GPU implementation.
+In particular, we developed an asynchronous version of a stencil operator, that is highly used in the context of scientific and engineering applications.
+Althought communications aren't the most relevant part in the HPGMG-FV algorithm, we reached a time gain of about 13\%.
+Unfortunately for the moment, we had some problem during large-scale benchmarks related to the display driver released by NVIDIA along with the new CUDA 8.0 RC Toolkit.
+The next step is to perform all benchmarks again up to 64 nodes on the Wilkes HPC using the most updated (and recently released) display driver 361.77.
+
+% conference papers do not normally have an appendix
+
+
+% use section* for acknowledgment
+\section*{Acknowledgment}
+
+The authors would like to thank...
+
+
+
+
+
+% trigger a \newpage just before the given reference
+% number - used to balance the columns on the last page
+% adjust value as needed - may need to be readjusted if
+% the document is modified later
+%\IEEEtriggeratref{8}
+% The "triggered" command can be changed if desired:
+%\IEEEtriggercmd{\enlargethispage{-5in}}
+
+% references section
+
+% can use a bibliography generated by BibTeX as a .bbl file
+% BibTeX documentation can be easily obtained at:
+% http://mirror.ctan.org/biblio/bibtex/contrib/doc/
+% The IEEEtran BibTeX style support page is at:
+% http://www.michaelshell.org/tex/ieeetran/bibtex/
+%\bibliographystyle{IEEEtran}
+% argument is your BibTeX string definitions and bibliography database(s)
+%\bibliography{IEEEabrv,../bib/paper}
+%
+% <OR> manually copy in the resultant .bbl file
+% set second argument of \begin to the number of references
+% (used to reserve space for the reference number labels box)
+\begin{thebibliography}{1}
+
+\bibitem{IEEEhowto:kopka}
+H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
+  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+
+\bibitem{GPUDirect} GPUDirect family: https://developer.nvidia.com/gpudirect
+
+\bibitem{HPGMG} HPGMG https://hpgmg.org
+
+\bibitem{HPGMG_NVIDIA} N. ~Sakharnykh \emph{High-Performance Geometric Multi-Grid with GPU Acceleration}. \relax https://devblogs.nvidia.com/parallelforall/high-performance-geometric-multi-grid-gpu-acceleration
+
+
+\bibitem{finitevolume} \emph{Finite Volume method}. \relax https://en.wikipedia.org/wiki/Finite\_volume\_method
+
+\bibitem{fullmultigrid} \emph{Full MultiGrid method}. \relax https://en.wikipedia.org/wiki/Multigrid\_method
+
+\bibitem{unifiedmemory} \emph{Unified Memory}. \relax https://devblogs.nvidia.com/parallelforall/unified-memory-in-cuda-6
+
+\bibitem{ornl} \emph{ORNL Titan supercomputer}. \relax https://www.olcf.ornl.gov/titan
+
+\bibitem{wilkes} \emph{Wilkes HPC Cambridge, UK}. \relax www.hpc.cam.ac.uk
+
+
+\end{thebibliography}
+
+
+
+
+% that's all folks
+\end{document}
+
+
+\grid
