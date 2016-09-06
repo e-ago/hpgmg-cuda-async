@@ -3,7 +3,7 @@
 #MPI PROC
 PROC=(2 4 8 16)
 #LOG2 BOX DIM
-SIZE=(4 6 7)
+SIZE=(4 5 6 7)
 #default size >= 4
 # 16^3 * 4 = 16384
 # 8^3  * 4 = 2048
