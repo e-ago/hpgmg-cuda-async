@@ -1,19 +1,19 @@
 #!/bin/bash
 
 #MPI PROC
-PROC=2
+PROC=(2 4 8 16)
 #LOG2 BOX DIM
-SIZE=(4 5 6 7)
+SIZE=(4 6 7)
 #default size >= 4
 # 16^3 * 4 = 16384
 # 8^3  * 4 = 2048
 # 8^3  * 1 = 512
 # 4^3  * 1 = 64
 # 2^3 * 1 = 8
-THRESHOLD=(10000 2000 500 60 0)
-MODE=(1 2 3) #MPI, COMM, ASYNC, GPU
+THRESHOLD=10000
+var_threshold=10000
+MODE=(0 1 2 3) #MPI, COMM, ASYNC, GPU
 
-echo "===================  TEST HOSTALLOC ===================="
 EXCHANGE_HOST_ALLOC=1
 EXCHANGE_MALLOC=0
 
@@ -23,8 +23,7 @@ do
 #Foreach size, try all threshold
 for var_size in "${SIZE[@]}"
 do
-	echo "SIZE($var_size)"
-	for var_threshold in "${THRESHOLD[@]}"
+	for var_proc in "${PROC[@]}"
 	do
 		if [ $var_mode -eq 0 ]; then
 			var_print_mode="MPI"
@@ -47,16 +46,17 @@ do
                         var_async=1;
                         var_gpu=1;
 		fi
-
-		$HOME/peersync/src/hpgmg/elerun.sh $PROC $var_comm $var_async $var_gpu $var_size 8 $EXCHANGE_HOST_ALLOC $EXCHANGE_MALLOC $var_threshold &> tmp_out.txt
-                echo "Size: $var_size, Threshold: $var_threshold, Mode: $var_print_mode"
-		egrep "use cuda" tmp_out.txt
-		egrep "time=" tmp_out.txt
+		echo "MODE: $var_print_mode, SIZE: $var_size, PROC: $var_proc"
+		file_out="hpgmg-$var_print_mode-s$var_size-p$var_proc.txt"
+		$HOME/peersync/src/hpgmg/elerun.sh $var_proc $var_comm $var_async $var_gpu $var_size 8 $EXCHANGE_HOST_ALLOC $EXCHANGE_MALLOC $var_threshold 0 &> $file_out
+		egrep "use cuda" $file_out
+		egrep "Total by level" $file_out
 	done
 done
 #close mode
 done
 
+:<<COMMENT
 echo ""
 echo "===================  TEST MALLOC ===================="
 
@@ -102,4 +102,5 @@ do
 done
 #close mode
 done
+COMMENT
 
