@@ -326,7 +326,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{An example of GPUDirect Async usage: HPGMG-FV benchmark}
+\title{Optimizing communications in multi-grid methods using GPUDirect Async}
 
 
 % author names and affiliations
@@ -384,11 +384,11 @@ Email: nsakharnykh@nvidia.com}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-HPGMG is an HPC benchmarking effort based on geometric multigrid methods
-having two different implementation types: Finite Element and Finite
-Volume. NVIDIA developed a CUDA version of HPGMG-FV where, according to a
+HPGMG is an HPC benchmarking effort based on geometric multi-grid methods. A multi-grid solver works on levels of different size so the amount of computation and communication varies a lot within the same application.
+NVIDIA developed a CUDA version of HPGMG-FV (Finite Volume) where, according to a
 threshold, finer (higher) levels are computed on GPU and coarser (lower)
-levels are computed on CPU. 
+levels are computed on CPU: this hybrid scheme takes the advantage of each processor's strengths.
+
 During the HPGMG-FV execution there are three different types of
 communication periods: exchange boundaries (among a variable number for
 hosts), interpolation (lower level to higher level) and restriction
