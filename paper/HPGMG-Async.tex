@@ -425,7 +425,7 @@ There are two different types of \emph{Multi-grid} methods: algebric multi-grid 
 
 An example of GMG is HPGMG \cite{HPGMG}, an HPC benchmarking effort developed by Lawrence Berkeley National Laboratory. In particular, HPGMG-FV solves variable-coefficient elliptic problems on isotropic Cartesian grids using the finite volume method (FV) \cite{finitevolume} and Full Multigrid (FMG) \cite{fullmultigrid}. It supports high-order discretizations, and is extremely fast and accurate; in case of multi-process execution, the workload is fairly distributed among processes because, in order to improve the parallelization, each problem level is divided into several same-size boxes.
 
-NVIDIA improved the HPGMG-FV implementation \cite{HPGMG_NVIDIA} using an hybrid solution (involving both CPU and GPU), achieving a great enhancement in performances. In Section \ref{sec:hpgmg_cuda} we explain the most important changes carried out by NVIDIA useful to understand the rest of the paper.\\
+NVIDIA improved the HPGMG-FV implementation \cite{HPGMG_NVIDIA} using a hybrid solution (involving both CPU and GPU), achieving a great enhancement in performances. In Section \ref{sec:hpgmg_cuda} we explain the most important changes carried out by NVIDIA useful to understand the rest of the paper.\\
 
 Considering the NVIDIA hybrid implementation, in case of multi-GPU (multi-process) execution, communications play an important role in the algorithm. Section \ref{sec:gpudirect_async_hpgmg}, focus on the communication enhancement obtained by the use of GPUDirect Async, a new technology introduced by NVIDIA in CUDA 8.0 (see Section \ref{sec:gpudirect_async})
 
@@ -473,6 +473,7 @@ In Figure \ref{fig:hpgmg_ornl_bench} we report the enhancement obtained by NVIDI
 \subsection{Communication periods}\label{sec:hpgmg_cuda_communications}
 
 As described in Section \ref{sec:hpgmg_cuda}, in case of \emph{Multi-grid} methods the smoother is a stencil. According to a stencil-like code, in case of multi-GPU execution the smoother must exchange the boundary ghost regions with the other processes (\emph{intra-level} communication). On the contrary, (Figure \ref{fig:hpgmg_levels}) restriction and interpolation play a role in case of moving from a level to another (\emph{inter-level} communication).
+\emph{inter-level} exchanges play a bigger role at scale where we do consolidation of N to N processes (so we have lots of data moved around)
 
 \subsubsection{Exchange Boundaries}
 
@@ -490,15 +491,15 @@ This function implements the boundary region exchange doing a \{pack\}, \{send\}
 \State ...
 \Function{exchangeBoundaries()}{} \label{alg:b}
 	\For{$i$ = 1 to PROCESSES }
-		\State MPI\_Irecv(receiveBuffers$[i]$)    
+		\State MPI\_Irecv(receiveBuffers$[i]$, \&reqs\_recv$[i]$)    
 	\EndFor
 	\State cuda\_pack(sendBuffers)
-	\State cudaSynchronize()
+	\State cudaDeviceSynchronize()
 	\For{$i$ = 1 to PROCESSES }
 		\State MPI\_Isend(sendBuffers$[i]$)    
 	\EndFor
 	\State cuda\_interior\_compute(localBuffers)
-	\State MPI\_Waitall()
+	\State MPI\_Waitall(reqs\_recv)
 	\State cuda\_unpack(receiveBuffers)
 \EndFunction
 \end{algorithmic}
@@ -509,11 +510,11 @@ The \textit{exchangeBoundaries()} is the most used communication function during
 
 \subsubsection{Restriction}
 
-This function occurs when moving from a finer level to a coarser level; in case of GPU-to-CPU level, it is quite similar to \textit{exchangeBoundaries()}: GPU kernels works on \textit{sendBuffers}, then a \textit{cudaDeviceSynchronize()} is needed before the \textit{MPI\_Isend()}. Moreover, if the coarsest level is on CPU, an additional \textit{cudaDeviceSynchronize()} is required.
+This function occurs when moving from a finer level to a coarser level; in case of GPU-to-CPU level, it is quite similar to \textit{exchangeBoundaries()}: GPU kernels works on \textit{sendBuffers}, then a \textit{cudaDeviceSynchronize()} is needed before the \textit{MPI\_Isend()}. Moreover, if the coarsest level is on CPU, an additional \textit{cudaDeviceSynchronize()} is required because GPU kernels are launched asynchronously and we need to guarantee completion before we start CPU tasks.
 
 \subsubsection{Interpolation}
 
-It occurs when moving from a coarser level to a finer level. It requires a \textit{cudaDeviceSynchronize()} before the \textit{MPI\_Isend()} but it doesn't needs to synchronize if the coarsest level is on CPU.\\
+It occurs when moving from a coarser level to a finer level. It requires a \textit{cudaDeviceSynchronize()} before the \textit{MPI\_Isend()} but it doesn't needs to synchronize if the coarsest level is on CPU because CPU tasks are synchronous and they will be completed before we launch GPU kernels.\\
 
 Although communications are not the most expensive part of the algorithm, profiling the GPU levels execution we noticed that:
 
@@ -522,7 +523,7 @@ Although communications are not the most expensive part of the algorithm, profil
 \item the high number of \textit{cudaDeviceSynchronize()} slowed the performances 
 \end{itemize}
 
-To hyde the kernel launches and remove as many   \textit{cudaDeviceSynchronize()} as possible, we used GPUDirect Async (see Section \ref{sec:gpudirect_async}) to improve performances of all the communications periods.
+To hide the kernel launches and remove as many   \textit{cudaDeviceSynchronize()} as possible, we used GPUDirect Async (see Section \ref{sec:gpudirect_async}) to improve performances of all the communications periods.
 
 In Figure \ref{fig:timeline_mpi} there is a simplified timeline to clarify how \textit{exchangeBoundaries()}, \textit{restriction()} and \textit{interpolation()} are used during a GPU level processing.
 
@@ -535,29 +536,31 @@ In Figure \ref{fig:timeline_mpi} there is a simplified timeline to clarify how \
 
 \section{GPUDirect Async}\label{sec:gpudirect_async}
 
-It's out of the scope of this paper to give a complete explaination of the GPUDirect Async implementation, but it is important to understand how it works and how it can be useful fo HPGMG-FV.
+GPUDirect \cite{GPUDirect} is a family of technologies aimed at optimizing data movement respectively among GPUs (P2P) and with third-party devices (RDMA). In particular, GPUDirect RDMA reduces latency and improves bus utilization by enabling a direct data path over the PCI Express (PCIe) bus between the GPU and a third-party device, in our case a network interface controller (NIC).
 
-GPUDirect \cite{GPUDirect} is a family of technologies where the common feature is that network and GPU device drivers can share pinned (page-locked) buffers, eliminating the need to make a redundant copy in host memory. In particular, GPUDirect RDMA eliminates CPU bandwidth and latency bottlenecks enabling a direct path for data exchange between the GPU and a third-party peer device using standard features of PCI Express.
+GPUDirect Async is a new GPUDirect technology introduced by NVIDIA in CUDA 8.0; it allows mutual direct control between the GPU and the third party device, a recent generation Infiniband HCA in our case.
 
-GPUDirect Async is a new technology introduced by NVIDIA in CUDA 8.0 RC belonging to the GPUDirect family; it allows mutual direct control between the GPU and the interconnect device, a Mellanox Infiniband HCA in our case.
+Although an in-depth explaination of the GPUDirect Async implementation is beyond the scope of this paper, in the following we will breafly describe how it works and how it can be leveraged in HPGMG-FV.
+With Async the GPU is able to trigger communications on HCA, while at the same time HCA is able to unblock CUDA tasks; the CPU is only needed to prepare and queue both the compute and communication tasks on GPU. More specifically:
 
-This means that a GPU is able to trigger communications on HCA and HCA is able to directly access the GPU memory without involving the CPU which has only to prepare and queue the compute and communication tasks on GPU.
-More specifically, the CPU:
 \begin{itemize}
-\item Tells the GPU the send/receive requests descriptors
-\item Allocates communication buffers (device or host pinned memory)
-\item Registers in device memory QPs and CQs (\textit{cuMemHostRegister()})
-\item Instructs a GPU stream with a sequence of tasks like:
-	\begin{itemize}
-		\item Ring the HCA doorbell
-		\item Start a CUDA kernel
-		\item Wait (polling) to receive data (CQE)
+\item The CPU allocates communication buffers (device or host pinned memory)
+\item It registers some HCA specific data structures, like command queues (IB Verbs QPs) and completion queues (IB Verbs CQs) (\textit{cuMemHostRegister()})
+\item Prepares the send/receive requests descriptors
+\item Converts those descriptors into a sequence of basic operations synchronized to a GPU stream. Examples of those operations are:	\begin{itemize}
+		\item Triggering a prepared communication sequence, i.e. by ringing the HCA doorbell.
+		\item Triggering a pre-launched CUDA kernel.
+		\item Waiting (polling) for communication task completion (IB Verbs CQ entries, or CQEs).
 	\end{itemize}
 \end{itemize}
 
-After having queued the GPU tasks, the CPU can do other work and then, when necessary, wait for the stream operations completion.
-
-GPUDirect Async software stack (Figure \ref{fig:gpudirectasync}) is composed by:
+After having prepared and queued all the necessary tasks, for example the CPU can go back and do other useful work.
+%
+That way a whole multi-host parallel computation can be offloaded onto a CUDA stream.
+%
+Still when necessary, the CPU query the CUDA stream for the status of the outstanding operations.
+%
+On the other hand, the same mechanism is expected to be useful to efficiently scale in combination with low performance CPUs, removing their preparation work from the critical path.
 
 \begin{figure}[h]
 \centering
@@ -566,35 +569,37 @@ GPUDirect Async software stack (Figure \ref{fig:gpudirectasync}) is composed by:
 \label{fig:gpudirectasync}
 \end{figure}
 
-\subsubsection{libmlx5}(Mellanox)
-It's the bottom level. \emph{libmlx5} is a device-specific driver for Mellanox Connect-IB InfiniBand host channel adapters (HCAs) for the libibverbs library. This allows userspace processes to access Mellanox HCA hardware directly with low latency and low overhead.
-The standard implementation has been modified for the GPUDirect Async purpose.
+The GPUDirect software stack (Figure \ref{fig:gpudirectasync}) is composed by:
 
-\subsubsection{libibverbs}(Mellanox)
-\emph{libibverbs} is a library that allows userspace processes to use InfiniBand/RDMA "verbs" directly. The standard implementation has been modified for the GPUDirect Async purpose.
+\subsubsection{libmlx5}(Vendor/device specific)
+It's the bottom level. \emph{libmlx5} is a low-level device driver for Mellanox Connect-IB InfiniBand host channel adapters (HCAs). This allows userspace processes to access Mellanox HCA hardware directly with low latency and low overhead. The standard implementation has been extended for needs of GPUDirect Async.
 
-\subsubsection{LibGDSync}
-Developed by NVIDIA, it consist of a set of functions able to accomplish the GPUDirect Async goals using IB verbs and posting tasks on a GPU stream. It is responsible to create IB structures, check the verbs return codes, handle verbs errors, register pinned host memory, post send/receive instructions on the GPU stream, etc..
+\subsubsection{libibverbs}(Verbs APIs)
+\emph{libibverbs} library implements the OpenFabrics Infiniband Verbs API. The standard implementation has been extended with new Verbs specific to GPUDirect Async.
 
-\subsubsection{LibMP}
-It is at the top level and is a new library (similar to MPI), developed by NVIDIA, to allow a programmer to use the GPUDirect Async technology.
-It uses LibGDSync functions to execute basic communications like \textit{mp\_isend\_on\_stream()}, \textit{mp\_wait\_on\_stream()}, \textit{mp\_iput\_on\_stream()}, etc.. 
-\\
+\subsubsection{LibGDSync}(NVIDIA open-source)
+Developed by NVIDIA, it consist of a set of hybrid APIs where both IB Verbs and CUDA GPU stream are merged. It is responsible to create IB tracking data structures respecting the constraints of GPUDirect Async, to register host memory when needed, to post send instructions and completion waiting directly on the GPU stream.
+ 
+\subsubsection{LibMP}(NVIDIA open-source)
+It is at the top level and is a messaging library (similar to MPI) developed as a tecnology demostrator to easily deploy the GPUDirect Async technology on MPI applications.
+It leverages LibGDSync APIs and offer basic communications like \textit{mp\_isend\_on\_stream()}, \textit{mp\_wait\_on\_stream()}, \textit{mp\_iput\_on\_stream()}, etc.. 
 
-GPUDirect Async has two different asynchronous modes:
-\begin{enumerate}
-\item Stream Async: to instruct a GPU stream, as exaplained before
-\item GPU-Initiated: to launch a single CUDA kernel in which communications and computations can be done by the same kernel within the code, using send/receive $\_\_device\_\_$ primitives\\
-\end{enumerate}
+In addition to the CUDA stream synchronous communication mode previously described, in this paper we are going to explore a \textit{kernel-initiated} model, where the Simultaneous Multiprocessors (SMs) which are in charge of executing the CUDA kernels can directly issue communication primitives, i.e. sending messages and waiting for completions.
 
-Usually GPU-Initiated mode is faster than Stream Async mode, but it is more complicated because programmer needs to accurately assign different roles (send, receive or compute) to every CUDA kernel blocks according to the algorithm behaviour.
+%GPUDirect Async has two different asynchronous modes:
+%\begin{enumerate}
+%\item Stream Async: to instruct a GPU stream, as explained before
+%\item kernel-initiated: to launch a single CUDA kernel in which communications and computations can be done by the same kernel within the code, using send/receive $\_\_device\_\_$ primitives\\
+%\end{enumerate}
 
-We are working on a more detailed and complete paper about the GPUDirect Async implementation.
+In the following sections, we will show that kernel-initiated mode can be faster than Stream Async mode, i.e. by allowing kernel fusion techniques thereby exposing more concurrency to the highly parallel GPU HW units. The downside of it is that it is more complicated to use, mainly because the programmer needs to manually schedule different sub-tasks (send, receive or compute) to separate CUDA kernel thread blocks respecting the constraints of the algorithm.
+
+%%We are working on a more detailed and complete paper about the GPUDirect Async implementation.
 
 
 \section{Asynchronous communications}\label{sec:gpudirect_async_hpgmg}
 
-We tried both the asynchronous modes in HPGMG-FV, to evaluate performances considering times of GPU levels only.
+We tried both the asynchronous modes in HPGMG-FV, to evaluate performances considering execution times of GPU levels only.
 
 \subsection{Stream Async mode}
 
@@ -610,7 +615,7 @@ See Algorithm \ref{algo:exchange_boundaries_async} for the \textit{exchangeBound
 \State cudaMallocHost(receiveBuffers$[i]$)
 \EndFor
 \State ...
-\Function{exchangeBoundariesAsync(stream)}{} \label{alg:b}
+\Function{exchangeBoundariesStreamAsync(stream)}{} \label{alg:b}
 	\For{$i$ = 1 to PROCESSES }
 		\State mp\_irecv(receiveBuffers$[i]$, \&receiveDescriptors$[i]$)    
 	\EndFor
@@ -643,18 +648,18 @@ Stream Async is used only if the level is a GPU level: this means that only a \t
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.3]{timeline_async.png}
-\caption{\textit{.}}
+\caption{\textit{exchangeBoundariesStreamAsync()} timeline}
 \label{fig:timeline_async}
 \end{figure}
 
-\subsection{GPU-Initated mode}
+\subsection{kernel-initiated mode}
 
 \begin{figure*}
 %\includegraphics[width=\textwidth]{hpgmg_gpu.png}
-\subfloat[exchange boundaries timeline]{\includegraphics[width=2.8in]{timeline_gpu.png}}
+\subfloat[\textit{exchangeBoundariesKernelInitiated()} timeline]{\includegraphics[width=2.8in]{timeline_gpu.png}}
 \hfil
-\subfloat[cuda\_exchange\_kernel()]{\includegraphics[width=4.1in]{hpgmg_gpu.png}}
-\caption{GPU-Initiated mode}
+\subfloat[cuda\_compute\_exchange\_kernel()]{\includegraphics[width=4.1in]{hpgmg_gpu.png}}
+\caption{kernel-initiated mode}
 \label{fig:gpu_initited}
 \end{figure*}
 
@@ -662,7 +667,7 @@ The algorithm from the CPU point of view is extremely simple (Figure \ref{fig:gp
 
 \begin{algorithm}
 \small
-\caption{Exchange Boundaries GPU-Initiated function}
+\caption{Exchange Boundaries kernel-initiated function}
 \label{algo:exchange_boundaries_gpu}
 \begin{algorithmic}[1]
 \For{$i$ = 1 to PROCESSES }
@@ -670,21 +675,21 @@ The algorithm from the CPU point of view is extremely simple (Figure \ref{fig:gp
 \State cudaMallocHost(receiveBuffers$[i]$)
 \EndFor
 \State ...
-\Function{exchangeBoundariesGPUInitiated()}{}
+\Function{exchangeBoundariesKernelInitiated()}{}
 	\For{$i$ = 1 to PROCESSES }
 		\State mp\_irecv(receiveBuffers$[i]$, \&receiveDescriptors$[i]$)    
 	\EndFor
 	\For{$i$ = 1 to PROCESSES }
 		\State mp\_isend\_prepare(\&sendDescriptors$[i]$)
 	\EndFor
-	\State cuda\_exchange\_kernel(receiveDescriptors, sendDescriptors)
+	\State cuda\_compute\_exchange\_kernel(receiveDescriptors, sendDescriptors)
 	\State mp\_wait\_all\_on\_stream(sendDescriptors)
 \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
-The most difficult part lies in the \textit{cuda\_exchange\_kernel()}. According to previous observations about stencils, we can distringuish three different groups of indipendent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack\rbrack; then we can execute them in parallel using different CUDA kernel blocks.
-Basically, the \textit{cuda\_exchange\_kernel()} needs N+M+1 blocks in a monodimensional grid, where N is the number of blocks required by the \textit{cuda\_pack()} and \textit{cuda\_interior\_compute()} and M is the number of blocks required by \textit{cuda\_unpack()} plus 1 block, used to receive data as explained in Figure \ref{fig:gpu_initited}b.
+The most difficult part lies in the \textit{cuda\_compute\_exchange\_kernel()}. According to previous observations about stencils, we can distringuish three different groups of independent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack\rbrack; then we can execute them in parallel using different CUDA kernel blocks.
+Basically, the \textit{cuda\_compute\_exchange\_kernel()} needs N+M+1 blocks in a mono-dimensional grid, where N is the number of blocks required by the \textit{cuda\_pack()} and \textit{cuda\_interior\_compute()} and M is the number of blocks required by \textit{cuda\_unpack()} plus 1 block, used to receive data as explained in Figure \ref{fig:gpu_initited}b.
 
 The receive is the most expensive one, then the first incoming kernel block waits to receive all data (each block's thread receives from a single peer process); all the blocks from the second to the N-th work on the \lbrack pack, send\rbrack \ group of operations plus the \lbrack interior compute\rbrack. Finally the remaining M blocks wait for the the completion of the first block receive and then they will unpack received data, finishing the \textit{exchangeBoundaries()} execution.
 
@@ -694,9 +699,9 @@ The receive is the most expensive one, then the first incoming kernel block wait
 \label{fig:global_lock}
 \end{figure}
 
-To force the last blocks to wait for the receive completion, we used a global lock as explained in Figure \ref{fig:global_lock}. All threads in wait blocks move to the \textit{\_\_syncthreds()} except for the first one: the Thread0 of all the wait blocks is waiting for the Thread0 of the receive block to set a global memory variable to 1. When this happens (after the receive completion), all the Thread0 in the wait blocks will reach the \textit{\_\_syncthreds()} and then they start to unpack received data.
+To force the last blocks to wait for the receive completion, we used a global lock as explained in Figure \ref{fig:global_lock}. All threads in wait blocks move to the \textit{\_\_syncthreads()} except for the first one: the Thread0 of all the wait blocks is waiting for the Thread0 of the receive block to set a global memory variable to 1. When this happens (after the receive completion), all the Thread0 in the wait blocks will reach the \textit{\_\_syncthreads()} and then they start to unpack received data.
 
-When using GPU-Initiate mode, it is very important that the receive (or wait for receive) operation is not preventing the send, otherwise you will have a deadlock.
+When using kernel-initiated mode, it is very important that the receive (or wait for receive) operation is not preventing the send, otherwise you will have a deadlock.
 For example, having a GPU with 15 SM, if the first one is waiting on the receive and the others 14 are waiting for the receive completion, the \lbrack pack, send\rbrack \ operations will never occur.
 
 \section{Benchmarks and results}
@@ -708,8 +713,8 @@ We tried different threshold values (i.e. changing the number of GPU levels for 
 \subsection{First Benchmark: NVIDIA servers}
 
 For the first benchmark we used two NVIDIA servers, having both a GPU Tesla K40m with the clock boost to 875 MHz, OS RHEL 6.6 using an NVIDIA internal display driver.
-In Figure \ref{fig:gain_ivy} there is the time gain of Stream Async mode and GPU-Initiated mode on the MPI mode considering GPU levels only having 2 processes: the more the boxes size increases, the more performance gain decreases, because the messages size grows with the box size increasing.
-Moreover, GPU-Initiated mode is always a better solution than Stream Async mode.
+In Figure \ref{fig:gain_ivy} there is the time gain of Stream Async mode and kernel-initiated mode on the MPI mode considering GPU levels only having 2 processes: the more the boxes size increases, the more performance gain decreases, because the messages size grows with the box size increasing.
+Moreover, kernel-initiated mode is always a better solution than Stream Async mode.
 
 \begin{figure}[h]
 \includegraphics[scale=0.5]{gain_ivy.png}
