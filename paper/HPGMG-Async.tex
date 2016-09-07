@@ -738,20 +738,18 @@ To make a comparison with the first benchmark, we started using only 2 Wilkes no
 \end{figure}
 
 Although gain seems incredible (80\% in case of box size 7), the reason relies on MPI execution; we noticed that the Unified Memory with display driver 361.62 led to a lot of CPU page faults; moreover \textit{cudaDeviceSynchronize()} and CUDA kernel launches employed much more time than the same MPI execution in the first benchmark. We got the same result installing the 361.62 display driver on the NVIDIA servers.
-Finally, in Figure \ref{fig:gain_driver} there is the time gain of the asynchronous implementations using NVIDIA internal driver respect to the public 361.62 driver.\\
 
-\begin{figure}[h]
-\includegraphics[scale=0.4]{gain_driver.png}
-\caption{2 processes, Asynchronous time gain NVIDIA internal driver on 361.62 driver}
-\label{fig:gain_driver}
-\end{figure}
+On the contrary, execution times of the asynchronous versions were similar to the first benchmark; therefore we can say that asynchronous versions do not rely on Unified Memory performance while the original synchronous MPI code suffered from extensive CPU page faults.\\
+
+%Finally, in Figure \ref{fig:gain_driver} there is the time gain of the asynchronous implementations using NVIDIA internal driver respect to the public 361.62 driver.\\
+
+%\begin{figure}[h]
+%\includegraphics[scale=0.4]{gain_driver.png}
+%\caption{2 processes, Asynchronous time gain NVIDIA internal driver on 361.62 driver}
+%\label{fig:gain_driver}
+%\end{figure}
 
 Recently NVIDIA updated the display driver in CUDA 8.0 RC to the 361.77 version; we are waiting for the driver update on Wilkes HPC to perform the same benchmark again.
-
-
-\subsection{Third Benchmark: CNR Drake}
-
-........
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
