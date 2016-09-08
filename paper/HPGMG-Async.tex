@@ -458,7 +458,7 @@ At the core of every multi-grid solver there is a V-cycle (Figure \ref{fig:hpgmg
 \end{figure}
 
 HPGMG-FV implements an F-cycle, which starts at the bottom of the multi-grid hierarchy and performs multiple V-cycles, gradually adding finer levels. 
-HPGMG-FV takes as input the amount and the $log_2(size)$ of the finest level boxes, calculating the level total size; then it obtains the size of all the other (smaller) levels.
+HPGMG-FV takes as input the number and the $log_2(size)$ of the finest level boxes, calculating the level total size; then it obtains the size of all the other (smaller) levels.
 The F-cycle is considered a state-of-the-art in multi-grid methods and converges much faster than a conventional V-cycle.
 
 NVIDIA analyzed the difference among levels in an F-Cycle: Top (fine) levels have lots of grid points and can run efficiently on throughput-oriented parallel architectures like GPUs, while bottom (coarse) levels will be latency limited on a GPU because there is not enough work to make efficient use of all the parallel cores. During an F-Cycle, coarse levels are visited progressively more often than the fine levels therefore their cost is significant in an F-Cycle. For those reasons, coarse grids are better suited for latency-optimized processors like CPUs.
@@ -492,7 +492,7 @@ In Figure \ref{fig:hpgmg_ornl_bench} we report the enhancement obtained by NVIDI
 \subsection{Communication periods}\label{sec:hpgmg_cuda_communications}
 
 As described in Section \ref{sec:hpgmg_cuda}, in case of \emph{Multi-grid} methods the smoother is a stencil. According to a stencil-like code, in case of multi-GPU execution the smoother must exchange the boundary ghost regions with the other processes (\emph{intra-level} communication). On the contrary, (Figure \ref{fig:hpgmg_levels}) restriction and interpolation play a role in case of moving from a level to another (\emph{inter-level} communication).
-\emph{inter-level} exchanges play a bigger role at scale where we do consolidation of N to N processes (so we have lots of data moved around)
+\emph{inter-level} exchanges play a bigger role at scale where we do consolidation of 8N to N processes (so we have lots of data moved around)
 
 \subsubsection{Exchange Boundaries}
 
@@ -768,7 +768,7 @@ In Figure \ref{fig:gain_ivy} the Y axis shows the performance increase (the
 larger the better) of the GPU levels only for both Stream Async and
 kernel-initiated mode over the standard MPI mode. 
 %
-The bigger the boxe size, the more performance gain decreases, because
+The bigger is the box size, the more performance gain decreases, because
 communication message size grows with the box size, so therefore
 overheads become less important.
 % 
@@ -809,6 +809,14 @@ run-time in the Async case.
 %
 On the contrary, execution times of the Async versions were similar
 to the first round of benchmarks. 
+
+We obtained the same results running benchmarks up to 16 nodes (Figure \ref{fig:gain_wilkes16})
+
+\begin{figure}[h]
+\includegraphics[scale=0.5]{gain_wilkes16.png}
+\caption{16 processes, Asynchronous time gain, Wilkes HPC}
+\label{fig:gain_wilkes16}
+\end{figure}
 
 %Finally, in Figure \ref{fig:gain_driver} there is the time gain of the asynchronous implementations using NVIDIA internal driver respect to the public 361.62 driver.
 
