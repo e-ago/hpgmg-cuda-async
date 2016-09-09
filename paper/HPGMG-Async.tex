@@ -439,13 +439,15 @@ measured a communication performance increase of up to 13\%.
 Linear solvers are probably the most common tool in scientific computing applications and can be divided in two basic classes: \emph{direct} and \emph{iterative}.
 % Direct methods are usually robust, but have additional computational complexity and memory capacity requirements, while iterative solvers require minimal memory overhead and feature better computational complexity. 
 \emph{Multi-grid} methods are iterative methods that can deliver linear complexity by solving elliptic PDEs $Ax=b$ using a hierarchical approach, i.e. the solution to an hard problem (finer grid of elements) is expressed as solution to an easier problem (coarser grid of element).
-There are two different types of \emph{Multi-grid} methods: algebric multi-grid (\emph{AMG}), where operator A is a sparse matrix, and geometric multi-grid (\emph{GMG}), where operator A is a stencil. While AMG method is a more general approach using an arbitrary graph, GMG method is more efficient on structured problems, since is can take advantage of the additional information from the geometric representation of the problem.
+There are two different types of \emph{Multi-grid} methods: algebric multi-grid (\emph{AMG}), where operator A is a sparse matrix, and geometric multi-grid (\emph{GMG}), where operator A is a stencil\footnote{Stencil codes are a class of iterative kernels which update array (generally a 2- or 3-dimensional regular grid) elements (cells) according to some fixed pattern, called stencil. The state of a cell in the next time step can be deduced from its own previous state and the states of the cells in its neighborhood.
+}. While AMG method is a more general approach using an arbitrary graph, GMG method is more efficient on structured problems, since is can take advantage of the additional information from the geometric representation of the problem.
 
 An example of GMG is HPGMG \cite{HPGMG}, an HPC benchmarking effort developed by Lawrence Berkeley National Laboratory. In particular, HPGMG-FV solves variable-coefficient elliptic problems on isotropic Cartesian grids using the finite volume method (FV) \cite{finitevolume} and Full Multigrid (FMG) \cite{fullmultigrid}. It supports high-order discretizations, and is extremely fast and accurate; in case of multi-process execution, the workload is fairly distributed among processes because, in order to improve the parallelization, each problem level is divided into several same-size boxes.
 
 NVIDIA improved the HPGMG-FV implementation \cite{HPGMG_NVIDIA} using a hybrid solution (involving both CPU and GPU), achieving a great enhancement in performances. In Section \ref{sec:hpgmg_cuda} we explain the most important changes carried out by NVIDIA useful to understand the rest of the paper.
 
 Considering the NVIDIA hybrid implementation, in case of multi-GPU (multi-process) execution, communications play an important role in the algorithm. Section \ref{sec:gpudirect_async_hpgmg}, focus on the communication enhancement obtained by the use of GPUDirect Async, a new technology introduced by NVIDIA in CUDA 8.0 (see Section \ref{sec:gpudirect_async})
+
 
 \section{HPGMG-FV with CUDA}\label{sec:hpgmg_cuda}
 
@@ -491,7 +493,18 @@ In Figure \ref{fig:hpgmg_ornl_bench} we report the enhancement obtained by NVIDI
 
 \subsection{Communication periods}\label{sec:hpgmg_cuda_communications}
 
-As described in Section \ref{sec:hpgmg_cuda}, in case of \emph{Multi-grid} methods the smoother is a stencil. According to a stencil-like code, in case of multi-GPU execution the smoother must exchange the boundary ghost regions with the other processes (\emph{intra-level} communication). On the contrary, (Figure \ref{fig:hpgmg_levels}) restriction and interpolation play a role in case of moving from a level to another (\emph{inter-level} communication).
+As described in Section \ref{sec:hpgmg_cuda}, in \emph{Multi-grid} methods the smoother is a stencil and in case of HPGMG the tasks for each process are:
+\begin{enumerate}
+%local grid?
+\item Pack: copy grid boundaries data inside send buffers
+\item Send: distribute boundaries to the other processes
+\item Interior Compute: work on interior grid elements
+\item Receive: receive boundaries from the other processes
+\item Unpack: copy received data into the grid boundaries
+\end{enumerate}
+
+Therefore, in case of multi-GPU execution the smoother must exchange the boundary regions with the other processes (\emph{intra-level} communication). 
+On the contrary, (Figure \ref{fig:hpgmg_levels}) restriction and interpolation play a role in case of moving from a level to another (\emph{inter-level} communication).
 \emph{inter-level} exchanges play a bigger role at scale where we do consolidation of 8N to N processes (so we have lots of data moved around)
 
 \subsubsection{Exchange Boundaries}
@@ -777,8 +790,8 @@ Stream Async one.
 
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.35]{gain_ivy.png}
-\caption{2 processes, Asynchronous time gain, NVIDIA servers}
+\includegraphics[scale=0.3]{gain_ivy.png}
+\caption{2 processes, Asynchronous time gain, 2U Xeon Servers}
 \label{fig:gain_ivy}
 \end{figure}
 
@@ -830,6 +843,22 @@ We believe that a software update will soon be deployed to fix the Unified
 Memory performance on the Wilkes cluster.
 
 %Recently NVIDIA updated the display driver in CUDA 8.0 RC to the 361.77 version; we are waiting for the driver update on Wilkes HPC to perform the same benchmark again.
+
+\subsection{2D Stencil}
+
+To avoid the UVM issues, we tested asynchronous communications using an HPGMG similar stencil-code described in \cite{paper 2dstencil}.
+%Description from README in peersync/src/2dstencil
+Basically, our implementation simulates computation on a 2D stencil distributed across a 2D grid of processes. The computation is a simple average where the value of an element in the current iteration depends on the values of its neighboring elements (1-cell stencil) from the previous iteration. The near-neighbor exchange involves transferring the outermost most layer of the data grid between neighboring processes. There are two data grids, u and v, where one is computed from the other, alternatingly, in each iteration. This is modeled after the presence of multiple components in real science problems that affect each other over time, for example velocity and stress in seismic modeling codes.\\
+
+As in HPGMG, we can distringuish three different groups of independent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack, compute boundary x, compute boundary y\rbrack.
+We implemented this 2D stencil using MPI, Stream Async mode and kernel-initiated mode to evaluate the best solution.
+In Figure \ref{fig:gain_2dstencil_2proc_ivy} there is the gain of asynchronous modes on MPI in case of 2 nodes on the 2U Xeon servers and in Figure \ref{} the gain in case of 16 nodes on Wilkes. 
+
+\begin{figure}[h]
+\includegraphics[scale=0.3]{gain_2dstencil_2proc_ivy.png}
+\caption{2 processes, Asynchronous time gain, 2U Xeon Servers}
+\label{fig:gain_2dstencil_2proc_ivy}
+\end{figure}
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
@@ -929,7 +958,7 @@ Memory performance on the Wilkes cluster.
 \section{Conclusion}
 
 In this paper we presented the performance of a GPU accelerate multi-node
-implementation of the HPGMG-FV benchamrk using the recently introduced
+implementation of the HPGMG-FV benchamark using the recently introduced
 NVIDIA GPUDirect Async technology.
 % 
 In particular, we developed an asynchronous version of a stencil
