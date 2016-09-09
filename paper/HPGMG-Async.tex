@@ -852,12 +852,18 @@ Basically, our implementation simulates computation on a 2D stencil distributed 
 
 As in HPGMG, we can distringuish three different groups of independent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack, compute boundary x, compute boundary y\rbrack.
 We implemented this 2D stencil using MPI, Stream Async mode and kernel-initiated mode to evaluate the best solution.
-In Figure \ref{fig:gain_2dstencil_2proc_ivy} there is the gain of asynchronous modes on MPI in case of 2 nodes on the 2U Xeon servers and in Figure \ref{} the gain in case of 16 nodes on Wilkes. 
+In Figure \ref{fig:gain_2dstencil_2proc_ivy} there is the gain of asynchronous modes on MPI in case of 2 nodes on the 2U Xeon servers and in Figure \ref{fig:gain_2dstencil_16proc_wilkes} the gain in case of 16 nodes on Wilkes. 
 
 \begin{figure}[h]
 \includegraphics[scale=0.3]{gain_2dstencil_2proc_ivy.png}
 \caption{2 processes, Asynchronous time gain, 2U Xeon Servers}
 \label{fig:gain_2dstencil_2proc_ivy}
+\end{figure}
+
+\begin{figure}[h]
+\includegraphics[scale=0.27]{gain_2dstencil_16proc_wilkes.png}
+\caption{16 processes, Asynchronous time gain, Wilkes HPC}
+\label{fig:gain_2dstencil_16proc_wilkes}
 \end{figure}
 
 % An example of a floating figure using the graphicx package.
