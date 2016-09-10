@@ -503,7 +503,7 @@ As described in Section \ref{sec:hpgmg_cuda}, in \emph{Multi-grid} methods the s
 \item Unpack: copy received data into the grid boundaries
 \end{enumerate}
 
-Therefore, in case of multi-GPU execution the smoother must exchange the boundary regions with the other processes (\emph{intra-level} communication). 
+Therefore, in a multi-GPU execution the smoother must exchange the boundary regions with the other processes (\emph{intra-level} communication). 
 On the contrary, (Figure \ref{fig:hpgmg_levels}) restriction and interpolation play a role in case of moving from a level to another (\emph{inter-level} communication).
 \emph{inter-level} exchanges play a bigger role at scale where we do consolidation of 8N to N processes (so we have lots of data moved around)
 
@@ -853,7 +853,7 @@ Stream Async one.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.3]{gain_ivy.png}
-\caption{HPGMG-FV, 2 processes, Asynchronous time gain, 2U Xeon Servers}
+\caption{HPGMG-FV, 2 processes, Asynchronous time gain over default MPI communications, 2U Xeon Servers}
 \label{fig:gain_ivy}
 \end{figure}
 
@@ -914,7 +914,7 @@ initiate message sends to the different destinations.
 \begin{figure}[h]
 \includegraphics[scale=0.5]{gain_wilkes16.png}
 \caption{HPGMG-FV, 16 processes, Async and kernel-initiated mode gain over
-  default MPI communications}
+  default MPI communications, Wilkes HPC}
 \label{fig:gain_wilkes16}
 \end{figure}
 
