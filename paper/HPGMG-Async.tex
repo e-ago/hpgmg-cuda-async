@@ -707,22 +707,32 @@ Stream Async is used only if the level is a GPU level: this means that only a \t
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.3]{timeline_async.png}
-\caption{\textit{exchangeBoundariesStreamAsync()} timeline}
+\caption{\textit{exchangeBoundariesStreamAsync()} timeline showing respectively the CPU and the GPU tasks.}
 \label{fig:timeline_async}
 \end{figure}
+
+
 
 \subsection{kernel-initiated mode}
 
 \begin{figure*}
 %\includegraphics[width=\textwidth]{hpgmg_gpu.png}
-\subfloat[\textit{exchangeBoundariesKernelInitiated()} timeline]{\includegraphics[width=2.8in]{timeline_gpu.png}}
+\subfloat[\textit{exchangeBoundariesKernelInitiated()} timeline.]{\includegraphics[width=2.8in]{timeline_gpu.png}}
 \hfil
-\subfloat[cuda\_compute\_exchange\_kernel()]{\includegraphics[width=4.1in]{hpgmg_gpu.png}}
+\subfloat[In the cuda\_compute\_exchange\_kernel(), thread blocks are assigned different tasks.]{\includegraphics[width=4.1in]{hpgmg_gpu.png}}
 \caption{kernel-initiated mode}
 \label{fig:gpu_initited}
 \end{figure*}
 
-The algorithm from the CPU point of view is extremely simple (Figure \ref{fig:gpu_initited}a): it must prepare send/receive descriptors and launch a single CUDA kernel in which GPU will overlap, as much as possible, all the \textit{exchangeBoundaries()} operations (see Algorithm \ref{algo:exchange_boundaries_gpu}).
+From the CPU point of view, the algorithm \ref{algo:exchange_boundaries_gpu}
+is extremely simple (Figure \ref{fig:gpu_initited}.
+% 
+The \textit{exchangeBoundariesKernelInitiated()} function basically
+prepares the send/receive descriptors and launches a single \textit{fused}
+CUDA kernel (\textit{cuda\_compute\_exchange\_kernel}) which combines all
+the tasks described in algorithm \ref{algo:exchange_boundaries}.
+
+% will fuse, as much as possible, all the \textit{exchangeBoundaries()} operations (see Algorithm \ref{algo:exchange_boundaries_gpu}).
 
 \begin{algorithm}
 \small
@@ -747,10 +757,46 @@ The algorithm from the CPU point of view is extremely simple (Figure \ref{fig:gp
 \end{algorithmic}
 \end{algorithm}
 
-The most difficult part lies in the \textit{cuda\_compute\_exchange\_kernel()}. According to previous observations about stencils, we can distringuish three different groups of independent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack\rbrack; then we can execute them in parallel using different CUDA kernel blocks.
-Basically, the \textit{cuda\_compute\_exchange\_kernel()} needs N+M+1 blocks in a mono-dimensional grid, where N is the number of blocks required by the \textit{cuda\_pack()} and \textit{cuda\_interior\_compute()} and M is the number of blocks required by \textit{cuda\_unpack()} plus 1 block, used to receive data as explained in Figure \ref{fig:gpu_initited}b.
+The complexity is moved to \textit{cuda\_compute\_exchange\_kernel()} which
+in a sense employs both tasks (different blocks deal with different tasks)
+and data (threads in the same block cooperatively work on the same task)
+parallelism in the same kernel.
 
-The receive is the most expensive one, then the first incoming kernel block waits to receive all data (each block's thread receives from a single peer process); all the blocks from the second to the N-th work on the \lbrack pack, send\rbrack \ group of operations plus the \lbrack interior compute\rbrack. Finally the remaining M blocks wait for the the completion of the first block receive and then they will unpack received data, finishing the \textit{exchangeBoundaries()} execution.
+According to previous observations about the HPGMG-FV smoother, we can
+distringuish three different groups of independent operations:
+%\begin{itemize}
+\lbrack pack, send\rbrack,
+\lbrack interior compute\rbrack,
+\lbrack receive, unpack\rbrack. 
+%\end{itemize}
+% 
+The idea is to assign these tasks to the different blocks of a single CUDA
+kernel.
+%
+Basically, the \textit{cuda\_compute\_exchange\_kernel()} needs $N+M+1$
+blocks in a mono-dimensional grid, where N is the number of blocks required
+by the \textit{cuda\_pack()} and \textit{cuda\_interior\_compute()} and M
+is the number of blocks required by \textit{cuda\_unpack()} plus 1 block,
+used to receive data as explained in Figure \ref{fig:gpu_initited}.
+% 
+Atomic memory operations are used to pick each thread block
+\footnote{There is no guarantee about the order blocks are scheduled by the
+  GPU HW.} and to assign it to the right tasks in a way to avoid
+dead-locks.
+
+Receiving is a time critical task, so the first \textit{receiver} thread
+block is used to wait for incoming messages; in particular each thread
+\textit{polls} on the receive completion queue associated to each remote
+node.
+% 
+All the \textit{sender} blocks from the second to the $N+1$-th are assigned
+to the \lbrack pack, send\rbrack group of operations plus the \lbrack
+interior compute\rbrack.
+% 
+Finally the remaining M \textit{unpacker} blocks wait for the
+\textit{receiver} block to signal that all incoming data has been received,
+before unpacking that data.
+
 
 \begin{figure}[h]
 \includegraphics[scale=0.4]{global_lock.png}
@@ -758,10 +804,25 @@ The receive is the most expensive one, then the first incoming kernel block wait
 \label{fig:global_lock}
 \end{figure}
 
-To force the last blocks to wait for the receive completion, we used a global lock as explained in Figure \ref{fig:global_lock}. All threads in wait blocks move to the \textit{\_\_syncthreads()} except for the first one: the Thread0 of all the wait blocks is waiting for the Thread0 of the receive block to set a global memory variable to 1. When this happens (after the receive completion), all the Thread0 in the wait blocks will reach the \textit{\_\_syncthreads()} and then they start to unpack received data.
+An inter-block barrier scheme is used to synchronize the \textit{receiver}
+and the \textit{unpacker} blocks, as explained in Figure
+\ref{fig:global_lock}.
+% 
+Thread0 of each \textit{unpacker} block waits for the Thread0 of the
+\textit{receiver} block to set a global memory variable to 1, while the
+remaining threads move to the \textit{\_\_syncthreads()} barrier.
+%
+When this happens (after the receive completion), all the Thread0 in the
+\textit{receiver} blocks will reach the matching \textit{\_\_syncthreads()}
+barrier and then start to unpack the received data.
 
-When using kernel-initiated mode, it is very important that the receive (or wait for receive) operation is not preventing the send, otherwise you will have a deadlock.
-For example, having a GPU with 15 SM, if the first one is waiting on the receive and the others 14 are waiting for the receive completion, the \lbrack pack, send\rbrack \ operations will never occur.
+When using kernel-initiated mode, to avoid dead-locks the \textit{receiver}
+task must not prevent the \textit{sender} task from starting or
+progressing.
+% 
+For example, on a 15 SMs GPU like the NVIDIA K40, if the first one is running the
+\textit{receiver} task and the others 14 are busy running the
+\textit{unpacker}, the \textit{sender} task will never start.
 
 \section{Benchmarks and results}
 
@@ -771,6 +832,7 @@ According to Section \ref{sec:hpgmg_cuda}, the threshold size used during NVIDIA
 We tried different threshold values (i.e. changing the number of GPU levels for each execution) during our asynchronous benchmarks but we found that the best values is always 10000.
 
 \subsection{Two node benchmarks}
+\label{sec:two-nodes}
 
 For the first round of benchmarks we used two standard 2U Xeon based
 servers, each one with a Mellanox dual-port FDR Connect-IB HCA and a single
@@ -803,31 +865,56 @@ University, UK)\cite{wilkes}.
 The system consists of 128 Dell T620 servers, 256 NVIDIA Tesla K20c GPUs
 interconnected by 256 Mellanox Connect IB cards.
 % 
-For technical reasons we were only able to use 16 cluster nodes, one
-GPU each.
+For technical reasons we were only able to use up to 16 cluster nodes,
+with one GPU each.
 %
-Figure \ref{fig:gain_wilkes} shows performance increase on two nodes,
+Figure \ref{fig:gain_wilkes} plots the performance increase on two nodes,
 i.e. the same setup as in the previous section.
 
 \begin{figure}[h]
 \includegraphics[scale=0.4]{gain_wilkes.png}
-\caption{2 processes, Asynchronous time gain, Wilkes HPC}
+\caption{HPGMG-FV, 2 processes, Async and kernel-initiated mode gain over
+  default MPI communications, Wilkes HPC}
 \label{fig:gain_wilkes}
 \end{figure}
 
-The substantial gain obtained (80\% in case of box size 7) with Async modes
-over standard MPI has been tracked back to a subperforming implementation
-of the Unified Memory manager in the CUDA driver, which does not affect the
-run-time in the Async case.
+For small sizes both Async and kernel-initiated modes show a similar
+performance, with Async being marginally better.
+% 
+Instead the substantial gain obtained (80\% over standard MPI) for box
+size 7 with Async modes for large sizes was somehow unexpected.
+%
+That has been traced back to a subperforming implementation of the Unified
+Memory manager in the pre-release GPU driver installed on the Wilkes
+cluster
+\footnote{A software update will soon be deployed to fix the Unified Memory
+  performance on the Wilkes cluster.}.
 %
 On the contrary, execution times of the Async versions were similar
-to the first round of benchmarks. 
+to the first round of benchmarks in section ~\ref{sec:two-nodes}.
+%
+Irrespective of the particular contingency, this shows an additional
+benefit of Async, i.e. it makes the application less sensitive to
+host software overheads.
 
-We obtained the same results running benchmarks up to 16 nodes (Figure \ref{fig:gain_wilkes16})
+When scaling up on 16 nodes (Figure \ref{fig:gain_wilkes16}), for the
+smallest size we observed 50\% better performance for kernel-initiated mode
+over Async mode.
+% 
+
+This is expected given the HPGMG-FV communication pattern, where each GPU
+can potentially exchange data with up to 15 other GPUs.
+%
+In kernel-initiated mode different threads deal with different communication
+tasks, e.g. each thread of a dedicated CUDA thread block is used to
+initiate message sends to the different destinations.
+
+
 
 \begin{figure}[h]
 \includegraphics[scale=0.5]{gain_wilkes16.png}
-\caption{16 processes, Asynchronous time gain, Wilkes HPC}
+\caption{HPGMG-FV, 16 processes, Async and kernel-initiated mode gain over
+  default MPI communications}
 \label{fig:gain_wilkes16}
 \end{figure}
 
@@ -835,36 +922,33 @@ We obtained the same results running benchmarks up to 16 nodes (Figure \ref{fig:
 
 %\begin{figure}[h]
 %\includegraphics[scale=0.4]{gain_driver.png}
-%\caption{2 processes, Asynchronous time gain NVIDIA internal driver on 361.62 driver}
+%\caption{HPGMG-FV, 2 processes, Async modes gains over MPI, NVIDIA internal driver on 361.62 driver}
 %\label{fig:gain_driver}
 %\end{figure}
 
-We believe that a software update will soon be deployed to fix the Unified
-Memory performance on the Wilkes cluster.
-
 %Recently NVIDIA updated the display driver in CUDA 8.0 RC to the 361.77 version; we are waiting for the driver update on Wilkes HPC to perform the same benchmark again.
 
-\subsection{2D Stencil}
+%% \subsection{2D Stencil}
 
-To avoid the UVM issues, we tested asynchronous communications using an HPGMG similar stencil-code described in \cite{paper 2dstencil}.
-%Description from README in peersync/src/2dstencil
-Basically, our implementation simulates computation on a 2D stencil distributed across a 2D grid of processes. The computation is a simple average where the value of an element in the current iteration depends on the values of its neighboring elements (1-cell stencil) from the previous iteration. The near-neighbor exchange involves transferring the outermost most layer of the data grid between neighboring processes. There are two data grids, u and v, where one is computed from the other, alternatingly, in each iteration. This is modeled after the presence of multiple components in real science problems that affect each other over time, for example velocity and stress in seismic modeling codes.\\
+%% To avoid the UVM issues, we tested asynchronous communications using a synthetic two dimensional stencil code.
+%% %Description from README in peersync/src/2dstencil
+%% Basically, our implementation simulates computation on a 2D stencil distributed across a 2D grid of processes. The computation is a simple average where the value of an element in the current iteration depends on the values of its neighboring elements (1-cell stencil) from the previous iteration. The near-neighbor exchange involves transferring the outermost most layer of the data grid between neighboring processes. There are two data grids, u and v, where one is computed from the other, alternatingly, in each iteration. This is modeled after the presence of multiple components in real science problems that affect each other over time, for example velocity and stress in seismic modeling codes.\\
 
-As in HPGMG, we can distringuish three different groups of independent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack, compute boundary x, compute boundary y\rbrack.
-We implemented this 2D stencil using MPI, Stream Async mode and kernel-initiated mode to evaluate the best solution.
-In Figure \ref{fig:gain_2dstencil_2proc_ivy} there is the gain of asynchronous modes on MPI in case of 2 nodes on the 2U Xeon servers and in Figure \ref{fig:gain_2dstencil_16proc_wilkes} the gain in case of 16 nodes on Wilkes. 
+%% As in HPGMG, we can distringuish three different groups of independent operations: \lbrack pack, send\rbrack, \lbrack interior compute\rbrack, \lbrack receive, unpack, compute boundary x, compute boundary y\rbrack.
+%% We implemented this 2D stencil using MPI, Stream Async mode and kernel-initiated mode to evaluate the best solution.
+%% In Figure \ref{fig:gain_2dstencil_2proc_ivy} there is the gain of asynchronous modes on MPI in case of 2 nodes on the 2U Xeon servers and in Figure \ref{fig:gain_2dstencil_16proc_wilkes} the gain in case of 16 nodes on Wilkes. 
 
-\begin{figure}[h]
-\includegraphics[scale=0.3]{gain_2dstencil_2proc_ivy.png}
-\caption{2 processes, Asynchronous time gain, 2U Xeon Servers}
-\label{fig:gain_2dstencil_2proc_ivy}
-\end{figure}
+%% \begin{figure}[h]
+%% \includegraphics[scale=0.3]{gain_2dstencil_2proc_ivy.png}
+%% \caption{2 processes, Asynchronous time gain, 2U Xeon Servers}
+%% \label{fig:gain_2dstencil_2proc_ivy}
+%% \end{figure}
 
-\begin{figure}[h]
-\includegraphics[scale=0.27]{gain_2dstencil_16proc_wilkes.png}
-\caption{16 processes, Asynchronous time gain, Wilkes HPC}
-\label{fig:gain_2dstencil_16proc_wilkes}
-\end{figure}
+%% \begin{figure}[h]
+%% \includegraphics[scale=0.27]{gain_2dstencil_16proc_wilkes.png}
+%% \caption{16 processes, Asynchronous time gain, Wilkes HPC}
+%% \label{fig:gain_2dstencil_16proc_wilkes}
+%% \end{figure}
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
