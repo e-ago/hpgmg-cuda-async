@@ -48,7 +48,7 @@ do
 		fi
 		echo "MODE: $var_print_mode, SIZE: $var_size, PROC: $var_proc"
 		file_out="hpgmg-$var_print_mode-s$var_size-p$var_proc.txt"
-		$HOME/peersync/src/hpgmg/elerun.sh $var_proc $var_comm $var_async $var_gpu $var_size 8 $EXCHANGE_HOST_ALLOC $EXCHANGE_MALLOC $var_threshold 0 &> $file_out
+		$PREFIX/src/hpgmg/run.sh $var_proc $var_comm $var_async $var_gpu $var_size 8 $EXCHANGE_HOST_ALLOC $EXCHANGE_MALLOC $var_threshold &> $file_out
 		egrep "use cuda" $file_out
 		egrep "Total by level" $file_out
 	done
