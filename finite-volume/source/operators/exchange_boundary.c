@@ -536,7 +536,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 
   comm_progress();
   
-  //Elenago x profiler
+  //async x profiler
  // cudaDeviceSynchronize();
   //level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
 }

@@ -604,7 +604,7 @@ void build_exchange_ghosts(level_type *level, int shape){
   int    edges[27] = {0,1,0,1,0,1,0,1,0,  1,0,1,0,0,0,1,0,1,  0,1,0,1,0,1,0,1,0};
   int  corners[27] = {1,0,1,0,0,0,1,0,1,  0,0,0,0,0,0,0,0,0,  1,0,1,0,0,0,1,0,1};
 
-  //Elenago
+  //async change
   int MPI_ALLOC_PINNED=0, MPI_ALLOC_ZERO_COPY=1; //default values
   const char *value = getenv("MPI_ALLOC_ZERO_COPY");
   if (value != NULL) {
@@ -1045,11 +1045,11 @@ void build_exchange_ghosts(level_type *level, int shape){
   if((level->exchange_ghosts[shape].num_sends+level->exchange_ghosts[shape].num_recvs)>0){
   if(level->exchange_ghosts[shape].requests==NULL){fprintf(stderr,"malloc failed - exchange_ghosts[%d].requests\n",shape);exit(0);}
   if(level->exchange_ghosts[shape].status  ==NULL){fprintf(stderr,"malloc failed - exchange_ghosts[%d].status\n",shape);exit(0);}
-  //Elenago
+  //async change
   level->exchange_ghosts[shape].send_buffers_reg = (comm_reg_t*)calloc(1, level->exchange_ghosts[shape].num_sends*sizeof(comm_reg_t));
   level->exchange_ghosts[shape].recv_buffers_reg = (comm_reg_t*)calloc(1, level->exchange_ghosts[shape].num_recvs*sizeof(comm_reg_t));
 /*
-  //Elenago
+  //async change
   for(int numRegions=0; numRegions < level->exchange_ghosts[shape].num_recvs; numRegions++)
   {
     if(level->my_rank == 0)
@@ -1072,7 +1072,7 @@ void build_exchange_ghosts(level_type *level, int shape){
   }
   #endif
 
-//Elenago
+//async change
   /*
 
 #ifdef USE_CUDA
@@ -1262,7 +1262,7 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
   level->chebyshev_c1 = NULL;
   level->chebyshev_c2 = NULL;
 
-  //Elenago
+  //async change
 /*  // allocate them later on-demand
   level->h_chebyshev_c1 = NULL;
   level->h_chebyshev_c2 = NULL;
@@ -1309,7 +1309,7 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
   level->num_my_boxes=0;
   for(box=0;box<level->boxes_in.i*level->boxes_in.j*level->boxes_in.k;box++){if(level->rank_of_box[box]==level->my_rank)level->num_my_boxes++;} 
 
-  //Elenago
+  //async change
   int HOST_LEVEL_SIZE_THRESHOLD=10000; //default value
   const char *value = getenv("HOST_LEVEL_SIZE_THRESHOLD");
   if (value != NULL) {
@@ -1318,7 +1318,7 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
 
   // determine if this level is big enough so that it makes sense to run on GPU
   level->use_cuda = (level->box_dim * level->box_dim * level->box_dim * level->num_my_boxes > HOST_LEVEL_SIZE_THRESHOLD);
-   //Elenago
+   //async change
   level->stream = NULL;
   level->stream_rec = NULL; 
 
@@ -1359,7 +1359,7 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
   else
     level->um_access_policy = UM_ACCESS_CPU;		// coarse level exclusively accessed by CPU
 
-  //elenago
+  //async change
   //fprintf(stdout, "=== level->um_access_policy: %d\n", level->um_access_policy);
 #endif
 
@@ -1496,7 +1496,7 @@ void reset_level_timers(level_type *level){
   level->timers.ghostZone_send          = 0;
   level->timers.ghostZone_wait          = 0;
   level->timers.collectives             = 0;
-  //elenago
+  //async change
   level->timers.AsyncTimer              = 0;
   level->timers.Total                   = 0;
   // solver events information...
@@ -1510,7 +1510,7 @@ void reset_level_timers(level_type *level){
 // n.b. in some cases a malloc was used as the basis for an array of pointers.  As such free(x[0])
 void destroy_level(level_type *level){
 
-   //Elenago
+   //async change
   int MPI_ALLOC_PINNED=0, MPI_ALLOC_ZERO_COPY=1; //default values
   const char *value = getenv("MPI_ALLOC_ZERO_COPY");
   if (value != NULL) {

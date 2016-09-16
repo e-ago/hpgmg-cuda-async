@@ -394,7 +394,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       h   d IMPOSSIBLE currently
      */
     //if (level_f->use_cuda || level_c->use_cuda && comm_use_async()) {
-    //Elenago
+    //async
     int HOST_LEVEL_SIZE_THRESHOLD=10000; //default value
     const char *value = getenv("HOST_LEVEL_SIZE_THRESHOLD");
     if (value != NULL) {

@@ -111,7 +111,7 @@ void bench_hpgmg(mg_type *all_grids, int onLevel, double a, double b, double dto
     int numSolves =  0; // solves completed
     MGResetTimers(all_grids);
 
-    //Elenago
+    
     if (doTiming)
       cudaProfilerStart();
 
@@ -133,7 +133,7 @@ void bench_hpgmg(mg_type *all_grids, int onLevel, double a, double b, double dto
 
     POP_RANGE;
 
-    //Elenago
+    
     if (doTiming)
       cudaProfilerStop();
 
@@ -195,7 +195,7 @@ int main(int argc, char **argv){
   MPI_Init_thread(&argc, &argv, requested_threading_model, &actual_threading_model);
   MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-  //Elenago
+  
   mpi_comm_rank = my_rank;
   comm_init(MPI_COMM_WORLD);
 

@@ -126,7 +126,7 @@ def hpgmg_fv_cflags(args):
     defines.append('USE_%s' % args.fv_coarse_solver.upper())
     if args.fv_subcomm:
         defines.append('USE_SUBCOMM')
-    #elenago: useless with this new version?
+    #async: useless with this new version?
     #if args.fv_cuda:
     #    defines.append('USE_CUDA')
     defines.append('USE_%sCYCLES' % args.fv_cycle.upper())

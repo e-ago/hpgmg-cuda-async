@@ -234,7 +234,7 @@ void build_interpolation(mg_type *all_grids){
     int elementSize = all_grids->levels[level-1]->box_dim*all_grids->levels[level-1]->box_dim*all_grids->levels[level-1]->box_dim;
     //printf("level=%d, rank=%2d, send_buffers=%6d\n",level,all_grids->my_rank,numFineBoxesRemote*elementSize*sizeof(double));
 
-    //Elenago
+    //async change
 /*    all_grids->levels[level]->interpolation.d_send_buffers  =      (double**)malloc(numFineRanks*sizeof(double*));
     double * d_all_send_buffers;
     cudaMalloc((void**)&d_all_send_buffers, numFineRanks*elementSize*sizeof(double));
@@ -460,7 +460,7 @@ void build_interpolation(mg_type *all_grids){
       all_grids->levels[level]->interpolation.requests = (MPI_Request*)malloc(nMessages*sizeof(MPI_Request));
       all_grids->levels[level]->interpolation.status   = (MPI_Status *)malloc(nMessages*sizeof(MPI_Status ));
 
-      //Elenago // TODO: over allocation
+      //async change // TODO: over allocation
       all_grids->levels[level]->interpolation.send_buffers_reg  = (comm_reg_t*)calloc(1, nMessages*sizeof(comm_reg_t));
       all_grids->levels[level]->interpolation.recv_buffers_reg = (comm_reg_t*)calloc(1, nMessages*sizeof(comm_reg_t));
     }
@@ -843,7 +843,7 @@ void build_restriction(mg_type *all_grids, int restrictionType){
     all_grids->levels[level]->restriction[restrictionType].requests = (MPI_Request*)malloc(nMessages*sizeof(MPI_Request));
     all_grids->levels[level]->restriction[restrictionType].status   = (MPI_Status *)malloc(nMessages*sizeof(MPI_Status ));
 
-    //Elenago; bugfix
+    //async change; bugfix
     all_grids->levels[level]->restriction[restrictionType].send_buffers_reg = (comm_reg_t *)calloc(1, nMessages*sizeof(comm_reg_t));
     DBG("levels[%d]->restriction[%d].send_buffers_reg=%p\n", level, restrictionType, all_grids->levels[level]->restriction[restrictionType].send_buffers_reg);
     all_grids->levels[level]->restriction[restrictionType].recv_buffers_reg = (comm_reg_t *)calloc(1, nMessages*sizeof(comm_reg_t));
@@ -1217,7 +1217,7 @@ void MGVCycle(mg_type *all_grids, int e_id, int R_id, double a, double b, int le
     LevelTmp = getTime();
 #endif
 */
-    //Elenago
+    //async change
   _tmpStart = getTime();
   //cudaDeviceSynchronize();
   all_grids->levels[level]->timers.AsyncTimer += (double)(getTime()-_tmpStart);

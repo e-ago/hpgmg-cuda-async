@@ -85,11 +85,11 @@ typedef struct {
     #ifdef USE_MPI
     MPI_Request * __restrict__     requests;
     MPI_Status  * __restrict__       status;
-    //Elenago
+    //async change
     comm_reg_t     * __restrict__ send_buffers_reg;
     comm_reg_t     * __restrict__ recv_buffers_reg;
 
-    //Elenago fix
+    //async change
     int                           nMessages;
     #endif
 } communicator_type;
@@ -194,7 +194,7 @@ typedef struct {
     // Collectives...
     double   collectives;
     double         Total;
-    //Elenago
+    //async change
     double         AsyncTimer;
   }timers;
   int Krylov_iterations;        // total number of bottom solver iterations
