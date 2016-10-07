@@ -31,9 +31,9 @@ $MPI_HOME/bin/mpirun -verbose     -x PATH    -x GDS_CQ_MAP_SMART=$var_GDS_CQ_MAP
 echo "COMM_USE_COMM=$2"
 echo "COMM_USE_ASYNC=$3"
 echo "COMM_USE_GPU_COMM=$4"
-echo "MPI_ALLOC_ZERO_COPY=$7"
-echo "MPI_ALLOC_PINNED=$8"
-echo "HOST_LEVEL_SIZE_THRESHOLD=$9"
+#echo "MPI_ALLOC_ZERO_COPY=$7"
+#echo "MPI_ALLOC_PINNED=$8"
+#echo "HOST_LEVEL_SIZE_THRESHOLD=$9"
 
 # ./wrapper.sh  nvprof -o nvprof-kernel.%q{OMPI_COMM_WORLD_RANK}.nvprof ./build/bin/hpgmg-fv $2 $3
 
