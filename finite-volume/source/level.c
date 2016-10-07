@@ -961,8 +961,8 @@ void build_exchange_ghosts(level_type *level, int shape){
     int neighbor;
     for(neighbor=0;neighbor<numRecvRanks;neighbor++){
       if(stage==1){
-          if(level->my_rank == 0)
-            fprintf(stdout, "Exchange Recv Buffers: ");
+//          if(level->my_rank == 0)
+//            fprintf(stdout, "Exchange Recv Buffers: ");
 
 #if defined(MPI_ALLOC_PINNED)
              level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc_pinned(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), level->um_access_policy);
