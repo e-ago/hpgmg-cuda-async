@@ -27,20 +27,24 @@ OPTS+="-DBOUNDARY_TILE_K=16 "
 # max number of solves after warmup
 OPTS+="-DMAX_SOLVES=100 "
 
+
+# host level threshold: number of grid elements
+OPTS+="-DHOST_LEVEL_SIZE_THRESHOLD=10000 "
+
+# max number of solves after warmup
+#OPTS+="-DMAX_SOLVES=10 "
+
 # unified memory allocation options
 OPTS+="-DCUDA_UM_ALLOC "
 #cudaHostAlloc
 OPTS+="-DCUDA_UM_ZERO_COPY "
 
-#With gpu direct async, unified memory cannot be used
-#comment if you want to use MPI+Unified Memory
-#OPTS+="-DCUDA_DISABLE_UNIFIED_MEMORY "
-
 # MPI buffers allocation policy
 #cudaHostAlloc
-#OPTS+="-DMPI_ALLOC_ZERO_COPY "
+OPTS+="-DMPI_ALLOC_ZERO_COPY "
 #cudaMalloc
 #OPTS+="-DMPI_ALLOC_PINNED "
+
 
 :<<AUTHOR_COMMENTS
 OPTS+="-DMPI_ALLOC_ZERO_COPY " - uses cudaMallocHost to allocate MPI buffers
@@ -48,7 +52,9 @@ OPTS+="-DMPI_ALLOC_PINNED "  - uses cudaMalloc or malloc to allocate MPI buffers
 If you comment out both options it will use cudaMallocManaged to allocate MPI buffers
 AUTHOR_COMMENTS
 
-
+#With gpu direct async, unified memory cannot be used
+#comment if you want to use MPI+Unified Memory
+#OPTS+="-DCUDA_DISABLE_UNIFIED_MEMORY "
 
 # stencil optimizations
 OPTS+="-DUSE_REG "

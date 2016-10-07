@@ -394,6 +394,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       h   d IMPOSSIBLE currently
      */
     //if (level_f->use_cuda || level_c->use_cuda && comm_use_async()) {
+/*
     //async
     int HOST_LEVEL_SIZE_THRESHOLD=10000; //default value
     const char *value = getenv("HOST_LEVEL_SIZE_THRESHOLD");
@@ -403,16 +404,16 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       //In case of all levels use cuda
     if(HOST_LEVEL_SIZE_THRESHOLD > 0)
     {
-      //useless !level_c->use_cuda ??
+*/      //useless !level_c->use_cuda ??
       if (!level_c->use_cuda || !level_f->use_cuda && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
         comm_flush();
         POP_RANGE;
       }  
-    }
+/*    }
     else
       comm_progress();
-
+*/
     PUSH_RANGE("restriction_comm", OP_COL);
     restriction_comm(level_c, id_c, level_f, id_f, restrictionType);
 

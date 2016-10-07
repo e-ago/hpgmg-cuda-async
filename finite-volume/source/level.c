@@ -604,6 +604,7 @@ void build_exchange_ghosts(level_type *level, int shape){
   int    edges[27] = {0,1,0,1,0,1,0,1,0,  1,0,1,0,0,0,1,0,1,  0,1,0,1,0,1,0,1,0};
   int  corners[27] = {1,0,1,0,0,0,1,0,1,  0,0,0,0,0,0,0,0,0,  1,0,1,0,0,0,1,0,1};
 
+/*
   //async change
   int MPI_ALLOC_PINNED=0, MPI_ALLOC_ZERO_COPY=1; //default values
   const char *value = getenv("MPI_ALLOC_ZERO_COPY");
@@ -618,7 +619,7 @@ void build_exchange_ghosts(level_type *level, int shape){
         MPI_ALLOC_PINNED = atoi(value);
     }
   }
-
+*/
   // initialize to defaults...
   level->exchange_ghosts[shape].num_recvs           = 0;
   level->exchange_ghosts[shape].num_sends           = 0;
@@ -740,8 +741,22 @@ void build_exchange_ghosts(level_type *level, int shape){
     int neighbor;
     for(neighbor=0;neighbor<numSendRanks;neighbor++){
       if(stage==1){
-        if(level->my_rank == 0)
-            fprintf(stdout, "Exchange Send Buffers: ");
+//        if(level->my_rank == 0)
+//            fprintf(stdout, "Exchange Send Buffers: ");
+ #if defined(MPI_ALLOC_PINNED)
+             level->exchange_ghosts[shape].send_buffers[neighbor] = (double*)um_malloc_pinned(level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double), level->um_access_policy);
+  if (level->um_access_policy == UM_ACCESS_GPU)
+  cudaMemset(level->exchange_ghosts[shape].send_buffers[neighbor],                0,level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double));
+  else
+      memset(level->exchange_ghosts[shape].send_buffers[neighbor],                0,level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double));
+#elif defined(MPI_ALLOC_ZERO_COPY)
+             level->exchange_ghosts[shape].send_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double), UM_ACCESS_BOTH);
+      memset(level->exchange_ghosts[shape].send_buffers[neighbor],                0,level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double));
+#else
+             level->exchange_ghosts[shape].send_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double), level->um_access_policy);
+      memset(level->exchange_ghosts[shape].send_buffers[neighbor],                0,level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double));
+#endif
+      /*
         if(MPI_ALLOC_PINNED == 1)
         {
           level->exchange_ghosts[shape].send_buffers[neighbor] = (double*)um_malloc_pinned(level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double), level->um_access_policy);
@@ -760,6 +775,7 @@ void build_exchange_ghosts(level_type *level, int shape){
           level->exchange_ghosts[shape].send_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double), level->um_access_policy);
           memset(level->exchange_ghosts[shape].send_buffers[neighbor],                0,level->exchange_ghosts[shape].send_sizes[neighbor]*sizeof(double));
         }
+      */
         if(level->exchange_ghosts[shape].send_sizes[neighbor]>0)
         if(level->exchange_ghosts[shape].send_buffers[neighbor]==NULL){fprintf(stderr,"malloc failed - exchange_ghosts[%d].send_buffers[neighbor]\n",shape);exit(0);}
       }
@@ -948,6 +964,20 @@ void build_exchange_ghosts(level_type *level, int shape){
           if(level->my_rank == 0)
             fprintf(stdout, "Exchange Recv Buffers: ");
 
+#if defined(MPI_ALLOC_PINNED)
+             level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc_pinned(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), level->um_access_policy);
+  if (level->um_access_policy == UM_ACCESS_GPU)
+  cudaMemset(level->exchange_ghosts[shape].recv_buffers[neighbor],                0,level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double));
+  else
+      memset(level->exchange_ghosts[shape].recv_buffers[neighbor],                0,level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double));
+#elif defined(MPI_ALLOC_ZERO_COPY)
+             level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), UM_ACCESS_BOTH);
+      memset(level->exchange_ghosts[shape].recv_buffers[neighbor],                0,level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double));
+#else
+             level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), level->um_access_policy);
+      memset(level->exchange_ghosts[shape].recv_buffers[neighbor],                0,level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double));
+#endif
+      /*
         if(MPI_ALLOC_PINNED == 1)
         {
             level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc_pinned(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), level->um_access_policy);
@@ -966,6 +996,7 @@ void build_exchange_ghosts(level_type *level, int shape){
           level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), level->um_access_policy);
           memset(level->exchange_ghosts[shape].recv_buffers[neighbor],                0,level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double));
         }
+      */
         if(level->exchange_ghosts[shape].recv_sizes[neighbor]>0)
           if(level->exchange_ghosts[shape].recv_buffers[neighbor]==NULL)
             {fprintf(stderr,"malloc failed - exchange_ghosts[%d].recv_buffers[neighbor]\n",shape);exit(0);}
@@ -1308,14 +1339,14 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
   // calculate how many boxes I own...
   level->num_my_boxes=0;
   for(box=0;box<level->boxes_in.i*level->boxes_in.j*level->boxes_in.k;box++){if(level->rank_of_box[box]==level->my_rank)level->num_my_boxes++;} 
-
+/*
   //async change
   int HOST_LEVEL_SIZE_THRESHOLD=10000; //default value
   const char *value = getenv("HOST_LEVEL_SIZE_THRESHOLD");
   if (value != NULL) {
       HOST_LEVEL_SIZE_THRESHOLD = atoi(value);
   }
-
+*/
   // determine if this level is big enough so that it makes sense to run on GPU
   level->use_cuda = (level->box_dim * level->box_dim * level->box_dim * level->num_my_boxes > HOST_LEVEL_SIZE_THRESHOLD);
    //async change
@@ -1510,6 +1541,7 @@ void reset_level_timers(level_type *level){
 // n.b. in some cases a malloc was used as the basis for an array of pointers.  As such free(x[0])
 void destroy_level(level_type *level){
 
+/*
    //async change
   int MPI_ALLOC_PINNED=0, MPI_ALLOC_ZERO_COPY=1; //default values
   const char *value = getenv("MPI_ALLOC_ZERO_COPY");
@@ -1524,7 +1556,7 @@ void destroy_level(level_type *level){
         MPI_ALLOC_PINNED = atoi(value);
     }
   }
-
+*/
   int i,j;
   if(level->my_rank==0){fprintf(stdout,"attempting to free the %5d^3 level... ",level->dim.i);fflush(stdout);}
 
@@ -1556,25 +1588,43 @@ void destroy_level(level_type *level){
   // ghost zone exchange mini programs...
   for(i=0;i<STENCIL_MAX_SHAPES;i++){
     if(level->exchange_ghosts[i].num_recvs>0){
+      #if defined(MPI_ALLOC_PINNED)
+          for(j=0;j<level->exchange_ghosts[i].num_recvs;j++)if(level->exchange_ghosts[i].recv_buffers[j])um_free_pinned(level->exchange_ghosts[i].recv_buffers[j], level->um_access_policy);
+      #elif defined(MPI_ALLOC_ZERO_COPY)
+          for(j=0;j<level->exchange_ghosts[i].num_recvs;j++)if(level->exchange_ghosts[i].recv_buffers[j])um_free(level->exchange_ghosts[i].recv_buffers[j], UM_ACCESS_BOTH);
+      #else
+          for(j=0;j<level->exchange_ghosts[i].num_recvs;j++)if(level->exchange_ghosts[i].recv_buffers[j])um_free(level->exchange_ghosts[i].recv_buffers[j], level->um_access_policy);
+      #endif
+/*
       if(MPI_ALLOC_PINNED == 1)
         for(j=0;j<level->exchange_ghosts[i].num_recvs;j++)if(level->exchange_ghosts[i].recv_buffers[j])um_free_pinned(level->exchange_ghosts[i].recv_buffers[j], level->um_access_policy);
       else if(MPI_ALLOC_ZERO_COPY == 1)
         for(j=0;j<level->exchange_ghosts[i].num_recvs;j++)if(level->exchange_ghosts[i].recv_buffers[j])um_free(level->exchange_ghosts[i].recv_buffers[j], UM_ACCESS_BOTH);
       else
         for(j=0;j<level->exchange_ghosts[i].num_recvs;j++)if(level->exchange_ghosts[i].recv_buffers[j])um_free(level->exchange_ghosts[i].recv_buffers[j], level->um_access_policy);
-  
+*/
       if(level->exchange_ghosts[i].recv_buffers)free(level->exchange_ghosts[i].recv_buffers);
       if(level->exchange_ghosts[i].recv_ranks  )free(level->exchange_ghosts[i].recv_ranks  );
       if(level->exchange_ghosts[i].recv_sizes  )free(level->exchange_ghosts[i].recv_sizes  );
     }
     if(level->exchange_ghosts[i].num_sends>0){
+
+      #if defined(MPI_ALLOC_PINNED)
+        for(j=0;j<level->exchange_ghosts[i].num_sends;j++)if(level->exchange_ghosts[i].send_buffers[j])um_free_pinned(level->exchange_ghosts[i].send_buffers[j], level->um_access_policy);
+      #elif defined(MPI_ALLOC_ZERO_COPY)
+        for(j=0;j<level->exchange_ghosts[i].num_sends;j++)if(level->exchange_ghosts[i].send_buffers[j])um_free(level->exchange_ghosts[i].send_buffers[j], UM_ACCESS_BOTH);
+      #else
+        for(j=0;j<level->exchange_ghosts[i].num_sends;j++)if(level->exchange_ghosts[i].send_buffers[j])um_free(level->exchange_ghosts[i].send_buffers[j], level->um_access_policy);
+      #endif
+      /*
+
       if(MPI_ALLOC_PINNED == 1)
         for(j=0;j<level->exchange_ghosts[i].num_sends;j++)if(level->exchange_ghosts[i].send_buffers[j])um_free_pinned(level->exchange_ghosts[i].send_buffers[j], level->um_access_policy);
       else if(MPI_ALLOC_ZERO_COPY)
         for(j=0;j<level->exchange_ghosts[i].num_sends;j++)if(level->exchange_ghosts[i].send_buffers[j])um_free(level->exchange_ghosts[i].send_buffers[j], UM_ACCESS_BOTH);
       else
         for(j=0;j<level->exchange_ghosts[i].num_sends;j++)if(level->exchange_ghosts[i].send_buffers[j])um_free(level->exchange_ghosts[i].send_buffers[j], level->um_access_policy);
-
+      */
       if(level->exchange_ghosts[i].send_buffers)free(level->exchange_ghosts[i].send_buffers);
       if(level->exchange_ghosts[i].send_ranks  )free(level->exchange_ghosts[i].send_ranks  );
       if(level->exchange_ghosts[i].send_sizes  )free(level->exchange_ghosts[i].send_sizes  );
