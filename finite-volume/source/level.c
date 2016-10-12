@@ -1196,7 +1196,7 @@ void create_vectors(level_type *level, int numVectors){
     um_free(old_vectors, level->um_access_policy);
   #endif
 
-
+printf("build the list of boxes...\n" );
   // build the list of boxes...
   int box=0;
   int i,j,k;
@@ -1226,6 +1226,9 @@ void create_vectors(level_type *level, int numVectors){
 
   // level now has created/initialized vector FP data
   level->numVectors = numVectors;
+
+  printf("exit create\n" );
+
 }
 
 
