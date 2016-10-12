@@ -197,7 +197,9 @@ int main(int argc, char **argv){
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
   
   mpi_comm_rank = my_rank;
-  comm_init(MPI_COMM_WORLD);
+  
+  if(comm_use_comm())
+    comm_init(MPI_COMM_WORLD);
 
   // Set CUDA device for this rank...
   num_devices = cudaCheckPeerToPeer(my_rank);
@@ -461,6 +463,10 @@ int REPEAT_TIME=1;
   #ifdef USE_HPM // IBM performance counters for BGQ...
   HPM_Print();
   #endif
+
+  if(comm_use_comm())
+    comm_finalize();
+
   MPI_Finalize();
   #endif
   return(0);

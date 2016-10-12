@@ -1141,6 +1141,7 @@ void build_exchange_ghosts(level_type *level, int shape){
 // create the pointers in each box to their respective segment of the level's vector FP data (useful for box-relative operators)
 // if( (level->numVectors > 0) && (numVectors > level->numVectors) ) then allocate additional space for (numVectors-level->numVectors) and copy old leve->numVectors data
 void create_vectors(level_type *level, int numVectors){
+  printf("create_vectors, numVectors: %d\n", numVectors);
   if(numVectors <= level->numVectors)return; // already have enough space
   double          * old_vectors_base = level->vectors_base; // save a pointer to the originally allocated data for subsequent free()
   double               * old_vector0 = NULL;

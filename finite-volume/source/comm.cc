@@ -195,6 +195,12 @@ int comm_init(MPI_Comm comm)
     return 0;
 }
 
+int comm_finalize() {
+    MP_CHECK(mp_finalize());
+
+    return 0;
+}
+
 static size_t comm_size_of_mpi_type(MPI_Datatype mpi_type)
 {
     size_t ret = 0;
