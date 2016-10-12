@@ -196,7 +196,7 @@ int comm_init(MPI_Comm comm)
 }
 
 int comm_finalize() {
-    MP_CHECK(mp_finalize());
+    mp_finalize();
 
     return 0;
 }
