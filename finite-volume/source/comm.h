@@ -42,6 +42,7 @@ extern "C" {
     typedef struct comm_reg      *comm_reg_t;
     typedef struct CUstream_st   *comm_stream_t;
     int comm_init(MPI_Comm comm);
+    void comm_finalize();
     int comm_send_ready_on_stream(int rank, comm_request_t *creq, comm_stream_t stream);
     int comm_send_ready(int rank, comm_request_t *creq);
     int comm_wait_ready_on_stream(int rank, comm_stream_t stream);
