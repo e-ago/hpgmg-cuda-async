@@ -1141,7 +1141,6 @@ void build_exchange_ghosts(level_type *level, int shape){
 // create the pointers in each box to their respective segment of the level's vector FP data (useful for box-relative operators)
 // if( (level->numVectors > 0) && (numVectors > level->numVectors) ) then allocate additional space for (numVectors-level->numVectors) and copy old leve->numVectors data
 void create_vectors(level_type *level, int numVectors){
-  printf("create_vectors, numVectors: %d\n", numVectors);
   if(numVectors <= level->numVectors)return; // already have enough space
   double          * old_vectors_base = level->vectors_base; // save a pointer to the originally allocated data for subsequent free()
   double               * old_vector0 = NULL;
@@ -1196,7 +1195,6 @@ void create_vectors(level_type *level, int numVectors){
     um_free(old_vectors, level->um_access_policy);
   #endif
 
-printf("build the list of boxes...\n" );
   // build the list of boxes...
   int box=0;
   int i,j,k;
@@ -1226,9 +1224,6 @@ printf("build the list of boxes...\n" );
 
   // level now has created/initialized vector FP data
   level->numVectors = numVectors;
-
-  printf("exit create\n" );
-
 }
 
 
@@ -1652,28 +1647,15 @@ void *um_malloc(size_t size, int access_policy)
   void *ptr;
   switch (access_policy) {
   case UM_ACCESS_GPU:
-
-//    With gpu direct async, unified memory must be disabled
-#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-    CUDA_API_ERROR( cudaMallocHost(&ptr, size) )
-#else
+    //With gpu direct async, unified memory must be disabled
     CUDA_API_ERROR( cudaMallocManaged(&ptr, size, cudaMemAttachGlobal) )
-#endif
-
     break;
   case UM_ACCESS_BOTH:
 #ifdef CUDA_UM_ZERO_COPY
     // assumes that the direct access to sysmem is supported on this OS/GPU
     CUDA_API_ERROR( cudaMallocHost(&ptr, size) )
 #else
-
-    //    With gpu direct async, unified memory must be disabled
-    #ifdef CUDA_DISABLE_UNIFIED_MEMORY
-        CUDA_API_ERROR( cudaMallocHost(&ptr, size) )
-    #else
-        CUDA_API_ERROR( cudaMallocManaged(&ptr, size, cudaMemAttachGlobal) )
-    #endif
-
+    CUDA_API_ERROR( cudaMallocManaged(&ptr, size, cudaMemAttachGlobal) )
 #endif
     break;
   case UM_ACCESS_CPU:
@@ -1735,11 +1717,7 @@ void um_free(void *ptr, int access_policy)
   case UM_ACCESS_GPU:
 
   //    With gpu direct async, unified memory must be disabled
-#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-    CUDA_API_ERROR( cudaFreeHost(ptr) )
-#else
     CUDA_API_ERROR( cudaFree(ptr) )
-#endif
 
     break;
   case UM_ACCESS_BOTH:
