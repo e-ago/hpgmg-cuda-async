@@ -317,7 +317,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[1])
         for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[1];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[1][buffer]);}
     }
-    
+
     POP_RANGE;
 
     level->timers.ghostZone_local += (getTime()-_timeStart);
