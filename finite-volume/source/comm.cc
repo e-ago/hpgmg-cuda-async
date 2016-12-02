@@ -545,7 +545,7 @@ int comm_flush()
     #if 1
     while( (100*startGlobalFlushReqsIndex)+100 < n_reqs)
     {
-        ret = mp_wait_all(n_reqs, reqs+(startGlobalFlushReqsIndex*100));
+        ret = mp_wait_all(100, reqs+(startGlobalFlushReqsIndex*100));
         if (ret) {
             comm_err("got error in mp_wait_all ret=%d\n", ret);
             exit(EXIT_FAILURE);
