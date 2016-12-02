@@ -562,13 +562,13 @@ int comm_progress()
 
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-    if( (50*startGlobalReqsIndex)+50 < n_reqs)
+    if( (100*startGlobalReqsIndex)+50 < n_reqs)
     {
         if(comm_rank == 0)
-            printf("progress 50 da req: startGlobalReqsIndex*50 %d, n_reqs: %d\n",
-             startGlobalReqsIndex*50, n_reqs);
+            printf("progress 50 da req: startGlobalReqsIndex*100 %d, n_reqs: %d\n",
+             startGlobalReqsIndex*100, n_reqs);
 
-        ret = mp_progress_all(50, reqs+startGlobalReqsIndex*50);
+        ret = mp_progress_all(50, reqs+startGlobalReqsIndex*100);
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
         }
