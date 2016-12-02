@@ -542,7 +542,7 @@ int comm_flush()
         cudaStreamQuery(NULL);
     } while(ret < n_reqs);
 #endif
-    #if 0
+    #if 1
     while( (100*startGlobalFlushReqsIndex)+100 < n_reqs)
     {
         ret = mp_wait_all(n_reqs, reqs);
@@ -552,6 +552,7 @@ int comm_flush()
         }
         startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+1)%MAX_REQS;
         n_reqs -= 100;
+        startGlobalReqsIndex--;
 
     }
     #endif
@@ -564,8 +565,8 @@ int comm_progress()
 
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-    ret = mp_progress_all(n_reqs, reqs);
-/*
+//    ret = mp_progress_all(n_reqs, reqs);
+
     if( (100*startGlobalReqsIndex)+100 < n_reqs)
     {
         if(comm_rank == 0)
@@ -578,7 +579,7 @@ int comm_progress()
         }
         startGlobalReqsIndex = (startGlobalReqsIndex+1)%MAX_REQS;
     }
-*/
+
     return ret;
 }
 
