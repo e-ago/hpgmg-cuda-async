@@ -537,6 +537,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
   POP_RANGE;
+
   
   //async x profiler
  // cudaDeviceSynchronize();
@@ -614,8 +615,10 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
     level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
 
+  PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
-
+  POP_RANGE;
+  
 //  level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
 }
 
