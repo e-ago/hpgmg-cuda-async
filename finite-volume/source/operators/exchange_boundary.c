@@ -534,11 +534,11 @@ void exchange_boundary_async(level_type * level, int id, int shape){
     level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
 
-/*
+
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
   POP_RANGE;
-*/
+
   
   //async x profiler
  // cudaDeviceSynchronize();
