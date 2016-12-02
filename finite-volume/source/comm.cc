@@ -49,7 +49,9 @@ static uint32_t   *ready_values;
 static uint32_t   *remote_ready_values;
 static mp_reg_t    remote_ready_values_reg;
 
-#define MAX_REQS 16384
+static int startGlobalReqsIndex=0;
+
+#define MAX_REQS 32768
 static mp_request_t reqs[MAX_REQS];
 static int n_reqs = 0;
 
@@ -552,9 +554,13 @@ int comm_progress()
 {
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-    int ret = mp_progress_all(n_reqs, reqs);
-    if (ret < 0) {
-        comm_err("ret=%d\n", ret);
+    if( (100*startGlobalReqsIndex)+100 < n_reqs)
+    {
+        int ret = mp_progress_all(100, startGlobalReqsIndex);
+        if (ret < 0) {
+            comm_err("ret=%d\n", ret);
+        }
+        startGlobalReqsIndex = (startGlobalReqsIndex+1)%MAX_REQS;
     }
     return ret;
 }
