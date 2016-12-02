@@ -564,8 +564,8 @@ int comm_progress()
 
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-//    ret = mp_progress_all(n_reqs, reqs);
-
+    ret = mp_progress_all(n_reqs, reqs);
+/*
     if( (100*startGlobalReqsIndex)+100 < n_reqs)
     {
         if(comm_rank == 0)
@@ -578,6 +578,7 @@ int comm_progress()
         }
         startGlobalReqsIndex = (startGlobalReqsIndex+1)%MAX_REQS;
     }
+*/
     return ret;
 }
 
