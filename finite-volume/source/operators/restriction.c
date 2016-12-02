@@ -408,9 +408,10 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       
       if (!level_c->use_cuda || !level_f->use_cuda && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
-        //comm_flush();
-        comm_progress();
+        
+        //comm_progress();
         cudaDeviceSynchronize();
+        comm_flush();
         POP_RANGE;
       } 
 /*    }
