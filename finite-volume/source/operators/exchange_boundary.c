@@ -536,7 +536,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
-  PUSH_RANGE;
+  POP_RANGE;
   
   //async x profiler
  // cudaDeviceSynchronize();
