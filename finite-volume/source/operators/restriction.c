@@ -410,6 +410,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
         PUSH_RANGE("Comm flush", COMM_COL);
         //comm_flush();
         comm_progress();
+        cudaDeviceSynchronize();
         POP_RANGE;
       } 
 /*    }
