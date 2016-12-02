@@ -276,6 +276,10 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       cuda_restriction(*level_c,id_c,*level_f,id_f,level_f->restriction[restrictionType],restrictionType,0);
       
       cudaDeviceSynchronize();  // switchover point: must synchronize GPU
+PUSH_RANGE("Comm flush", COMM_COL);
+//        cudaDeviceSynchronize();
+        comm_flush();
+POP_RANGE;
     }
     else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_f->restriction[restrictionType].num_blocks[0])
@@ -406,14 +410,15 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
     {
 */      //useless !level_c->use_cuda ??
       
+#if 0
       if (!level_c->use_cuda || !level_f->use_cuda && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
-        
-        //comm_progress();
         cudaDeviceSynchronize();
         comm_flush();
         POP_RANGE;
       } 
+#endif
+
 /*    }
     else
       comm_progress();
