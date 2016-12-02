@@ -556,7 +556,7 @@ int comm_progress()
     assert(n_reqs < MAX_REQS);
     if( (100*startGlobalReqsIndex)+100 < n_reqs)
     {
-        int ret = mp_progress_all(100, startGlobalReqsIndex);
+        int ret = mp_progress_all(100, reqs+startGlobalReqsIndex);
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
         }
