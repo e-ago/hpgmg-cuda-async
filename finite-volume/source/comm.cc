@@ -564,6 +564,10 @@ int comm_progress()
     assert(n_reqs < MAX_REQS);
     if( (100*startGlobalReqsIndex)+100 < n_reqs)
     {
+        if(comm_rank == 0)
+            printf("progress 100 da req: startGlobalReqsIndex*100 %d, n_reqs: %d\n",
+             startGlobalReqsIndex, n_reqs);
+
         ret = mp_progress_all(100, reqs+startGlobalReqsIndex);
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
