@@ -552,11 +552,13 @@ int comm_flush()
 
 int comm_progress()
 {
+    int ret =0;
+
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
     if( (100*startGlobalReqsIndex)+100 < n_reqs)
     {
-        int ret = mp_progress_all(100, reqs+startGlobalReqsIndex);
+        ret = mp_progress_all(100, reqs+startGlobalReqsIndex);
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
         }
