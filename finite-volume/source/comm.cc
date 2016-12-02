@@ -50,6 +50,7 @@ static uint32_t   *remote_ready_values;
 static mp_reg_t    remote_ready_values_reg;
 
 static int startGlobalReqsIndex=0;
+static int startGlobalFlushReqsIndex=0;
 
 #define MAX_REQS 32768
 static mp_request_t reqs[MAX_REQS];
@@ -541,12 +542,17 @@ int comm_flush()
         cudaStreamQuery(NULL);
     } while(ret < n_reqs);
 #endif
-    ret = mp_wait_all(n_reqs, reqs);
-    if (ret) {
-        comm_err("got error in mp_wait_all ret=%d\n", ret);
-        exit(EXIT_FAILURE);
+    while( (100*startGlobalFlushReqsIndex)+100 < n_reqs)
+    {
+        ret = mp_wait_all(n_reqs, reqs);
+        if (ret) {
+            comm_err("got error in mp_wait_all ret=%d\n", ret);
+            exit(EXIT_FAILURE);
+        }
+        startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+1)%MAX_REQS;
+        n_reqs -= 100;
+
     }
-    n_reqs = 0;
     return ret;
 }
 
