@@ -544,6 +544,7 @@ int comm_flush()
 #endif
     ret = mp_wait_all(n_reqs, reqs);
     n_reqs=0;
+    startGlobalReqsIndex=0;
 
 #if 0
     
@@ -576,13 +577,13 @@ int comm_progress()
     assert(n_reqs < MAX_REQS);
 //    ret = mp_progress_all(n_reqs, reqs);
 
-    if( (20*startGlobalReqsIndex)+20 < n_reqs)
+    if( (100*startGlobalReqsIndex)+100 < n_reqs)
     {
         if(comm_rank == 0)
-            printf("progress 20 da req: startGlobalReqsIndex*20 %d, n_reqs: %d\n",
-             startGlobalReqsIndex*20, n_reqs);
+            printf("progress 100 da req: startGlobalReqsIndex*100 %d, n_reqs: %d\n",
+             startGlobalReqsIndex*100, n_reqs);
 
-        ret = mp_progress_all(20, reqs+(startGlobalReqsIndex*20));
+        ret = mp_progress_all(100, reqs+(startGlobalReqsIndex*100));
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
         }
