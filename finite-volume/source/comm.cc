@@ -52,7 +52,7 @@ static mp_reg_t    remote_ready_values_reg;
 static int startGlobalReqsIndex=0;
 static int startGlobalFlushReqsIndex=0;
 
-#define MAX_REQS 32768
+#define MAX_REQS 65538
 static mp_request_t reqs[MAX_REQS];
 static int n_reqs = 0;
 
@@ -542,10 +542,11 @@ int comm_flush()
         cudaStreamQuery(NULL);
     } while(ret < n_reqs);
 #endif
+/*
     ret = mp_wait_all(n_reqs, reqs);
     n_reqs=0;
     startGlobalReqsIndex=0;
-
+*/
 #if 0
     
     int tmp = n_reqs;
@@ -577,14 +578,14 @@ int comm_progress()
     assert(n_reqs < MAX_REQS);
 //    ret = mp_progress_all(n_reqs, reqs);
 
-    if( (100*startGlobalReqsIndex)+100 < n_reqs)
+    if( (50*startGlobalReqsIndex)+100 < n_reqs)
     {
         /*
         if(comm_rank == 0)
-            printf("progress 100 da req: startGlobalReqsIndex*100 %d, n_reqs: %d\n",
-             startGlobalReqsIndex*100, n_reqs);
+            printf("progress 50 da req: startGlobalReqsIndex*50 %d, n_reqs: %d\n",
+             startGlobalReqsIndex*50, n_reqs);
         */
-        ret = mp_progress_all(100, reqs+(startGlobalReqsIndex*100));
+        ret = mp_progress_all(50, reqs+(startGlobalReqsIndex*50));
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
         }
