@@ -542,8 +542,12 @@ int comm_flush()
         cudaStreamQuery(NULL);
     } while(ret < n_reqs);
 #endif
+    ret = mp_wait_all(n_reqs, reqs);
+    n_reqs=0;
+
+#if 0
+    
     int tmp = n_reqs;
-    #if 1
     while( (100*startGlobalFlushReqsIndex)+100 < tmp)
     {
         if(comm_rank == 0)
