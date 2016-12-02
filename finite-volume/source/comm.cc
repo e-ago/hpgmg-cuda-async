@@ -579,10 +579,11 @@ int comm_progress()
 
     if( (100*startGlobalReqsIndex)+100 < n_reqs)
     {
+        /*
         if(comm_rank == 0)
             printf("progress 100 da req: startGlobalReqsIndex*100 %d, n_reqs: %d\n",
              startGlobalReqsIndex*100, n_reqs);
-
+        */
         ret = mp_progress_all(100, reqs+(startGlobalReqsIndex*100));
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
