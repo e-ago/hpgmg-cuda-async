@@ -92,13 +92,15 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
   // color the grid as 1's and 0's
   color_vector(level,x_id,colors_in_each_dim,icolor,jcolor,kcolor);
 
-  force_comm_flush();
-
   //  fprintf(stdout, "Rank %d before exchange_boundary\n", level->my_rank);
   // exchange the boundary of x in preparation for Ax
   exchange_boundary(level,x_id,stencil_get_shape());
     apply_BCs(level,x_id,stencil_get_shape());
 
+  // make sure GPU kernels have finished since the following part runs on CPU
+  cudaDeviceSynchronize();
+  force_comm_flush();
+  
   //  fprintf(stdout, "Rank %d before cuda_rebuild\n", level->my_rank);
 
     // apply the operator and add to Aii and AbsAij 
@@ -141,9 +143,9 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
   }}}
 
   
-  force_comm_flush();
   // make sure GPU kernels have finished since the following part runs on CPU
   cudaDeviceSynchronize();
+  force_comm_flush();
 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // take Aii and the row sum sumAbsAij and calculate D^{-1} and L1^{-1}...
