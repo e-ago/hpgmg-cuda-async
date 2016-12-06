@@ -562,8 +562,8 @@ int comm_flush()
     int ret = 0;
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
- //   if(comm_rank == 0)
- //           printf("FLUSH n_req: %d\n", n_reqs);
+    if(comm_rank == 0)
+        printf("FLUSH NEW n_req: %d startGlobalFlushReqsIndex: %d\n", n_reqs, startGlobalFlushReqsIndex);
     int diff = n_reqs - startGlobalFlushReqsIndex;
 
     ret = mp_wait_all(diff, reqs+startGlobalFlushReqsIndex);
