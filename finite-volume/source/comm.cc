@@ -566,7 +566,7 @@ int comm_flush()
         printf("FLUSH NEW n_req: %d startGlobalFlushReqsIndex: %d\n", n_reqs, startGlobalFlushReqsIndex);
     //int diff = n_reqs - startGlobalFlushReqsIndex;
 
-    ret = mp_wait_all(diff, reqs); //+startGlobalFlushReqsIndex);
+    ret = mp_wait_all(n_reqs, reqs); //+startGlobalFlushReqsIndex);
     n_reqs=0;
     startGlobalReqsIndex=0;
     startGlobalFlushReqsIndex=0;
