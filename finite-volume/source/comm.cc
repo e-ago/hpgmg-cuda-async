@@ -577,33 +577,36 @@ int comm_flush()
 */
 #if 1
      //int tmp = n_reqs;
-    if( (CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH < n_reqs)
+    if( (startGlobalFlushReqsIndex+CONST_FLUSH) < n_reqs)
     {
         if(comm_rank == 0)
-            printf("WAIT FLUSH da req: startGlobalFlushReqsIndex*CONST_FLUSH %d, n_reqs: %d\n",
-             startGlobalFlushReqsIndex*CONST_FLUSH, n_reqs);
+            printf("WAIT FLUSH da req: startGlobalFlushReqsIndex*CONST_FLUSH %d, n_reqs: %d\n", startGlobalFlushReqsIndex*CONST_FLUSH, n_reqs);
 
-        ret = mp_wait_all(CONST_FLUSH, reqs+(startGlobalFlushReqsIndex*CONST_FLUSH));
+        ret = mp_wait_all(CONST_FLUSH, reqs+startGlobalFlushReqsIndex);
         if (ret) {
             comm_err("got error in mp_wait_all ret=%d\n", ret);
             exit(EXIT_FAILURE);
         }
 
-        if((CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH == MAX_REQS)
+        if((startGlobalFlushReqsIndex+CONST_FLUSH) == MAX_REQS)
         {
             n_reqs = 0;
             startGlobalReqsIndex=0;
             startGlobalFlushReqsIndex = 0;
+
+            if(comm_rank == 0)
+                printf("WAIT FLUSH 0 da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
         }
         else
         {
-            startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+1)%MAX_REQS;
-            if(startGlobalFlushReqsIndex*CONST_FLUSH > startGlobalReqsIndex)
-                startGlobalReqsIndex = (startGlobalFlushReqsIndex*CONST_FLUSH);
-        }
+            startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+CONST_FLUSH)%MAX_REQS;
+            if(startGlobalFlushReqsIndex > startGlobalReqsIndex)
+                startGlobalReqsIndex = startGlobalFlushReqsIndex;
 
-        if(comm_rank == 0)
-            printf("WAIT FLUSH da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
+            if(comm_rank == 0)
+                printf("WAIT FLUSH ++ da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
+        }
+       
 
         //n_reqs -= CONST_FLUSH;
 //        startGlobalReqsIndex--;

@@ -137,10 +137,10 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
     }
   }}}
 
+  call_comm_flush();
   // make sure GPU kernels have finished since the following part runs on CPU
   cudaDeviceSynchronize();
-  call_comm_flush();
-  
+
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // take Aii and the row sum sumAbsAij and calculate D^{-1} and L1^{-1}...
   PRAGMA_THREAD_ACROSS_BLOCKS_MAX(level,block,level->num_my_blocks,dominant_eigenvalue)
