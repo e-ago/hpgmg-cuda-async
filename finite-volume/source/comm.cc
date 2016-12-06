@@ -561,7 +561,7 @@ int comm_flush()
             comm_err("got error in mp_wait_all ret=%d\n", ret);
             exit(EXIT_FAILURE);
         }
-        if(CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH == MAX_REQS)
+        if((CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH == MAX_REQS)
         {
             n_reqs = 0;
             startGlobalReqsIndex=0;
