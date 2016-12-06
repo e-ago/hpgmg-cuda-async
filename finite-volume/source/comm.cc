@@ -244,8 +244,10 @@ static void comm_track_request(mp_request_t *req)
 {
     assert(n_reqs < MAX_REQS);    
     reqs[n_reqs++] = *req;
+    /*
     if(comm_rank == 0)
         printf("TRACK n_reqs: %d\n", n_reqs);
+    */
     DBG("n_reqs=%d\n", n_reqs);
 }
 
@@ -560,6 +562,8 @@ int comm_flush()
     int ret = 0;
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
+    if(comm_rank == 0)
+            printf("FLUSH n_req: %d\n", n_reqs);
     ret = mp_wait_all(n_reqs, reqs);
     n_reqs=0;
     startGlobalReqsIndex=0;
