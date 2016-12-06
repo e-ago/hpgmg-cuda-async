@@ -532,23 +532,22 @@ static int dreq_idx = 0;
 
 int comm_progress()
 {
-    int ret =0;
+    int ret=0;
 
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-//    ret = mp_progress_all(n_reqs, reqs);
+//  ret = mp_progress_all(n_reqs, reqs);
 
     //if( (CONST_PROGRESS*startGlobalReqsIndex)+100 < n_reqs)
     if( (startGlobalReqsIndex+CONST_PROGRESS) < n_reqs)
     {
-        
         if(comm_rank == 0)
             printf("progress CONST_PROGRESS da req: startGlobalReqsIndex %d, n_reqs: %d\n", startGlobalReqsIndex, n_reqs);
         
         ret = mp_progress_all(CONST_PROGRESS, reqs+startGlobalReqsIndex); //*CONST_PROGRESS));
-        if (ret < 0) {
+        if (ret < 0)
             comm_err("ret=%d\n", ret);
-        }
+
         startGlobalReqsIndex = (startGlobalReqsIndex+CONST_PROGRESS)%MAX_REQS; //(startGlobalReqsIndex+1)%MAX_REQS;
     }
 

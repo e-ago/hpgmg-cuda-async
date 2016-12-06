@@ -46,6 +46,9 @@ double power_method(level_type * level, double a, double b, int max_iterations){
 // NOTE, as this function is not timed, it has not been optimized for performance.
 void rebuild_operator_blackbox(level_type * level, double a, double b, int colors_in_each_dim){
 
+  int myRank=0;
+
+  MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
   // trying to color a 1^3 grid with 8 colors won't work... reduce the number of colors...
   if(level->dim.i<colors_in_each_dim)colors_in_each_dim=level->dim.i;
   if(level->dim.j<colors_in_each_dim)colors_in_each_dim=level->dim.j;
@@ -55,8 +58,9 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
   #ifdef USE_MPI
   double dinv_start = MPI_Wtime();
   #endif
-
-  #if 0 // naive version using existing routines.  Doesn't calculate l1inv or estimate the dominant eigenvalue
+  
+  // naive version using existing routines.  Doesn't calculate l1inv or estimate the dominant eigenvalue
+  #if 0 
   int         x_id = VECTOR_U;
   int        Ax_id = VECTOR_TEMP;
   int icolor,jcolor,kcolor;
@@ -100,7 +104,7 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
   // make sure GPU kernels have finished since the following part runs on CPU
   cudaDeviceSynchronize();
   force_comm_flush();
-  
+
   //  fprintf(stdout, "Rank %d before cuda_rebuild\n", level->my_rank);
 
     // apply the operator and add to Aii and AbsAij 
@@ -174,6 +178,7 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
 
       // catch failure...
       if(Aii[ijk]==0.0){
+        if(myRank == 0)
         printf("Aii[%d,%d,%d]==0.0 !!!\n",i+level->my_boxes[box].low.i,j+level->my_boxes[box].low.j,k+level->my_boxes[box].low.k);
         Aii[ijk] = a+b*h2inv; // FIX !!!
       }
