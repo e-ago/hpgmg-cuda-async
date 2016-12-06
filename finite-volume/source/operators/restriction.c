@@ -345,7 +345,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
                                 level_c->stream);
       }
       else
-        comm_flush();
+        comm_flush_new();
     }
     
     _timeEnd = getTime();
@@ -415,7 +415,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       if (!level_c->use_cuda || !level_f->use_cuda && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
         //cudaDeviceSynchronize();
-        comm_flush();
+        comm_flush_new();
         POP_RANGE;
       } 
 #endif

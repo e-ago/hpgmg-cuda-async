@@ -564,9 +564,12 @@ int comm_flush()
     assert(n_reqs < MAX_REQS);
  //   if(comm_rank == 0)
  //           printf("FLUSH n_req: %d\n", n_reqs);
-    ret = mp_wait_all(n_reqs, reqs);
+    int diff = n_reqs - startGlobalFlushReqsIndex;
+
+    ret = mp_wait_all(diff, reqs+startGlobalFlushReqsIndex);
     n_reqs=0;
     startGlobalReqsIndex=0;
+    startGlobalFlushReqsIndex=0;
 
     return ret;
 }
