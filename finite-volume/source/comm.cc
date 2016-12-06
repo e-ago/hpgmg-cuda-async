@@ -525,6 +525,7 @@ out:
 static struct comm_dev_descs *pdreqs = NULL;
 static const size_t n_dreqs = 128; //36 prima
 static int dreq_idx = 0;
+#define CONST_FLUSH 1024
 
 int comm_flush()
 {
@@ -547,24 +548,32 @@ int comm_flush()
     n_reqs=0;
     startGlobalReqsIndex=0;
 */
-#if 0
-    
-    int tmp = n_reqs;
-    while( (100*startGlobalFlushReqsIndex)+100 < tmp)
+#if 1
+    //int tmp = n_reqs;
+    while( (CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH < n_reqs)
     {
         if(comm_rank == 0)
-            printf("WAIT 100 da req: startGlobalFlushReqsIndex*100 %d, n_reqs: %d tmp: %d\n",
-             startGlobalFlushReqsIndex*100, n_reqs, tmp);
+            printf("WAIT CONST_FLUSH da req: startGlobalFlushReqsIndex*CONST_FLUSH %d, n_reqs: %d n_reqs: %d\n",
+             startGlobalFlushReqsIndex*CONST_FLUSH, n_reqs, n_reqs);
 
-        ret = mp_wait_all(100, reqs+(startGlobalFlushReqsIndex*100));
+        ret = mp_wait_all(CONST_FLUSH, reqs+(startGlobalFlushReqsIndex*CONST_FLUSH));
         if (ret) {
             comm_err("got error in mp_wait_all ret=%d\n", ret);
             exit(EXIT_FAILURE);
         }
-        startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+1)%MAX_REQS;
-        n_reqs -= 100;
-        startGlobalReqsIndex--;
+        if(CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH == MAX_REQS)
+        {
+            n_reqs = 0;
+            startGlobalReqsIndex=0;
+            startGlobalFlushReqsIndex = 0;
+        }
+        else
+        {
+            startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+1)%MAX_REQS;
+        }
 
+        //n_reqs -= CONST_FLUSH;
+//        startGlobalReqsIndex--;
     }
     #endif
     return ret;
