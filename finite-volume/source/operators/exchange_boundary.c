@@ -654,8 +654,8 @@ void exchange_boundary(level_type * level, int id, int shape) {
   POP_RANGE;
 }
 
-void call_comm_flush() {
-  comm_flush();
+void force_comm_flush() {
+  comm_flush_force();
 }
 /*
 

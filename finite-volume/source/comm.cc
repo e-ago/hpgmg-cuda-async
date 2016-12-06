@@ -615,7 +615,27 @@ int comm_flush()
     return ret;
 }
 
+int comm_flush_force()
+{
+    int ret = 0;
+    DBG("n_reqs=%d\n", n_reqs);
+    assert(n_reqs < MAX_REQS);
 
+    if(n_reqs-startGlobalFlushReqsIndex > 0)
+    {
+        ret = mp_wait_all(n_reqs-startGlobalFlushReqsIndex, reqs+startGlobalFlushReqsIndex);
+        if (ret) {
+            comm_err("got error in mp_wait_all ret=%d\n", ret);
+            exit(EXIT_FAILURE);
+        }
+
+        n_reqs=0;
+        startGlobalFlushReqsIndex=0;
+        startGlobalReqsIndex=0;
+    }
+
+    return ret;
+}
 
 static struct comm_dev_descs *dreqs()
 {
