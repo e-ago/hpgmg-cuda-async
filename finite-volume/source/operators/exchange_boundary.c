@@ -654,9 +654,10 @@ void exchange_boundary(level_type * level, int id, int shape) {
   POP_RANGE;
 }
 
+/*
 void force_comm_flush() {
   comm_flush_force();
-}
+}*/
 /*
 
 [13458] GDS WARN  gds_create_qp() QP WQ DBREC on GPU
