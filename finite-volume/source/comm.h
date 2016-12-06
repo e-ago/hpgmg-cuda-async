@@ -58,7 +58,7 @@ extern "C" {
     int comm_wait_all_on_stream(int count, comm_request_t *creqs, comm_stream_t stream);
     int comm_wait(comm_request_t *creq);
     int comm_flush();
-    int comm_flush_force();
+    int comm_flush_new();
     int comm_progress();
 
     int comm_prepare_wait_ready(int rank);
