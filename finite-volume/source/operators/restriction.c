@@ -244,7 +244,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
   if(myRank == 0)
     printf("use_async: %d, cuda_c: %d cuda_f: %d\n", use_async, level_c->use_cuda, level_f->use_cuda);
 
-  
+
   DBG("id_c=%d type=%d nMessages=%d recvs=%d sends=%d\n", 
       id_c, restrictionType, nMessages, 
       level_c->restriction[restrictionType].num_recvs,
@@ -345,7 +345,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
                                 level_c->stream);
       }
       else
-        comm_flush_new();
+        comm_flush();
     }
     
     _timeEnd = getTime();
