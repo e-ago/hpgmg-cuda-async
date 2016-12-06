@@ -554,6 +554,18 @@ int comm_progress()
     return ret;
 }
 
+ 
+int comm_flush()
+{
+    int ret = 0;
+    DBG("n_reqs=%d\n", n_reqs);
+    assert(n_reqs < MAX_REQS);
+    ret = mp_wait_all(n_reqs, reqs);
+    n_reqs=0;
+    startGlobalReqsIndex=0;
+
+    return ret;
+}
 
 int comm_flush()
 {
