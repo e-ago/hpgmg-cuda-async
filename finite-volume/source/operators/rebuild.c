@@ -91,10 +91,16 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
     // color the grid as 1's and 0's
     color_vector(level,x_id,colors_in_each_dim,icolor,jcolor,kcolor);
 
+  call_comm_flush();
+cudaDeviceSynchronize();
   //  fprintf(stdout, "Rank %d before exchange_boundary\n", level->my_rank);
     // exchange the boundary of x in preparation for Ax
     exchange_boundary(level,x_id,stencil_get_shape());
             apply_BCs(level,x_id,stencil_get_shape());
+
+
+  call_comm_flush();
+cudaDeviceSynchronize();
 
   //  fprintf(stdout, "Rank %d before cuda_rebuild\n", level->my_rank);
 
@@ -137,7 +143,6 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
     }
   }}}
 
-  call_comm_flush();
   // make sure GPU kernels have finished since the following part runs on CPU
   cudaDeviceSynchronize();
 
