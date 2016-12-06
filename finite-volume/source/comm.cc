@@ -543,8 +543,8 @@ int comm_progress()
     //if( (CONST_PROGRESS*startGlobalReqsIndex)+100 < n_reqs)
     if( (startGlobalReqsIndex+CONST_PROGRESS) < n_reqs)
     {
-        if(comm_rank == 0)
-            printf("progress CONST_PROGRESS da req: startGlobalReqsIndex %d, n_reqs: %d\n", startGlobalReqsIndex, n_reqs);
+//        if(comm_rank == 0)
+ //           printf("progress CONST_PROGRESS da req: startGlobalReqsIndex %d, n_reqs: %d\n", startGlobalReqsIndex, n_reqs);
         
         ret = mp_progress_all(CONST_PROGRESS, reqs+startGlobalReqsIndex); //*CONST_PROGRESS));
         if (ret < 0)
