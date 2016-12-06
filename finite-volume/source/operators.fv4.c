@@ -148,6 +148,7 @@ int stencil_get_shape(){return(STENCIL_SHAPE_STAR);} // needs just faces
 void rebuild_operator(level_type * level, level_type *fromLevel, double a, double b){
   // form restriction of alpha[], beta_*[] coefficients from fromLevel
   if(fromLevel != NULL){
+    force_comm_flush();
     restriction(level,VECTOR_ALPHA ,fromLevel,VECTOR_ALPHA ,RESTRICT_CELL  );
     force_comm_flush();
     restriction(level,VECTOR_BETA_I,fromLevel,VECTOR_BETA_I,RESTRICT_FACE_I);
