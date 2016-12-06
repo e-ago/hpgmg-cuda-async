@@ -536,18 +536,18 @@ int comm_progress()
     assert(n_reqs < MAX_REQS);
 //    ret = mp_progress_all(n_reqs, reqs);
 
-    if( (CONST_PROGRESS*startGlobalReqsIndex)+100 < n_reqs)
+    //if( (CONST_PROGRESS*startGlobalReqsIndex)+100 < n_reqs)
+    if( (startGlobalReqsIndex+CONST_PROGRESS) < n_reqs)
     {
         
         if(comm_rank == 0)
-            printf("progress CONST_PROGRESS da req: startGlobalReqsIndex*CONST_PROGRESS %d, n_reqs: %d\n",
-             startGlobalReqsIndex*CONST_PROGRESS, n_reqs);
+            printf("progress CONST_PROGRESS da req: startGlobalReqsIndex %d, n_reqs: %d\n", startGlobalReqsIndex, n_reqs);
         
-        ret = mp_progress_all(CONST_PROGRESS, reqs+(startGlobalReqsIndex*CONST_PROGRESS));
+        ret = mp_progress_all(CONST_PROGRESS, reqs+startGlobalReqsIndex); //*CONST_PROGRESS));
         if (ret < 0) {
             comm_err("ret=%d\n", ret);
         }
-        startGlobalReqsIndex = (startGlobalReqsIndex+1)%MAX_REQS;
+        startGlobalReqsIndex = (startGlobalReqsIndex+CONST_PROGRESS)%MAX_REQS; //(startGlobalReqsIndex+1)%MAX_REQS;
     }
 
     return ret;
@@ -600,6 +600,8 @@ int comm_flush()
         else
         {
             startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+1)%MAX_REQS;
+            if(startGlobalFlushReqsIndex > startGlobalReqsIndex)
+                startGlobalReqsIndex = startGlobalFlushReqsIndex;
         }
 
         if(comm_rank == 0)
