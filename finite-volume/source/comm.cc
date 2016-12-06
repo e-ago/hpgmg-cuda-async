@@ -567,7 +567,7 @@ int comm_flush()
     return ret;
 }
 
-int comm_flush()
+int comm_flush_new()
 {
     int ret = 0;
     DBG("n_reqs=%d\n", n_reqs);
