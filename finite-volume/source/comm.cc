@@ -552,7 +552,7 @@ int comm_flush()
     if(comm_rank == 0)
         printf("comm_flush()\n");
     //int tmp = n_reqs;
-    while( (CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH < n_reqs)
+    if( (CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH < n_reqs)
     {
         if(comm_rank == 0)
             printf("WAIT CONST_FLUSH da req: startGlobalFlushReqsIndex*CONST_FLUSH %d, n_reqs: %d n_reqs: %d\n",
@@ -563,6 +563,7 @@ int comm_flush()
             comm_err("got error in mp_wait_all ret=%d\n", ret);
             exit(EXIT_FAILURE);
         }
+
         if((CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH == MAX_REQS)
         {
             n_reqs = 0;
