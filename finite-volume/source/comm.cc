@@ -555,8 +555,8 @@ int comm_flush()
     if( (CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH < n_reqs)
     {
         if(comm_rank == 0)
-            printf("WAIT CONST_FLUSH da req: startGlobalFlushReqsIndex*CONST_FLUSH %d, n_reqs: %d n_reqs: %d\n",
-             startGlobalFlushReqsIndex*CONST_FLUSH, n_reqs, n_reqs);
+            printf("WAIT CONST_FLUSH da req: startGlobalFlushReqsIndex*CONST_FLUSH %d, n_reqs: %d\n",
+             startGlobalFlushReqsIndex*CONST_FLUSH, n_reqs);
 
         ret = mp_wait_all(CONST_FLUSH, reqs+(startGlobalFlushReqsIndex*CONST_FLUSH));
         if (ret) {
@@ -574,6 +574,9 @@ int comm_flush()
         {
             startGlobalFlushReqsIndex = (startGlobalFlushReqsIndex+1)%MAX_REQS;
         }
+
+        if(comm_rank == 0)
+            printf("WAIT CONST_FLUSH da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
 
         //n_reqs -= CONST_FLUSH;
 //        startGlobalReqsIndex--;
