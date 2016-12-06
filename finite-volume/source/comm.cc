@@ -562,8 +562,8 @@ int comm_flush()
     int ret = 0;
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-    if(comm_rank == 0)
-        printf("FLUSH NEW n_req: %d startGlobalFlushReqsIndex: %d\n", n_reqs, startGlobalFlushReqsIndex);
+    //if(comm_rank == 0)
+    //    printf("FLUSH NEW n_req: %d startGlobalFlushReqsIndex: %d\n", n_reqs, startGlobalFlushReqsIndex);
     int diff = n_reqs - startGlobalFlushReqsIndex;
     ret = mp_wait_all(diff, reqs+startGlobalFlushReqsIndex);
     n_reqs=0;
@@ -598,8 +598,8 @@ int comm_flush_new()
      //int tmp = n_reqs;
     if( (startGlobalFlushReqsIndex+CONST_FLUSH) < n_reqs)
     {
-        if(comm_rank == 0)
-            printf("WAIT FLUSH da req: startGlobalFlushReqsIndex %d, n_reqs: %d\n", startGlobalFlushReqsIndex, n_reqs);
+        //if(comm_rank == 0)
+        //    printf("WAIT FLUSH da req: startGlobalFlushReqsIndex %d, n_reqs: %d\n", startGlobalFlushReqsIndex, n_reqs);
 
         ret = mp_wait_all(CONST_FLUSH, reqs+startGlobalFlushReqsIndex);
         if (ret) {
@@ -613,8 +613,8 @@ int comm_flush_new()
             startGlobalReqsIndex=0;
             startGlobalFlushReqsIndex = 0;
 
-            if(comm_rank == 0)
-                printf("WAIT FLUSH 0 da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
+       //    if(comm_rank == 0)
+        //        printf("WAIT FLUSH 0 da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
         }
         else
         {
@@ -622,8 +622,8 @@ int comm_flush_new()
             if(startGlobalFlushReqsIndex > startGlobalReqsIndex)
                 startGlobalReqsIndex = startGlobalFlushReqsIndex;
 
-            if(comm_rank == 0)
-                printf("WAIT FLUSH ++ da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
+        //    if(comm_rank == 0)
+        //        printf("WAIT FLUSH ++ da startGlobalFlushReqsIndex: %d, startGlobalReqsIndex: %d\n", startGlobalFlushReqsIndex, startGlobalReqsIndex);
         }
        
 
