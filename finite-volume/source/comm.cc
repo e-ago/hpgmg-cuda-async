@@ -526,6 +526,33 @@ static struct comm_dev_descs *pdreqs = NULL;
 static const size_t n_dreqs = 128; //36 prima
 static int dreq_idx = 0;
 #define CONST_FLUSH 1024
+#define CONST_PROGRESS 50
+
+int comm_progress()
+{
+    int ret =0;
+
+    DBG("n_reqs=%d\n", n_reqs);
+    assert(n_reqs < MAX_REQS);
+//    ret = mp_progress_all(n_reqs, reqs);
+
+    if( (CONST_PROGRESS*startGlobalReqsIndex)+100 < n_reqs)
+    {
+        
+        if(comm_rank == 0)
+            printf("progress CONST_PROGRESS da req: startGlobalReqsIndex*CONST_PROGRESS %d, n_reqs: %d\n",
+             startGlobalReqsIndex*CONST_PROGRESS, n_reqs);
+        
+        ret = mp_progress_all(CONST_PROGRESS, reqs+(startGlobalReqsIndex*CONST_PROGRESS));
+        if (ret < 0) {
+            comm_err("ret=%d\n", ret);
+        }
+        startGlobalReqsIndex = (startGlobalReqsIndex+1)%MAX_REQS;
+    }
+
+    return ret;
+}
+
 
 int comm_flush()
 {
@@ -585,30 +612,6 @@ int comm_flush()
     return ret;
 }
 
-int comm_progress()
-{
-    int ret =0;
-
-    DBG("n_reqs=%d\n", n_reqs);
-    assert(n_reqs < MAX_REQS);
-//    ret = mp_progress_all(n_reqs, reqs);
-
-    if( (50*startGlobalReqsIndex)+100 < n_reqs)
-    {
-        /*
-        if(comm_rank == 0)
-            printf("progress 50 da req: startGlobalReqsIndex*50 %d, n_reqs: %d\n",
-             startGlobalReqsIndex*50, n_reqs);
-        */
-        ret = mp_progress_all(50, reqs+(startGlobalReqsIndex*50));
-        if (ret < 0) {
-            comm_err("ret=%d\n", ret);
-        }
-        startGlobalReqsIndex = (startGlobalReqsIndex+1)%MAX_REQS;
-    }
-
-    return ret;
-}
 
 
 static struct comm_dev_descs *dreqs()
