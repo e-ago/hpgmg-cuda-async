@@ -52,7 +52,7 @@ static mp_reg_t    remote_ready_values_reg;
 static int startGlobalReqsIndex=0;
 static int startGlobalFlushReqsIndex=0;
 
-#define MAX_REQS 65538
+#define MAX_REQS 1048576 //65538
 static mp_request_t reqs[MAX_REQS];
 static int n_reqs = 0;
 
@@ -549,6 +549,8 @@ int comm_flush()
     startGlobalReqsIndex=0;
 */
 #if 1
+    if(comm_rank == 0)
+        printf("comm_flush()\n");
     //int tmp = n_reqs;
     while( (CONST_FLUSH*startGlobalFlushReqsIndex)+CONST_FLUSH < n_reqs)
     {
