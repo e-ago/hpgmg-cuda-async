@@ -427,6 +427,8 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
     restriction_plain(level_c, id_c, level_f, id_f, restrictionType);
   }
 
+exit(-1);
+
   level_f->timers.restriction_total += (double)(getTime()-_timeCommunicationStart);
 
   POP_RANGE;
