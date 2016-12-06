@@ -621,8 +621,11 @@ int comm_flush_force()
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
 
-    if(n_reqs-startGlobalFlushReqsIndex > 0)
+    if((n_reqs-startGlobalFlushReqsIndex) > 0)
     {
+        if(comm_rank == 0)
+            printf("WAIT FORCE flush startGlobalFlushReqsIndex: %d, (n_reqs-startGlobalFlushReqsIndex): %d\n", startGlobalFlushReqsIndex, (n_reqs-startGlobalFlushReqsIndex));
+
         ret = mp_wait_all(n_reqs-startGlobalFlushReqsIndex, reqs+startGlobalFlushReqsIndex);
         if (ret) {
             comm_err("got error in mp_wait_all ret=%d\n", ret);
