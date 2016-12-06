@@ -565,7 +565,7 @@ int comm_flush()
     if(comm_rank == 0)
         printf("FLUSH NEW n_req: %d startGlobalFlushReqsIndex: %d\n", n_reqs, startGlobalFlushReqsIndex);
     int diff = n_reqs - startGlobalFlushReqsIndex;
-    ret = mp_wait_all(n_reqs, reqs+startGlobalFlushReqsIndex);
+    ret = mp_wait_all(diff, reqs+startGlobalFlushReqsIndex);
     n_reqs=0;
     startGlobalReqsIndex=0;
     startGlobalFlushReqsIndex=0;
@@ -599,7 +599,7 @@ int comm_flush_new()
     if( (startGlobalFlushReqsIndex+CONST_FLUSH) < n_reqs)
     {
         if(comm_rank == 0)
-            printf("WAIT FLUSH da req: startGlobalFlushReqsIndex*CONST_FLUSH %d, n_reqs: %d\n", startGlobalFlushReqsIndex*CONST_FLUSH, n_reqs);
+            printf("WAIT FLUSH da req: startGlobalFlushReqsIndex %d, n_reqs: %d\n", startGlobalFlushReqsIndex, n_reqs);
 
         ret = mp_wait_all(CONST_FLUSH, reqs+startGlobalFlushReqsIndex);
         if (ret) {
