@@ -492,7 +492,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 
       level->timers.ghostZone_send += (getTime()-_timeStart);
     }
-    
+
     // --------- LOCAL
     if(level->exchange_ghosts[shape].num_blocks[1])
     {
@@ -682,6 +682,7 @@ else
     }
  // }
 
+#if 0
   // wait for send
   if (level->exchange_ghosts[shape].num_sends > 0) {
     //JUST FOR TIMERS
@@ -697,7 +698,7 @@ else
     //cudaDeviceSynchronize();
     level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
-
+#endif
 }
 
   PUSH_RANGE("progress", KERNEL_COL);
