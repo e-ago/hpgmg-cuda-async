@@ -540,7 +540,6 @@ int comm_progress()
     assert(n_reqs < MAX_REQS);
     //ret = mp_progress_all(n_reqs, reqs);
 #if 1
-    //if( (CONST_PROGRESS*startGlobalReqsIndex)+100 < n_reqs)
     if( (startGlobalReqsIndex+CONST_PROGRESS) < n_reqs)
     {
 //        if(comm_rank == 0)

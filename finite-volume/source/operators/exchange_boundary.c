@@ -627,6 +627,8 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
 void exchange_boundary(level_type * level, int id, int shape) {
     if(shape>=STENCIL_MAX_SHAPES)shape=STENCIL_SHAPE_BOX;  // shape must be < STENCIL_MAX_SHAPES in order to safely index into exchange_ghosts[]
 
+    //JUST FOR TIMERS
+    cudaDeviceSynchronize();
     double _timeCommunicationStart = getTime();
 
   if (ENABLE_EXCHANGE_BOUNDARY_COMM && comm_use_comm()) {
@@ -651,6 +653,7 @@ void exchange_boundary(level_type * level, int id, int shape) {
       exchange_boundary_plain(level, id, shape);
   }
 
+  cudaDeviceSynchronize();
   level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
   POP_RANGE;
 }
