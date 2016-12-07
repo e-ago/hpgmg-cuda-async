@@ -694,11 +694,6 @@ void exchange_boundary(level_type * level, int id, int shape) {
         PUSH_RANGE("exchange_async", OP_COL);
         exchange_boundary_async(level, id, shape);
       }
-      else if(comm_use_async() && !level->use_cuda)
-      {
-        PUSH_RANGE("exchange_plain", OP_COL);
-        exchange_boundary_plain(level, id, shape);
-      }
       else
       {
         PUSH_RANGE("exchange_comm", OP_COL);
