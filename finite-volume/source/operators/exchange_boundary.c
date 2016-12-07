@@ -704,7 +704,8 @@ void exchange_boundary(level_type * level, int id, int shape) {
       exchange_boundary_plain(level, id, shape);
   }
 
-  cudaDeviceSynchronize();
+  //JUST FOR TIMERS
+  //cudaDeviceSynchronize();
   level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
   POP_RANGE;
 }
