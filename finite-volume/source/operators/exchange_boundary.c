@@ -428,13 +428,13 @@ void exchange_boundary_async(level_type * level, int id, int shape){
                  &level->exchange_ghosts[shape].recv_buffers_reg[n],
                  level->exchange_ghosts[shape].recv_ranks[n],
                  &recv_requests[n]);
-/*
+
       comm_send_ready_on_stream(level->exchange_ghosts[shape].recv_ranks[n], 
                                   &ready_requests[n],
                                   level->stream);
-*/
+
     }
-    MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Barrier(MPI_COMM_WORLD);
     POP_RANGE;
     //JUST FOR TIMERS
     //cudaDeviceSynchronize();
@@ -503,7 +503,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
           level->exchange_ghosts[shape].send_ranks[n], 
           level->exchange_ghosts[shape].send_sizes[n]);
 
-//      comm_wait_ready_on_stream(level->exchange_ghosts[shape].send_ranks[n], level->stream);
+      comm_wait_ready_on_stream(level->exchange_ghosts[shape].send_ranks[n], level->stream);
       comm_isend_on_stream(level->exchange_ghosts[shape].send_buffers[n], 
                            level->exchange_ghosts[shape].send_sizes[n],
                            MPI_DOUBLE,
