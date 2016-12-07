@@ -419,7 +419,6 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 
   if(level->stream_rec != NULL)
   {
-    printf("stream_rec != NULL\n");
     // RECVS
     if(level->exchange_ghosts[shape].num_recvs>0)
     {
@@ -451,6 +450,49 @@ void exchange_boundary_async(level_type * level, int id, int shape){
       level->timers.ghostZone_recv += (getTime()-_timeStart);
     }
 
+     // --------------- PACK & SEND
+    if(level->exchange_ghosts[shape].num_blocks[0] > 0)
+    {
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
+      PUSH_RANGE("pack", KERNEL_COL);
+      cuda_copy_block(*level,id,level->exchange_ghosts[shape],0, sendStream);
+      POP_RANGE;
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      level->timers.ghostZone_pack += (getTime()-_timeStart);
+    }
+
+     // --------------- PACK & SEND
+    if(level->exchange_ghosts[shape].num_sends > 0)
+    {
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
+
+      PUSH_RANGE("test ready + isend", SEND_COL);
+
+      for(n=0;n<level->exchange_ghosts[shape].num_sends;n++){
+        DBG("send_rank[%d]=%d size=%d\n", n,
+            level->exchange_ghosts[shape].send_ranks[n], 
+            level->exchange_ghosts[shape].send_sizes[n]);
+
+        comm_wait_ready_on_stream(level->exchange_ghosts[shape].send_ranks[n], sendStream);
+        comm_isend_on_stream(level->exchange_ghosts[shape].send_buffers[n], 
+                             level->exchange_ghosts[shape].send_sizes[n],
+                             MPI_DOUBLE,
+                             &level->exchange_ghosts[shape].send_buffers_reg[n],
+                             level->exchange_ghosts[shape].send_ranks[n],
+                             &send_requests[n],
+                             sendStream);
+      }
+
+      POP_RANGE;
+
+      level->timers.ghostZone_send += (getTime()-_timeStart);
+    }
+    
     // --------- LOCAL
     if(level->exchange_ghosts[shape].num_blocks[1])
     {
@@ -497,48 +539,23 @@ void exchange_boundary_async(level_type * level, int id, int shape){
       level->timers.ghostZone_unpack += (getTime()-_timeStart);
     }
 
-    // --------------- PACK & SEND
-    if(level->exchange_ghosts[shape].num_blocks[0] > 0)
-    {
-      //JUST FOR TIMERS
-      //cudaDeviceSynchronize();
-      _timeStart = getTime();
-      PUSH_RANGE("pack", KERNEL_COL);
-      cuda_copy_block(*level,id,level->exchange_ghosts[shape],0, sendStream);
+   
+
+    // wait for send
+  if (level->exchange_ghosts[shape].num_sends > 0) {
+    //JUST FOR TIMERS
+    //cudaDeviceSynchronize();
+    _timeStart = getTime();
+
+      PUSH_RANGE("wait send", WAIT_COL);
+      comm_wait_all_on_stream(level->exchange_ghosts[shape].num_sends,
+                              send_requests,
+                              recvStream);
       POP_RANGE;
       //JUST FOR TIMERS
-      //cudaDeviceSynchronize();
-      level->timers.ghostZone_pack += (getTime()-_timeStart);
-    }
-
-    // loop through MPI send buffers and post Isend's...
-    if(level->exchange_ghosts[shape].num_sends > 0)
-    {
-      //JUST FOR TIMERS
-      //cudaDeviceSynchronize();
-      _timeStart = getTime();
-
-      PUSH_RANGE("test ready + isend", SEND_COL);
-
-      for(n=0;n<level->exchange_ghosts[shape].num_sends;n++){
-        DBG("send_rank[%d]=%d size=%d\n", n,
-            level->exchange_ghosts[shape].send_ranks[n], 
-            level->exchange_ghosts[shape].send_sizes[n]);
-
-        comm_wait_ready_on_stream(level->exchange_ghosts[shape].send_ranks[n], sendStream);
-        comm_isend_on_stream(level->exchange_ghosts[shape].send_buffers[n], 
-                             level->exchange_ghosts[shape].send_sizes[n],
-                             MPI_DOUBLE,
-                             &level->exchange_ghosts[shape].send_buffers_reg[n],
-                             level->exchange_ghosts[shape].send_ranks[n],
-                             &send_requests[n],
-                             sendStream);
-      }
-
-      POP_RANGE;
-
-      level->timers.ghostZone_send += (getTime()-_timeStart);
-    }
+    //cudaDeviceSynchronize();
+    level->timers.ghostZone_wait += (getTime()-_timeStart);
+  }
   }
 else
 {
