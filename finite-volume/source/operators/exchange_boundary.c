@@ -75,6 +75,8 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
 
   // pack MPI send buffers...
   if(level->exchange_ghosts[shape].num_blocks[0]){
+    //JUST FOR TIMERS
+    cudaDeviceSynchronize();
     _timeStart = getTime();
 
     PUSH_RANGE("pack", KERNEL_COL);
@@ -91,7 +93,6 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
     }
     
     POP_RANGE;
-
     level->timers.ghostZone_pack += (getTime()-_timeStart);
   }
 
@@ -126,6 +127,8 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
 
   // exchange locally... try and hide within Isend latency... 
   if(level->exchange_ghosts[shape].num_blocks[1]){
+    //JUST FOR TIMERS
+    cudaDeviceSynchronize();
     _timeStart = getTime();
     PUSH_RANGE("local", KERNEL_COL);
     if (level->use_cuda) {
@@ -139,6 +142,8 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
     }
     POP_RANGE;
     
+//JUST FOR TIMERS
+    cudaDeviceSynchronize();
     level->timers.ghostZone_local += (getTime()-_timeStart);
   }
 
@@ -146,6 +151,8 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
   // wait for MPI to finish...
   #ifdef USE_MPI 
   if(nMessages){
+    //JUST FOR TIMERS
+    cudaDeviceSynchronize();
     _timeStart = getTime();
     PUSH_RANGE("waitall", WAIT_COL);
 
@@ -155,13 +162,16 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
   #endif
     
     POP_RANGE;
-    
+    //JUST FOR TIMERS
+    cudaDeviceSynchronize();
     level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
 
 
   // unpack MPI receive buffers 
   if(level->exchange_ghosts[shape].num_blocks[2]){
+    //JUST FOR TIMERS
+    cudaDeviceSynchronize();
     _timeStart = getTime();
 
     PUSH_RANGE("upack", KERNEL_COL);
@@ -178,6 +188,8 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
     
     POP_RANGE;
 
+//JUST FOR TIMERS
+    cudaDeviceSynchronize();
     level->timers.ghostZone_unpack += (getTime()-_timeStart);
   }
   #endif
