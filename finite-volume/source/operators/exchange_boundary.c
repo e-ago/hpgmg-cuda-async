@@ -535,11 +535,11 @@ void exchange_boundary_async(level_type * level, int id, int shape){
   }
 
 
-/*
+
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
   POP_RANGE;
-*/
+
   
   //async x profiler
  // cudaDeviceSynchronize();
@@ -659,11 +659,3 @@ void exchange_boundary(level_type * level, int id, int shape) {
 void force_comm_flush() {
   comm_flush_force();
 }*/
-/*
-
-[13458] GDS WARN  gds_create_qp() QP WQ DBREC on GPU
-[13458] GDS ERR   gds_peer_malloc() CUDA error 3 in cuDeviceGetCount, calling cuInit
-[17193] GDS WARN  gds_create_qp() QP WQ DBREC on GPU
-[17193] GDS ERR   gds_peer_malloc() CUDA error 3 in cuDeviceGetCount, calling cuInit
-
-*/
