@@ -52,7 +52,7 @@ static mp_reg_t    remote_ready_values_reg;
 static int startGlobalReqsIndex=0;
 static int startGlobalFlushReqsIndex=0;
 
-#define MAX_REQS 32768 //1048576
+#define MAX_REQS 16384 //32768 //1048576
 static mp_request_t reqs[MAX_REQS];
 static int n_reqs = 0;
 
