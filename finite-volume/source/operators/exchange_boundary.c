@@ -775,13 +775,15 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
 
   level->timers.ghostZone_local += (getTime()-_timeStart);
 
+#if 0
   // wait for send
   if (level->exchange_ghosts[shape].num_sends) {
     _timeStart = getTime();
     comm_wait_all_on_stream(level->exchange_ghosts[shape].num_sends, send_requests, level->stream);
     level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
-
+#endif
+  
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
   POP_RANGE;
