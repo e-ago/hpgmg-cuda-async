@@ -1286,7 +1286,7 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
   level->um_access_policy = UM_ACCESS_CPU;
 
   // determine if this level is big enough so that it makes sense to run on GPU
-  level->use_cuda = (level->dim.i * level->dim.j * level->dim.k > HOST_LEVEL_SIZE_THRESHOLD); // this is the global problem size
+  //level->use_cuda = (level->dim.i * level->dim.j * level->dim.k > HOST_LEVEL_SIZE_THRESHOLD); // this is the global problem size
 
   // we will allocate this memory later on demand
   level->chebyshev_c1 = NULL;
@@ -1347,7 +1347,7 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
   }
 */
   // determine if this level is big enough so that it makes sense to run on GPU
-  //level->use_cuda = (level->box_dim * level->box_dim * level->box_dim * level->num_my_boxes > HOST_LEVEL_SIZE_THRESHOLD);
+  level->use_cuda = (level->box_dim * level->box_dim * level->box_dim * level->num_my_boxes > HOST_LEVEL_SIZE_THRESHOLD);
    //async change
   level->stream = NULL;
   level->stream_rec = NULL; 
