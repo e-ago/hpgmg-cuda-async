@@ -337,12 +337,12 @@ double cuda_sum(level_type d_level, int id)
   double h_res[1];
 
   //    With gpu direct async, unified memory must be disabled
-#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-  CUDA_API_ERROR( cudaMallocHost(&d_res, sizeof(double)) )
-#else
+//#ifdef CUDA_DISABLE_UNIFIED_MEMORY
+//  CUDA_API_ERROR( cudaMallocHost(&d_res, sizeof(double)) )
+//#else
   CUDA_API_ERROR( cudaMallocManaged((void**)&d_res, sizeof(double), cudaMemAttachGlobal) )
   CUDA_API_ERROR( cudaMemsetAsync(d_res, 0, sizeof(double)) )
-#endif
+//#endif
 
   reduction_kernel<0><<<grid, block>>>(d_level, id, d_res);
   CUDA_ERROR
@@ -352,11 +352,11 @@ double cuda_sum(level_type d_level, int id)
   h_res[0] = d_res[0];
 
   //    With gpu direct async, unified memory must be disabled
-#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-  CUDA_API_ERROR( cudaFreeHost(d_res) )
-#else
+//#ifdef CUDA_DISABLE_UNIFIED_MEMORY
+//  CUDA_API_ERROR( cudaFreeHost(d_res) )
+//#else
   CUDA_API_ERROR( cudaFree(d_res) )
-#endif
+//#endif
 
   return h_res[0];
 }
@@ -372,12 +372,12 @@ double cuda_max_abs(level_type d_level, int id)
   double h_res[1];
 
   //    With gpu direct async, unified memory must be disabled
- #ifdef CUDA_DISABLE_UNIFIED_MEMORY
-  CUDA_API_ERROR( cudaMallocHost(&d_res, sizeof(double)) )
-#else
+ //#ifdef CUDA_DISABLE_UNIFIED_MEMORY
+ // CUDA_API_ERROR( cudaMallocHost(&d_res, sizeof(double)) )
+//#else
   CUDA_API_ERROR( cudaMallocManaged((void**)&d_res, sizeof(double), cudaMemAttachGlobal) )
   CUDA_API_ERROR( cudaMemsetAsync(d_res, 0, sizeof(double)) )
-#endif
+//#endif
 
   reduction_kernel<1><<<grid, block>>>(d_level, id, d_res);
   CUDA_ERROR
@@ -387,11 +387,11 @@ double cuda_max_abs(level_type d_level, int id)
   h_res[0] = d_res[0];
 
   //    With gpu direct async, unified memory must be disabled
-#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-  CUDA_API_ERROR( cudaFreeHost(d_res) )
-#else
+//#ifdef CUDA_DISABLE_UNIFIED_MEMORY
+//  CUDA_API_ERROR( cudaFreeHost(d_res) )
+//#else
   CUDA_API_ERROR( cudaFree(d_res) )
-#endif
+//#endif
 
 return h_res[0];
 }
