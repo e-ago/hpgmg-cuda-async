@@ -52,7 +52,7 @@ static mp_reg_t    remote_ready_values_reg;
 static int startGlobalReqsIndex=0;
 static int startGlobalFlushReqsIndex=0;
 
-#define MAX_REQS 1048576 //65538
+#define MAX_REQS 65536
 static mp_request_t reqs[MAX_REQS];
 static int n_reqs = 0;
 
@@ -538,8 +538,8 @@ int comm_progress()
 
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-//  ret = mp_progress_all(n_reqs, reqs);
-
+  ret = mp_progress_all(n_reqs, reqs);
+#if 0
     //if( (CONST_PROGRESS*startGlobalReqsIndex)+100 < n_reqs)
     if( (startGlobalReqsIndex+CONST_PROGRESS) < n_reqs)
     {
@@ -552,7 +552,7 @@ int comm_progress()
 
         startGlobalReqsIndex = (startGlobalReqsIndex+CONST_PROGRESS)%MAX_REQS; //(startGlobalReqsIndex+1)%MAX_REQS;
     }
-
+#endif
     return ret;
 }
 
@@ -564,8 +564,8 @@ int comm_flush()
     assert(n_reqs < MAX_REQS);
     //if(comm_rank == 0)
     //    printf("FLUSH NEW n_req: %d startGlobalFlushReqsIndex: %d\n", n_reqs, startGlobalFlushReqsIndex);
-    int diff = n_reqs - startGlobalFlushReqsIndex;
-    ret = mp_wait_all(diff, reqs+startGlobalFlushReqsIndex);
+    //int diff = n_reqs - startGlobalFlushReqsIndex;
+    ret = mp_wait_all(n_reqs, reqs);//+startGlobalFlushReqsIndex);
     n_reqs=0;
     startGlobalReqsIndex=0;
     startGlobalFlushReqsIndex=0;
