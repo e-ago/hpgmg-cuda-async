@@ -419,6 +419,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 
   if(level->stream_rec != NULL)
   {
+    printf("stream_rec != NULL\n");
     // RECVS
     if(level->exchange_ghosts[shape].num_recvs>0)
     {
@@ -533,7 +534,9 @@ void exchange_boundary_async(level_type * level, int id, int shape){
                              &send_requests[n],
                              sendStream);
       }
+
       POP_RANGE;
+
       level->timers.ghostZone_send += (getTime()-_timeStart);
     }
   }
