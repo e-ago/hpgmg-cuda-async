@@ -113,8 +113,8 @@ void bench_hpgmg(mg_type *all_grids, int onLevel, double a, double b, double dto
     MGResetTimers(all_grids);
 
     
-    //if (doTiming)
-    //  cudaProfilerStart();
+    if (doTiming)
+      cudaProfilerStart();
 
     if(doTiming == 0)
       PUSH_RANGE("warmup_time", WARMUP_COL);
@@ -135,8 +135,8 @@ void bench_hpgmg(mg_type *all_grids, int onLevel, double a, double b, double dto
     POP_RANGE;
 
     
-    //if (doTiming)
-    //  cudaProfilerStop();
+    if (doTiming)
+      cudaProfilerStop();
 
     if(doTiming==1){
       double endTime1 = MPI_Wtime();
