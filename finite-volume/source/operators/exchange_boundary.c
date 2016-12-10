@@ -543,161 +543,161 @@ void exchange_boundary_async(level_type * level, int id, int shape){
    
 
     // wait for send
-  if (level->exchange_ghosts[shape].num_sends > 0) {
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    _timeStart = getTime();
+    if (level->exchange_ghosts[shape].num_sends > 0) {
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
 
-      PUSH_RANGE("wait send", WAIT_COL);
-      comm_wait_all_on_stream(level->exchange_ghosts[shape].num_sends,
-                              send_requests,
-                              recvStream);
+        PUSH_RANGE("wait send", WAIT_COL);
+        comm_wait_all_on_stream(level->exchange_ghosts[shape].num_sends,
+                                send_requests,
+                                recvStream);
+        POP_RANGE;
+        //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      level->timers.ghostZone_wait += (getTime()-_timeStart);
+    }
+  }
+  else
+  {
+    // loop through packed list of MPI receives and prepost Irecv's...
+    if(level->exchange_ghosts[shape].num_recvs>0){
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
+
+      PUSH_RANGE("send ready", SEND_COL);
+      for(n=0;n<level->exchange_ghosts[shape].num_recvs;n++){
+        DBG("recv_rank[%d]=%d size=%d\n", n, 
+            level->exchange_ghosts[shape].recv_ranks[n],
+            level->exchange_ghosts[shape].recv_sizes[n]);
+        comm_irecv(level->exchange_ghosts[shape].recv_buffers[n],
+                   level->exchange_ghosts[shape].recv_sizes[n],
+                   MPI_DOUBLE,
+                   &level->exchange_ghosts[shape].recv_buffers_reg[n],
+                   level->exchange_ghosts[shape].recv_ranks[n],
+                   &recv_requests[n]);
+
+        comm_send_ready_on_stream(level->exchange_ghosts[shape].recv_ranks[n], 
+                                    &ready_requests[n],
+                                    recvStream);
+
+      }
+      
+      //MPI_Barrier(MPI_COMM_WORLD);
+      POP_RANGE;
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      level->timers.ghostZone_recv += (getTime()-_timeStart);
+    }
+
+    // pack MPI send buffers...
+    if(level->exchange_ghosts[shape].num_blocks[0] > 0){
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
+      PUSH_RANGE("pack", KERNEL_COL);
+      cuda_copy_block(*level,id,level->exchange_ghosts[shape],0, sendStream);
+      POP_RANGE;
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      level->timers.ghostZone_pack += (getTime()-_timeStart);
+    }
+
+    // loop through MPI send buffers and post Isend's...
+    if(level->exchange_ghosts[shape].num_sends > 0){
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
+
+      PUSH_RANGE("test ready + isend", SEND_COL);
+
+      for(n=0;n<level->exchange_ghosts[shape].num_sends;n++){
+        DBG("send_rank[%d]=%d size=%d\n", n,
+            level->exchange_ghosts[shape].send_ranks[n], 
+            level->exchange_ghosts[shape].send_sizes[n]);
+
+        comm_wait_ready_on_stream(level->exchange_ghosts[shape].send_ranks[n], sendStream);
+        comm_isend_on_stream(level->exchange_ghosts[shape].send_buffers[n], 
+                             level->exchange_ghosts[shape].send_sizes[n],
+                             MPI_DOUBLE,
+                             &level->exchange_ghosts[shape].send_buffers_reg[n],
+                             level->exchange_ghosts[shape].send_ranks[n],
+                             &send_requests[n],
+                             sendStream);
+
+      }
+
+      POP_RANGE;
+
+      //JUST FOR TIMERS
+      //    cudaDeviceSynchronize();
+      level->timers.ghostZone_send += (getTime()-_timeStart);
+    }
+
+    // exchange locally... try and hide within Isend latency... 
+    if(level->exchange_ghosts[shape].num_blocks[1])
+    {
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
+      PUSH_RANGE("local", KERNEL_COL);
+      cuda_copy_block(*level, id, level->exchange_ghosts[shape], 1, recvStream);
+      POP_RANGE;
+      //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      level->timers.ghostZone_local += (getTime()-_timeStart);
+    }
+
+    if (nMessages) {
+      //JUST FOR TIMERS
+    //cudaDeviceSynchronize();
+      _timeStart = getTime();
+      // wait for recv
+      if (level->exchange_ghosts[shape].num_recvs) {
+        PUSH_RANGE("wait recv", WAIT_COL);
+        comm_wait_all_on_stream(level->exchange_ghosts[shape].num_recvs, 
+                                recv_requests,
+                                recvStream);
+        POP_RANGE;
+      }
+      //JUST FOR TIMERS
+    //cudaDeviceSynchronize();
+      level->timers.ghostZone_wait += (getTime()-_timeStart);
+    }
+
+    // unpack MPI receive buffers 
+    if(level->exchange_ghosts[shape].num_blocks[2])
+    {
+      //JUST FOR TIMERS
+    //cudaDeviceSynchronize();
+      _timeStart = getTime();
+      PUSH_RANGE("upack", KERNEL_COL);
+      cuda_copy_block(*level,id,level->exchange_ghosts[shape],2, recvStream);
       POP_RANGE;
       //JUST FOR TIMERS
     //cudaDeviceSynchronize();
-    level->timers.ghostZone_wait += (getTime()-_timeStart);
-  }
-}
-else
-{
-  // loop through packed list of MPI receives and prepost Irecv's...
-  if(level->exchange_ghosts[shape].num_recvs>0){
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    _timeStart = getTime();
-
-    PUSH_RANGE("send ready", SEND_COL);
-    for(n=0;n<level->exchange_ghosts[shape].num_recvs;n++){
-      DBG("recv_rank[%d]=%d size=%d\n", n, 
-          level->exchange_ghosts[shape].recv_ranks[n],
-          level->exchange_ghosts[shape].recv_sizes[n]);
-      comm_irecv(level->exchange_ghosts[shape].recv_buffers[n],
-                 level->exchange_ghosts[shape].recv_sizes[n],
-                 MPI_DOUBLE,
-                 &level->exchange_ghosts[shape].recv_buffers_reg[n],
-                 level->exchange_ghosts[shape].recv_ranks[n],
-                 &recv_requests[n]);
-
-      comm_send_ready_on_stream(level->exchange_ghosts[shape].recv_ranks[n], 
-                                  &ready_requests[n],
-                                  recvStream);
-
-    }
-    
-    //MPI_Barrier(MPI_COMM_WORLD);
-    POP_RANGE;
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    level->timers.ghostZone_recv += (getTime()-_timeStart);
-  }
-
-  // pack MPI send buffers...
-  if(level->exchange_ghosts[shape].num_blocks[0] > 0){
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    _timeStart = getTime();
-    PUSH_RANGE("pack", KERNEL_COL);
-    cuda_copy_block(*level,id,level->exchange_ghosts[shape],0, sendStream);
-    POP_RANGE;
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    level->timers.ghostZone_pack += (getTime()-_timeStart);
-  }
-
-  // loop through MPI send buffers and post Isend's...
-  if(level->exchange_ghosts[shape].num_sends > 0){
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    _timeStart = getTime();
-
-    PUSH_RANGE("test ready + isend", SEND_COL);
-
-    for(n=0;n<level->exchange_ghosts[shape].num_sends;n++){
-      DBG("send_rank[%d]=%d size=%d\n", n,
-          level->exchange_ghosts[shape].send_ranks[n], 
-          level->exchange_ghosts[shape].send_sizes[n]);
-
-      comm_wait_ready_on_stream(level->exchange_ghosts[shape].send_ranks[n], sendStream);
-      comm_isend_on_stream(level->exchange_ghosts[shape].send_buffers[n], 
-                           level->exchange_ghosts[shape].send_sizes[n],
-                           MPI_DOUBLE,
-                           &level->exchange_ghosts[shape].send_buffers_reg[n],
-                           level->exchange_ghosts[shape].send_ranks[n],
-                           &send_requests[n],
-                           sendStream);
-
+      level->timers.ghostZone_unpack += (getTime()-_timeStart);
     }
 
-    POP_RANGE;
-
-    //JUST FOR TIMERS
-    //    cudaDeviceSynchronize();
-    level->timers.ghostZone_send += (getTime()-_timeStart);
-  }
-
-  // exchange locally... try and hide within Isend latency... 
-  if(level->exchange_ghosts[shape].num_blocks[1])
-  {
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    _timeStart = getTime();
-    PUSH_RANGE("local", KERNEL_COL);
-    cuda_copy_block(*level, id, level->exchange_ghosts[shape], 1, recvStream);
-    POP_RANGE;
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    level->timers.ghostZone_local += (getTime()-_timeStart);
-  }
-
-  if (nMessages) {
-    //JUST FOR TIMERS
-  //cudaDeviceSynchronize();
-    _timeStart = getTime();
-    // wait for recv
-    if (level->exchange_ghosts[shape].num_recvs) {
-      PUSH_RANGE("wait recv", WAIT_COL);
-      comm_wait_all_on_stream(level->exchange_ghosts[shape].num_recvs, 
-                              recv_requests,
-                              recvStream);
-      POP_RANGE;
-    }
-    //JUST FOR TIMERS
-  //cudaDeviceSynchronize();
-    level->timers.ghostZone_wait += (getTime()-_timeStart);
-  }
-
-  // unpack MPI receive buffers 
-  if(level->exchange_ghosts[shape].num_blocks[2])
-  {
-    //JUST FOR TIMERS
-  //cudaDeviceSynchronize();
-    _timeStart = getTime();
-    PUSH_RANGE("upack", KERNEL_COL);
-    cuda_copy_block(*level,id,level->exchange_ghosts[shape],2, recvStream);
-    POP_RANGE;
-    //JUST FOR TIMERS
-  //cudaDeviceSynchronize();
-    level->timers.ghostZone_unpack += (getTime()-_timeStart);
-  }
-
-#if 0
-  // wait for send
-  if (level->exchange_ghosts[shape].num_sends > 0) {
-    //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    _timeStart = getTime();
-
-      PUSH_RANGE("wait send", WAIT_COL);
-      comm_wait_all_on_stream(level->exchange_ghosts[shape].num_sends,
-                              send_requests,
-                              sendStream);
-      POP_RANGE;
+  #if 0
+    // wait for send
+    if (level->exchange_ghosts[shape].num_sends > 0) {
       //JUST FOR TIMERS
-    //cudaDeviceSynchronize();
-    level->timers.ghostZone_wait += (getTime()-_timeStart);
+      //cudaDeviceSynchronize();
+      _timeStart = getTime();
+
+        PUSH_RANGE("wait send", WAIT_COL);
+        comm_wait_all_on_stream(level->exchange_ghosts[shape].num_sends,
+                                send_requests,
+                                sendStream);
+        POP_RANGE;
+        //JUST FOR TIMERS
+      //cudaDeviceSynchronize();
+      level->timers.ghostZone_wait += (getTime()-_timeStart);
+    }
+  #endif
   }
-#endif
-}
 
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
@@ -793,7 +793,7 @@ void exchange_boundary(level_type * level, int id, int shape) {
     if(shape>=STENCIL_MAX_SHAPES)shape=STENCIL_SHAPE_BOX;  // shape must be < STENCIL_MAX_SHAPES in order to safely index into exchange_ghosts[]
 
     //JUST FOR TIMERS
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
     double _timeCommunicationStart = getTime();
 
   if (ENABLE_EXCHANGE_BOUNDARY_COMM && comm_use_comm()) {
@@ -819,7 +819,7 @@ void exchange_boundary(level_type * level, int id, int shape) {
   }
 
   //JUST FOR TIMERS
-  cudaDeviceSynchronize();
+  //cudaDeviceSynchronize();
   level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
   POP_RANGE;
 }

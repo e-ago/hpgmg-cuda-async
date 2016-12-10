@@ -36,7 +36,7 @@
 % 4. Student Address
 \newcommand{\TheAddress}{%
   University of Rome "La Sapienza",
-  (\email{agostini@di.uniroma1.it}, \url{http://www.uniroma1.it/}).
+  (\email{agostini@di.uniroma1.it}, \tt{http://www.uniroma1.it/}).
 }
 
 % 5. Acknowledge funding or other resources
@@ -46,7 +46,7 @@
 
 % 6. Collaborators, such as advisor or research collaborators
 \newcommand{\TheCollaborators}{%
-D. Rossetti Collaborator NVIDIA,  
+D. Rossetti Collaborator NVIDIA,
 N. Sakharnykh Collaborator NVIDIA,
 M. Bernaschi PhD Supervisor
 }
@@ -76,32 +76,33 @@ In collaboration with:
 % ---------------------------------------------
 
 \begin{abstract}
-HPGMG is an HPC benchmark based on geometric multi-grid methods.
+HPGMG is a benchmark for HPC geometric multi-grid methods.
 %
-A multi-grid solver works on levels of different sizes so that the amount of
-computation and communication varies a lot within the same application.
+A multi-grid solver works on a grid having a fixed total size but
+different resolutions during the execution so that the amount of computation and
+communication varies significantly within the same application.
 %
-NVIDIA has developed a CUDA version of HPGMG-FV (Finite Volume) where,
+NVIDIA developed a CUDA version of HPGMG-FV (Finite Volume) where,
 according to a threshold, finer (higher) levels are computed on the GPU
-while coarser (lower) levels on the CPU: this hybrid scheme takes advantage
-of each processor strengths.
-% 
-During the HPGMG-FV execution there are three main communication
+whereas coarser (lower) levels on the CPU: that hybrid scheme exploits
+at their best the strengths of both platforms.
+%
+During the HPGMG-FV execution, there are three main communication
 phases: boundaries exchange (among a variable number of cluster nodes),
 interpolation (lower to higher level) and restriction (higher to lower
 level). By default communications use the Message Passing Interface (MPI).
 
-GPUDirect Async is a new technology introduced by NVIDIA in CUDA 8.0 which
-allows mutual direct control between the GPU and the interconnect device, a
+GPUDirect Async is a new technology introduced by NVIDIA in CUDA 8.0
+to support mutual direct control between the GPU and the interconnect device, a
 Mellanox Infiniband HCA in our case.
- 
+
 In this paper, we propose two optimized communication schemes involving the
 GPUDirect Async technology, where the burden of the communication is
 off-loaded onto the GPU itself.
-% 
+%
 When running a properly modified version of HPGMG-FV, where Async
-technology is used for only those aforementioned communication phases, we
-measured a communication performance increase of up to 26\%.
+technology is used for only those aforementioned communication phases,
+the communication overhead reduces up to 26\% .
 
 \end{abstract}
 
@@ -110,24 +111,27 @@ measured a communication performance increase of up to 26\%.
 \end{keywords}
 
 \section{Introduction}\label{sec:introduction}
-Linear solvers are probably the most common tool in scientific computing applications and can be divided in two basic classes: \emph{direct} and \emph{iterative}.
-% Direct methods are usually robust, but have additional computational complexity and memory capacity requirements, while iterative solvers require minimal memory overhead and feature better computational complexity. 
-\emph{Multi-grid} methods are iterative methods that can deliver linear complexity by solving elliptic PDEs $Ax=b$ using a hierarchical approach, i.e. the solution to an hard problem (finer grid of elements) is expressed as solution to an easier problem (coarser grid of element).
+%Linear solvers are probably the most common tool in scientific computing applications and can be divided in two basic classes: \emph{direct} and \emph{iterative}.
+% Direct methods are usually robust, but have additional computational complexity and memory capacity requirements, while iterative solvers require minimal memory overhead and feature better computational complexity.
+\emph{Multi-grid} methods are iterative methods that can deliver
+linear complexity by solving elliptic PDEs %$Ax=b$
+using a hierarchical approach, i.e. the solution to a hard problem (finer grid of elements) is expressed as solution to an easier problem (coarser grid of element).
 There are two different types of \emph{Multi-grid} methods: algebric multi-grid (\emph{AMG}), where operator A is a sparse matrix, and geometric multi-grid (\emph{GMG}), where operator A is a stencil\footnote{Stencil codes are a class of iterative kernels which update array (generally a 2- or 3-dimensional regular grid) elements (cells) according to some fixed pattern, called stencil. The state of a cell in the next time step can be deduced from its own previous state and the states of the cells in its neighborhood.
 }. While AMG method is a more general approach using an arbitrary graph, GMG method is more efficient on structured problems, since it can take advantage of the additional information from the geometric representation of the problem.
 
-An example of GMG is HPGMG \cite{HPGMG}, an HPC benchmarking effort developed by Lawrence Berkeley National Laboratory. In particular, HPGMG-FV solves variable-coefficient elliptic problems on isotropic Cartesian grids using the finite volume method (FV) \cite{finitevolume}.
-It supports high-order discretizations, and is extremely fast and accurate; in case of multi-process execution, the workload is fairly distributed among processes: in order to improve the parallelization, each problem level is divided into several same-size boxes.
+HPGMG is an example of GMG developed by Lawrence Berkeley National
+Laboratory \cite{HPGMG} that is often employed also as a HPC benchmark. In particular, HPGMG-FV solves variable-coefficient elliptic problems on isotropic Cartesian grids using the finite volume method (FV) \cite{finitevolume}.
+It supports high-order discretizations, and it is extremely fast and accurate; in case of multi-process execution, the workload is fairly distributed among processes: in order to improve the parallelization, each problem level is divided into several same-size boxes.
 
-%The solution to a hard problem (a continuous problem expressed by a finer grid of elements by means of discretization) is expressed as a solution to an easier problem (coarser grid of element). 
+%The solution to a hard problem (a continuous problem expressed by a finer grid of elements by means of discretization) is expressed as a solution to an easier problem (coarser grid of element).
 
 HPGMG-FV takes as input the number and the $\log_2 (size)$ of the finest level boxes, calculating the level
-total size; then it obtains the size of all the other (smaller) levels. Every distributed level is computed with a smoothing and a residual operations; in particular the smoother is a stencil code and the tasks of each process are:
+total size; then it obtains the size of all the other (coarse grain) levels. Every distributed level is computed with smoothing and residual operations; in particular the smoother is a stencil code and the tasks of each process are:
 
 \begin{itemize}
-\item Pack: compute and copy boundaries of the box inside send buffers
-\item Send: distribute the boundaries to the other processes (\emph{intra-level} communication)
-\item Interior Compute: apply the stencil operator to the inner elements of the box
+\item Pack: compute the boundaries of the box and copy them inside send buffers;
+\item Send: distribute the boundaries to the other processes (\emph{intra-level} communication);
+\item Interior Compute: apply the stencil operator to the inner elements of the box;
 \item Receive: receive boundaries from the other processes (\emph{intra-level} communication)
 \item Unpack: copy (and compute) received data along box boundaries
 \end{itemize}
@@ -142,11 +146,13 @@ During a V-cycle, the grid is smoothed and a residual is computed and propagated
 \label{fig:hpgmg_vcycle}
 \end{figure}
 
-The F-cycle is considered a state-of-the-art in multi-grid methods and converges much faster than a conventional V-cycle.\\
+The F-cycle is considered state-of-the-art in multi-grid methods and converges much faster than a conventional V-cycle.
 
 \section{HPGMG-FV and GPUs}\label{sec:hpgmg_cuda}
 
-NVIDIA improved the HPGMG-FV implementation \cite{HPGMG_NVIDIA} using a hybrid solution, achieving a great enhancement in performances, to guarantee that each level in the F-Cycle is executed on the suitable architecture: if the size of a level is over a certain threshold (empirically set to 10000 elements), it is processed by the GPU, otherwise by the CPU (Figure \ref{fig:hpgmg_fcycle}).
+NVIDIA improved the HPGMG-FV implementation \cite{HPGMG_NVIDIA} using
+a hybrid solution that guarantees that each level in the F-Cycle is
+executed on the most suitable architecture: if the size of a level is over a certain threshold (empirically set to 10000 elements), it is processed by the GPU, otherwise by the CPU (Figure \ref{fig:hpgmg_fcycle}).
 
 \begin{figure}[h]
 \centering
@@ -155,16 +161,16 @@ NVIDIA improved the HPGMG-FV implementation \cite{HPGMG_NVIDIA} using a hybrid s
 \label{fig:hpgmg_fcycle}
 \end{figure}
 
-To leverage higher levels with GPU accelleration, the simplest way was to use device memory for compute-only buffers and host pinned memory for communication buffers.
+To leverage GPU acceleration for higher levels, the simplest way was to use device memory for compute-only buffers and host pinned memory for communication buffers.
 
-Considering a distributed HPGMG-FV execution, we can distinguish between two different communication periods (referring to Figure \ref{fig:hpgmg_vcycle}):
+Considering a distributed HPGMG-FV execution, we can distinguish between two different communication phases (referring to Figure \ref{fig:hpgmg_vcycle}):
 \begin{enumerate}
 \item \textbf{Intra-level communication}: exchange boundaries (boundary region exchange of the same level between proccesses )
 \item \textbf{Inter-level communication}: restriction (moving from a finer level to a coarser level) and interpolation (moving from a coarser level to a finer level)
 \end{enumerate}
 
 The most frequent communication is the \emph{exchangeBoundaries()} executed by the smoother's
-stencil code on a distributed level, that is a stencil code working as in Algorithm
+stencil code on a distributed level, that works according to Algorithm
 \ref{algo:exchange_boundaries}.
 
 \begin{algorithm}
@@ -191,9 +197,7 @@ stencil code on a distributed level, that is a stencil code working as in Algori
         \State cuda\_unpack(receiveBuffers)
 \EndFunction
 \end{algorithmic}
-\end{algorithm}
-
-A \textit{cudaDeviceSynchronize()} is required between the CUDA kernel
+\end{algorithm} \textit{cudaDeviceSynchronize()} is required between the CUDA kernel
 pack operation and the \textit{MPI\_Isend()} to guarantee the correctness
 of updated \textit{sendBuffers} (Figure \ref{fig:timeline_mpi}).
 The \textit{exchangeBoundaries()} is the most used communication function during a HPGMG-FV execution.
@@ -207,7 +211,9 @@ The \textit{exchangeBoundaries()} is the most used communication function during
 
 Similarly, the other two \emph{inter-level} communication functions, i.e. restriction and interpolation, require a \textit{cudaDeviceSynchronize()} before the \textit{MPI\_Isend()}. Restriction needs an additional \textit{cudaDeviceSynchronize()} when moving from a GPU level to a CPU level.
 
-In Figure \ref{fig:hpgmg_levels} there is a simplified operations timeline in case of hybrid solution when moving from a coarse level (CPU) to fine level (GPU) and coming back to the coarse level (CPU).
+Figure \ref{fig:hpgmg_levels} shows a simplified operations timeline
+in case of a hybrid solution when moving from a coarse level (CPU) to
+a fine level (GPU) and coming back to the coarse level (CPU).
 
 \begin{figure}[h]
 \centering
@@ -227,23 +233,34 @@ In Figure \ref{fig:hpgmg_ornl_bench} we report the enhancement obtained by the h
 \end{figure}
 
 \fi
-Considering this final NVIDIA hybrid implementation, I've enhanced communication periods, which play an important role during distributed executions, using a new feature named GPUDirect Async, introduced by NVIDIA along with CUDA 8.0.
-The aim of the experiment is to demonstrate how this new technology can improve communication periods performances in real-world distributed applications having an high complexity like HPGMG-FV.
+Starting from that NVIDIA hybrid implementation, we have enhanced the
+performance of the communication phases, which play an important role during distributed executions, using a new feature named GPUDirect Async, introduced by NVIDIA along with CUDA 8.0.
+The aim of the experiment is to demonstrate how this new technology
+can reduce the communication overhead in real-world distributed applications having high complexity like HPGMG-FV.
 
 
 \section{GPUDirect Async}\label{sec:gpudirect_async}
 
-GPUDirect \cite{GPUDirect} is a family of technologies aimed at optimizing data movement respectively among GPUs (P2P) and with third-party devices (RDMA). GPUDirect Async is a new GPUDirect technology introduced by NVIDIA in CUDA 8.0; it allows mutual direct control between the GPU and the third party device like and Infiniband HCA in case of communications. The CPU can enqueues on a CUDA stream both computation (i.e. usual CUDA kernels) and communication tasks and go back to do useful work waiting for GPU tasks completion only when needed. Although an in-depth explaination of the GPUDirect Async implementation is beyond the scope of this paper, in the following we will breafly describe how it works and how it can be useful to improve HPGMG-FV performance.\\
+GPUDirect \cite{GPUDirect} is a family of technologies aimed at
+optimizing data movement respectively among GPUs (P2P) and with
+third-party devices (RDMA). GPUDirect Async is a new GPUDirect
+technology introduced by NVIDIA in CUDA 8.0; it allows mutual direct
+control between the GPU and third party devices like Infiniband in
+case of communications. The CPU can enqueue on a CUDA stream both
+computation (i.e. {\em classic} CUDA kernels) and communication tasks
+and go back to do useful work waiting for GPU tasks completion only
+when needed. Although an in-depth explaination of the GPUDirect Async
+implementation is beyond the scope of the present work, in the following we will briefly describe how it works and how it can be useful to improve HPGMG-FV performance.\\
 
 Considering a typical multi-GPU application in case of distributed execution, a common pattern is:
 \begin{itemize}
-\item Compute some data using one or more CUDA kernels
-\item Store result data in one or more send buffers
+\item Work on some data using one or more CUDA kernels
+\item Store data results in one or more send buffers
 \item Send data
 \item Wait for data from the other processes
-\item Launch one or more CUDA kernels working on received data
+\item Launch one or more CUDA kernels to work on received data
 \end{itemize}
-In Figure \ref{fig:commonmultigpu} there is a timeline of this sequence in case of Infiniband as the communication protocol. By leveraging this sequence with GPUDirect Async a
+In Figure \ref{fig:commonmultigpu} there is a timeline of this sequence in case of Infiniband as communication technology. By leveraging GPUDirect Async, a
 whole parallel computation phase can be offloaded onto a
 CUDA stream, removing the CPU from the critical path, as described
 in Figure \ref{fig:asyncmultigpu}.\\
@@ -266,34 +283,37 @@ in Figure \ref{fig:asyncmultigpu}.\\
 GPUDirect Async has two different execution models:
 
 \begin{itemize}
-\item \textbf{Stream Async model (SA)}: The one described in this section, in which communications are enqueued into a CUDA stream
-\item \textbf{Kernel-Initiated model (KI)}: The Streaming Multiprocessors (SMs), which are in charge of executing the CUDA kernels, can directly issue communication primitives to send messages or wait for completions. %Having doorbell registers and CQs mapped as device memory addresses, a CUDA kernel thread can use simple value assignments and comparisons inside the code to ring the doorbell or poll the CQs.\\
+\item \textbf{Stream Async model (SA)}: The one described in this Section, in which communications are enqueued into a CUDA stream;
+\item \textbf{Kernel-Initiated model (KI)}: The Streaming Multiprocessors (SMs), which are in charge of executing the CUDA kernels, can directly issue communication primitives to send messages or wait for completion. %Having doorbell registers and CQs mapped as device memory addresses, a CUDA kernel thread can use simple value assignments and comparisons inside the code to ring the doorbell or poll the CQs.\\
 \end{itemize}
 
-On top level of the GPUDirect Async stack software there is LibMP, an NVIDIA open-source messaging library (similar to MPI) developed as a technology demostrator to easily deploy the GPUDirect Async technology on MPI applications. LibMP API enable the use of asynchronous communication in both SA and KI models and present also a third model that is totally synchronous for performance comparison purposes.
-HPGMG-FV communication pattern is quite simple to the one in Figure \ref{fig:commonmultigpu}, therefore we leveraged communications with GPUDirect Async, benchmarking our results.\\
+On the top of the GPUDirect Async stack software there is LibMP, an NVIDIA open-source messaging library (similar to MPI) developed as a technology demostrator to easily deploy the GPUDirect Async technology on MPI applications. LibMP API enables the use of asynchronous communication in both SA and KI models and presents also a third model that is totally synchronous for performance comparison purposes.
+HPGMG-FV communication pattern is quite similar to the one in Figure
+\ref{fig:commonmultigpu}, therefore we modified the communication part
+to leverage GPUDirect Async.\\
 
 For the following benchmarks, we used two different environments.
 The first one (E1) is composed by two standard 2U Xeon based
-servers, each one with a Mellanox dual-port FDR Connect-IB HCA and a single
+servers, each one with a Mellanox dual-port FDR Connect-Infiniband HCA and a single
 Tesla K40m (boost clocks set to 875 MHz), running RHEL 6.6 and a
 pre-release version of the GPU display driver with CUDA 8.0 RC and OpenMPI version 1.10.3.
 
 The second one (E2) is the Wilkes HPC cluster at the Cambridge
-University, UK \cite{wilkes}. The system consists of 128 Dell T620 servers, 256 NVIDIA Tesla K20c GPUs interconnected by 256 Mellanox Connect IB cards, having the CUDA 8.0 Toolkit, display driver 367.44 and OpenMPI version 1.10.3. We had a reservation of 16 nodes to benchmark our HPGMG-FV Async solution.
+University, UK \cite{wilkes}. The system consists of 128 Dell T620 servers, 256 NVIDIA Tesla K20c GPUs interconnected by 256 Mellanox Connect Infiniband cards, having the CUDA 8.0 Toolkit, display driver 367.44 and OpenMPI version 1.10.3. We had a reservation of 16 nodes to benchmark our HPGMG-FV Async solution.
 
 \section{HPGMG-FV Async}\label{sec:hpgmg_async}
 
 We used both SA and KI models trying to reduce, during communications, the number of
-\textit{cudaDeviceSynchronize()} (which slow down performance) and to
+\textit{cudaDeviceSynchronize()}, which slow down performance, and to
 hide kernel launches latency. We implemented also a synchronous
-version with the LibMP functions to make a comparison with the similar
-synchronous MPI functions. In Figure \ref{fig:hpgmg_gai_ivy} there is
+version with the LibMP functions to make a comparison with the similar synchronous MPI functions.
+For our benchmarks we considered the GSRB smoother usign a fixed number of 8 boxes for each process, varying the $\log_2 (size)$ parameter between 4 and 7.
+
+In Figure \ref{fig:hpgmg_gai_ivy} there is
 a first benchmark with 2 processes on the E1 environment, considering
 the times of GPU levels only. Both LibMP synchronous and asynchronous
 models are faster than the original MPI implementation and, in particular,
-Kernel-Initiated model reaches up to a 13\% time gain.
-
+Kernel-Initiated model offers a time gain up to 13\% .
 
 \begin{figure}[h]
 \centering
@@ -304,7 +324,8 @@ Kernel-Initiated model reaches up to a 13\% time gain.
 
 \subsection{Stream Asynchronous model implementation}\label{sec:sahpgmg}
 
-See Algorithm \ref{algo:exchange_boundaries_async} for the \textit{exchangeBoundariesAsync()} pseudo-code.
+Algorithm \ref{algo:exchange_boundaries_async} shows the pseudo-code
+of the \textit{exchangeBoundariesAsync()}.
 
 \begin{algorithm}
 \small
@@ -332,14 +353,14 @@ See Algorithm \ref{algo:exchange_boundaries_async} for the \textit{exchangeBound
 \end{algorithmic}
 \end{algorithm}
 
-The \textit{cudaDeviceSynchronize()} between pack and send is no more required. The CUDA stream is responsible to:
+The \textit{cudaDeviceSynchronize()} between the pack and the send operations is no more required. The CUDA stream is responsible for:
 
 \begin{enumerate}
-\item Pack data in the \textit{sendBuffers} by means of the \textit{cuda\_pack()} kernel
-\item Trigger the send operations (send WQEs have been previously posted in the QP by the CPU)
-\item Execute the \textit{cuda\_interior\_compute()} kernel
-\item Wait for the receive completion
-\item Read the received data (\textit{receiveBuffers}) with the \textit{cuda\_unpack()} kernel
+\item Packing data in the \textit{sendBuffers} by means of the \textit{cuda\_pack()} kernel
+\item Triggering the send operations (send WQEs have been previously posted in the QP by the CPU)
+\item Executing the \textit{cuda\_interior\_compute()} kernel
+\item Waiting for the receive completion
+\item Reading the received data (\textit{receiveBuffers}) with the \textit{cuda\_unpack()} kernel
 \end{enumerate}
 
 %Similar considerations can be done for \textit{restriction()} and \textit{interpolation()} functions.
@@ -353,11 +374,13 @@ Considering a similar implementation for restriction and interpolation, since th
 \end{figure}
 
 %
-In Figure \ref{fig:hpgmg_gain_sa_wilkes} the Y axis shows the performance increase of the GPU levels in case of this Stream Async implementation compared with the standard MPI mode in the E2 environment (Wilkes HPC) using up to 16 processes.
+In Figure \ref{fig:hpgmg_gain_sa_wilkes} the $y$ axis shows the
+performance improvement of the GPU levels using the Stream Async
+implementation  with respect to the standard MPI mode in the E2 environment (Wilkes HPC) using up to 16 processes.
 %
 The maximum gain (about 24\%) is reached in case of $\log_2(size)=4$
-with 2 processes. The bigger is the box size, the more performance
-gain decreases, because message size grows with the box size,
+with 2 processes. The bigger is the box size, the more the performance
+gain decreases, because the message size grows with the box size,
 therefore comunication overhead becomes less important.
 
 \begin{figure}[htb]
@@ -422,7 +445,7 @@ Basically, the \textit{cuda\_compute\_exchange\_kernel()} needs $N+M+1$
 blocks in a mono-dimensional grid, where N is the number of blocks required
 by the \textit{cuda\_pack()} and \textit{cuda\_interior\_compute()} and M
 is the number of blocks required by \textit{cuda\_unpack()} plus 1 block,
-used to receive data as explained in Figure \ref{fig:gpu_initited}.
+used to receive data as shown in Figure \ref{fig:gpu_initited}.
 %
 
 \begin{figure}[h]
@@ -433,9 +456,9 @@ used to receive data as explained in Figure \ref{fig:gpu_initited}.
 \end{figure}
 
 
-Atomic memory operations are used to pick each thread block
+We use atomic memory operations to pick each thread block
 \footnote{There is no guarantee about the order blocks are scheduled by the
-  GPU HW.} and to assign it to the right tasks to avoid
+  GPU HW.} and to assign it to the right task preventing
 dead-locks.
 
 Receiving is a time critical task, so the first \textit{receiver} thread
@@ -449,7 +472,7 @@ interior compute\rbrack.
 %
 Finally, the remaining M \textit{unpacker} blocks wait for the
 \textit{receiver} block to signal that all incoming data have been received,
-before unpacking that data.
+before unpacking them.
 
 
 \begin{figure}[h]
@@ -461,12 +484,12 @@ before unpacking that data.
 
 An inter-block barrier scheme is used to synchronize the \textit{receiver}
 and the \textit{unpacker} blocks, as explained in Figure
-\ref{fig:global_lock}. The thread 0 of each \textit{unpacker}
-block waits for the thread 0 of the
-\textit{receiver} block to set a global memory variable to 1, whereas the
+\ref{fig:global_lock}. Thread 0 of each \textit{unpacker}
+block waits for thread 0 of the
+\textit{receiver} block to set a global memory variable equal to 1, whereas the
 remaining threads move to the \textit{\_\_syncthreads()} barrier.
 %
-When this happens (after the receive completion), all threads 0 in the
+When that happens (after the receive completion), all threads 0 in the
 \textit{unpacker} blocks will reach the matching \textit{\_\_syncthreads()}
 barrier and then start to unpack the received data.
 
@@ -495,16 +518,22 @@ progressing: there must be always at least one block waiting for receiving and a
 \label{fig:hpgmg_gain_ki_wilkes}
 \end{figure}
 
-We performed the same tests as in the previous Section (on the E2 environment using up to 16 processes, Figure \ref{fig:hpgmg_gain_ki_wilkes}) to evaluate Kernel-Initiated implementation performance. The maximum gain is 26\% in case of 2 processes with $\log_2(size)=4$ box size and, generally speaking, the performance with Kernel-Initiated model are always better than Stream Async model performance.\\
+We performed the same tests as in the previous Section (on the E2 environment using up to 16 processes, Figure \ref{fig:hpgmg_gain_ki_wilkes}) to evaluate Kernel-Initiated implementation performance. The maximum gain is 26\% in case of 2 processes with $\log_2(size)=4$ box size and, generally speaking, the performance with Kernel-Initiated model is always better than Stream Async model performance.
 
 %When using kernel-initiated mode, it is very important that the receive (or wait for receive) operation is not preventing the send, otherwise you will have a deadlock: you must always have at least a block waiting for receive and an other block executing the send.
 %For example, having a GPU with 15 SM, if the first one is waiting on the receive and the others 14 are waiting on the global lock for the receive completion, the \lbrack pack, send\rbrack \ operations will never occur.
 
 \subsection{Communication-only improvement}\label{sec:comm_only}
 
-To better evaluate the GPUDirect Async benefits, in Figure \ref{} there is gain in both SA and KI models considering communication times only.\\
+To better evaluate the GPUDirect Async benefits, in Figure \ref{}
+there is the gain in both SA and KI models considering communication times only.\\
 
 ----- FIGURA -----\\
+
+\subsection{Jacobi smoother}\label{sec:jacobi}
+
+We benchmarked all the solution discussed using a different smoother, i.e. the Jacobi smoother, reporting in Figure \ref{} the gain of SA and KI model on MPI in the E2 environment.
+
 
 
 % An example of a floating figure using the graphicx package.
@@ -523,7 +552,7 @@ To better evaluate the GPUDirect Async benefits, in Figure \ref{} there is gain 
 %\begin{figure}[!t]
 %\centering
 %\includegraphics[width=2.5in]{myfigure}
-% where an .eps filename suffix will be assumed under latex, 
+% where an .eps filename suffix will be assumed under latex,
 % and a .pdf suffix will be assumed for pdflatex; or what has been declared
 % via \DeclareGraphicsExtensions.
 %\caption{Simulation results for the network.}
@@ -539,7 +568,7 @@ To better evaluate the GPUDirect Async benefits, in Figure \ref{} there is gain 
 % The subfigure \label commands are set within each subfloat command,
 % and the \label for the overall figure must come after \caption.
 % \hfil is used as a separator to get equal spacing.
-% Watch out that the combined width of all the subfigures on a 
+% Watch out that the combined width of all the subfigures on a
 % line do not exceed the text width or a line break will occur.
 %
 %\begin{figure*}[!t]
@@ -596,28 +625,28 @@ To better evaluate the GPUDirect Async benefits, in Figure \ref{} there is gain 
 % in-text middle ("here") positioning is typically not used, but it
 % is allowed and encouraged for Computer Society conferences (but
 % not Computer Society journals). Most IEEE journals/conferences use
-% top floats exclusively. 
+% top floats exclusively.
 % Note that, LaTeX2e, unlike IEEE journals/conferences, places
 % footnotes above bottom floats. This can be corrected via the
 % \fnbelowfloat command of the stfloats package.
 
 
-\section{Conclusion}
+\section{Conclusions}
 
-In this paper we presented the performance of a GPU accelerated multi-node
-implementation of the HPGMG-FV benchamark using the recently introduced
+We presented the performance of a GPU accelerated multi-node
+implementation of the HPGMG-FV benchmark using the recently introduced
 NVIDIA GPUDirect Async technology, demonstrating how the use of asynchronous communications,
-considering the different execution models, can be useful for a particular kind of applications.
-% 
+according to different execution models, can be useful for this particular class of applications.
+%
 GPUDirect Async has been
-released with CUDA 8.0 while Infiniband network support for
+released with CUDA 8.0 whereas Infiniband network support for
 Async comes in the form of a new set of experimental
 OFED verbs (Mellanox OFED 3.4 plus updates in \cite{libmlx5_async})
 and a mid layer abstraction library \cite{libgdsync} as BSD.
 %
-Moreover we would like to test
+In the near future,  we are going to test
 asychronous HPGMG-FV, and other similar proxy applications, using a higher number of nodes to
-better evaluate its scalability.
+better evaluate the scalability of the GPUDirect technology..
 
 \bibliographystyle{siamplain}
 \begin{thebibliography}{1}
