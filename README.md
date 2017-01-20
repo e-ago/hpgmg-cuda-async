@@ -1,6 +1,6 @@
 # HPGMG-FV CUDA Async
-Asynchronous communications versione of the HPGMG-FV CUDA application (https://bitbucket.org/nsakharnykh/hpgmg-cuda)
 
+Asynchronous communications version of the HPGMG-FV CUDA application (https://bitbucket.org/nsakharnykh/hpgmg-cuda)
 
 ## Work reference
 
