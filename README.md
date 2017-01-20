@@ -1,2 +1,8 @@
-# hpgmg-cuda-async
-hpgmg-fv async version
+# HPGMG-FV CUDA Async
+Asynchronous communications versione of the HPGMG-FV CUDA application (https://bitbucket.org/nsakharnykh/hpgmg-cuda)
+
+
+## Work reference
+
+For further informations please refer to: <br>
+E. Agostini, D. Rossetti, S. Potluri, "Offloading communication control logic in GPU accelerated applications", CCGrid '17 conference

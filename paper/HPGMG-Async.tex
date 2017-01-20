@@ -20,7 +20,7 @@
 
 % 2. Paper title
 \newcommand{\TheTitle}{%
-  Example Title
+  Optimizing communications in Multi-Grid methods using GPUDirect Async
 }
 
 % 2.5. Short title for running heads (if needed)
@@ -288,9 +288,10 @@ GPUDirect Async has two different execution models:
 \end{itemize}
 
 On the top of the GPUDirect Async stack software there is LibMP, an NVIDIA open-source messaging library (similar to MPI) developed as a technology demostrator to easily deploy the GPUDirect Async technology on MPI applications. LibMP API enables the use of asynchronous communication in both SA and KI models and presents also a third model that is totally synchronous for performance comparison purposes.
+The library needs an already-initialized MPI environment (i.e. communicator, ranks, topology, etc..); then it is possible to use LibMP asynchronous communication functions (like \textit{mp\_isend\_on\_stream()}, \textit{mp\_wait\_on\_stream()}, etc..) instead of standard MPI functions (\textit{MPI\_Isend()}, \textit{MPI\_Wait()}, etc..).
 HPGMG-FV communication pattern is quite similar to the one in Figure
-\ref{fig:commonmultigpu}, therefore we modified the communication part
-to leverage GPUDirect Async.\\
+\ref{fig:commonmultigpu}, therefore we improved communications
+with GPUDirect Async.\\
 
 For the following benchmarks, we used two different environments.
 The first one (E1) is composed by two standard 2U Xeon based
@@ -307,7 +308,7 @@ We used both SA and KI models trying to reduce, during communications, the numbe
 \textit{cudaDeviceSynchronize()}, which slow down performance, and to
 hide kernel launches latency. We implemented also a synchronous
 version with the LibMP functions to make a comparison with the similar synchronous MPI functions.
-For our benchmarks we considered the GSRB smoother usign a fixed number of 8 boxes for each process, varying the $\log_2 (size)$ parameter between 4 and 7.
+For our benchmarks we considered the \emph{Gauss-Seidel Red-Black} (GSRB) smoother (all the smoothers used by HPGMG-FV have the same number of communication periods) using a fixed number of 8 boxes for each process, varying the $\log_2 (size)$ parameter between 4 and 7.
 
 In Figure \ref{fig:hpgmg_gai_ivy} there is
 a first benchmark with 2 processes on the E1 environment, considering
@@ -523,19 +524,15 @@ We performed the same tests as in the previous Section (on the E2 environment us
 %When using kernel-initiated mode, it is very important that the receive (or wait for receive) operation is not preventing the send, otherwise you will have a deadlock: you must always have at least a block waiting for receive and an other block executing the send.
 %For example, having a GPU with 15 SM, if the first one is waiting on the receive and the others 14 are waiting on the global lock for the receive completion, the \lbrack pack, send\rbrack \ operations will never occur.
 
+\iffalse
 \subsection{Communication-only improvement}\label{sec:comm_only}
 
 To better evaluate the GPUDirect Async benefits, in Figure \ref{}
-there is the gain in both SA and KI models considering communication times only.\\
+there is the gain in both SA and KI models considering communication times only. To obtain this measure we used a cudaDeviceSynchronize() before and after every exchange boundaries function calls; this behaviour limited the benefits os asynchronous communications, because \\
 
 ----- FIGURA -----\\
 
-\subsection{Jacobi smoother}\label{sec:jacobi}
-
-We benchmarked all the solution discussed using a different smoother, i.e. the Jacobi smoother, reporting in Figure \ref{} the gain of SA and KI model on MPI in the E2 environment.
-
-
-
+\fi
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
 % For figures, \caption should occur after the \includegraphics.
