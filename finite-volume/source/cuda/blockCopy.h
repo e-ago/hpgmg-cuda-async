@@ -170,7 +170,7 @@ void cuda_increment_block(level_type level, int id, double prescale, communicato
 /* ============ Kernel Functions ============ */
 
 #include "../comm.h"
-#include <mp_device.cuh>
+#include <mp/device.cuh>
 template<int block_type>
 __device__ void copy_block_fuse(level_type level, int id, communicator_type exchange_ghosts, int block_id, int thread_id, int block_dim)
 {
