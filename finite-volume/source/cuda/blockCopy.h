@@ -597,7 +597,7 @@ __global__ void fused_copy_block_kernel(level_type level, int id, communicator_t
 
           if (threadIdx.x < pdescs->n_ready) {
             // wait for ready
-            mp::device::wait_geq(pdescs->ready[threadIdx.x]);
+            gdsync::device::wait_geq(pdescs->ready[threadIdx.x]);
             // signal NIC
             mp::device::mlx5::send(pdescs->tx[threadIdx.x]);
           }
