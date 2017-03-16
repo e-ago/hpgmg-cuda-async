@@ -232,7 +232,7 @@ const int max_scheds = TOT_SCHEDS;
 const int max_types = 3;
 
 typedef struct sched_info {
-  mp::sem32_t sema;
+  mp::mlx5::gdsync::sem32_t sema;
   unsigned int block;
   unsigned int done[max_types];
 } sched_info_t;
