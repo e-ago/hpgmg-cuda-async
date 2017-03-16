@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
-#include "mp_device.cuh"
+#include "mp/device.cuh"
 struct comm_dev_descs {
     enum { max_n_descs = 32 };
     int n_ready;
