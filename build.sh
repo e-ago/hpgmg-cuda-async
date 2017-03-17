@@ -101,7 +101,7 @@ FLAGS_TESTS
 OPTS+="-DPROFILE_NVTX_RANGES "
 OPTS+="$GDSYNC_CPPFLAGS $CU_CPPFLAGS "
 
-MPI_LIB="-L/lib64 -L/lib"  
+#MPI_LIB="-L/lib64 -L/lib"  
 #DGX-1 required
 
 # GSRB smoother (default)
@@ -113,7 +113,7 @@ MPI_LIB="-L/lib64 -L/lib"
     --CXXFLAGS="-O2 $OPTS " \
     --NVCCFLAGS="-O2 -lineinfo $OPTS " \
     --CUDAARCH="$CUDA_ARCH " \
-    --LDFLAGS="$CU_LDFLAGS $GDSYNC_LDFLAGS $MPI_LIB" \
+    --LDFLAGS="$CU_LDFLAGS $GDSYNC_LDFLAGS" \
     --LDLIBS="-lmp -lgdsync -lgdrapi -lcuda -libverbs " \
     --no-fe
 
