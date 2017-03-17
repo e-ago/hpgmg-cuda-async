@@ -135,3 +135,4 @@ elif [ ! -z $USE_CPU ]; then
 else
     $exe $params  $extra_params
 # ) 2>&1 |tee bu-${HOSTNAME}.log
+fi
