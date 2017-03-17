@@ -3,7 +3,7 @@
 #set -x
 
 use_perf=0
-use_nvprof=1
+use_nvprof=0
 use_gdb=0
 
 exe=$1
