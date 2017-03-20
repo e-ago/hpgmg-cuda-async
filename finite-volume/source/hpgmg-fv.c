@@ -199,9 +199,6 @@ int main(int argc, char **argv){
   
   mpi_comm_rank = my_rank;
   
-  if(comm_use_comm())
-    comm_init(MPI_COMM_WORLD);
-
   // Set CUDA device for this rank...
   num_devices = cudaCheckPeerToPeer(my_rank);
   int my_device = my_rank % num_devices;
@@ -221,6 +218,10 @@ int main(int argc, char **argv){
   HPM_Init();
   #endif
   #endif // USE_MPI
+
+  if(comm_use_comm())
+    comm_init(MPI_COMM_WORLD);
+
 
   NVTX_PUSH("main",1)  // start NVTX profiling
 
