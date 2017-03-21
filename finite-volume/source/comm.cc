@@ -166,7 +166,7 @@ int comm_init(MPI_Comm comm)
     assert(comm_size-1 == n_peers);
     DBG("n_peers=%d\n", n_peers);
 
-    MP_CHECK(mp_init(comm, peers, n_peers, 0));
+    MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT));
 
     // init ready stuff
     size_t table_size = MAX(sizeof(*ready_table) * comm_size, PAGE_SIZE);
