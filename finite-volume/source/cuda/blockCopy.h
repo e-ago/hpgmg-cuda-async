@@ -128,7 +128,7 @@ __global__ void increment_block_kernel(level_type level, int id, double prescale
   copy_block_kernel<log_dim,block_type><<<grid,block,0,stream>>>(level,id,exchange_ghosts);
 
 extern "C"
-void cuda_copy_block(level_type level, int id, communicator_type exchange_ghosts, int block_type)
+void cuda_copy_block(level_type level, int id, communicator_type exchange_ghosts, int block_type, cudaStream_t stream)
 {
   int block = COPY_THREAD_BLOCK_SIZE;
   int grid = exchange_ghosts.num_blocks[block_type]; if(grid<=0) return;
