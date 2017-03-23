@@ -135,9 +135,9 @@ void cuda_copy_block(level_type level, int id, communicator_type exchange_ghosts
 
   int log_dim = (int)log2((double)level.dim.i);
   switch(block_type){
-    case 0: KERNEL_LEVEL(log_dim,0); CUDA_ERROR break;
-    case 1: KERNEL_LEVEL(log_dim,1); CUDA_ERROR break;
-    case 2: KERNEL_LEVEL(log_dim,2); CUDA_ERROR break;
+    case 0: KERNEL_LEVEL_STREAM(log_dim,0,stream); CUDA_ERROR break;
+    case 1: KERNEL_LEVEL_STREAM(log_dim,1,stream); CUDA_ERROR break;
+    case 2: KERNEL_LEVEL_STREAM(log_dim,2,stream); CUDA_ERROR break;
     default: printf("CUDA ERROR: incorrect block type, %i\n", block_type);
   }
 }
