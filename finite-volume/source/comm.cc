@@ -197,9 +197,8 @@ int comm_init(MPI_Comm comm)
 
     char * bufRecv, * bufSend;
     bufSend = (char *) calloc(20, sizeof(char));
-    memset(bufSend, 20, 'a');
+    memset(bufSend, 'a', 20);
     bufRecv = (char *) calloc(20, sizeof(char));
-    memset(bufRecv, 20, '0');
     
     comm_reg_t * send_buffers_reg;
     comm_reg_t * recv_buffers_reg;
