@@ -168,7 +168,8 @@ int main(int argc, char **argv){
   int my_device = my_rank % num_devices;
 
 #ifdef USE_DGX
-  if(my_device % 2 != 0)
+  printf("-----> USE_DGX enabled\n");
+  if((my_device % 2) != 0)
     my_device++;
 #endif
 

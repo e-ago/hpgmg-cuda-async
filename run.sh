@@ -21,10 +21,10 @@ $MPI_HOME/bin/mpirun -verbose     -x PATH    -x GDS_CQ_MAP_SMART=$var_GDS_CQ_MAP
 -x MP_EVENT_ASYNC=0     -x MP_ENABLE_WARN     -x MP_GUARD_PROGRESS=0     -x CUDA_VISIBLE_DEVICES     -x LD_LIBRARY_PATH     \
 -x SIZE     -x MAX_SIZE     -x KERNEL_TIME     -x CALC_SIZE     -x COMM_COMP_RATIO     -x USE_SINGLE_STREAM     -x USE_GPU_ASYNC \
 -x COMM_USE_COMM=$2  -x COMM_USE_ASYNC=$3   -x COMM_USE_GPU_COMM=$4     -x COMM_USE_GDRDMA     -x HPGMG_ENABLE_DEBUG=0 \
--x GDS_DISABLE_WRITE64=1 -x GDS_SIMULATE_WRITE64=$gdsSimWrite64 -x GDS_DISABLE_INLINECOPY=$gdsDisableInlcpy -x GDS_DISABLE_WEAK_CONSISTENCY=$gdsDisableWeakConsistency  -x GDS_DISABLE_MEMBAR=$gdsDisableMembar -x OMP_NUM_THREADS=1 -x ASYNC_2_STREAMS=$var_ASYNC_2_STREAMS -x USE_MPI=1 \
+-x GDS_DISABLE_WRITE64=1 -x GDS_SIMULATE_WRITE64=$gdsSimWrite64 -x GDS_DISABLE_INLINECOPY=$gdsDisableInlcpy -x GDS_DISABLE_WEAK_CONSISTENCY=$gdsDisableWeakConsistency  -x GDS_DISABLE_MEMBAR=$gdsDisableMembar -x OMP_NUM_THREADS=1 -x ASYNC_2_STREAMS=$var_ASYNC_2_STREAMS \
 -x MP_DBREC_ON_GPU=0 -x MP_RX_CQ_ON_GPU=0 -x MP_TX_CQ_ON_GPU=0 \
--x USE_DGX=1		\
--np $procNumber  $PREFIX/src/scripts/wrapper.sh ./build/bin/hpgmg-fv $5 $6
+-x USE_MPI=1 -x USE_DGX=1 \
+-np $procNumber $PREFIX/src/scripts/wrapper.sh ./build/bin/hpgmg-fv $5 $6
 
 
 echo "COMM_USE_COMM=$2"
