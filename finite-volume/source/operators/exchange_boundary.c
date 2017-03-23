@@ -247,10 +247,10 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
     do {
       for(n=0; n<level->exchange_ghosts[shape].num_sends; n++)
         if (!send_msk[n]) {
-          int rdy = 0;
-          comm_test_ready(level->exchange_ghosts[shape].send_ranks[n], &rdy);
+//          int rdy = 0;
+//          comm_test_ready(level->exchange_ghosts[shape].send_ranks[n], &rdy);
           //comm_wait_ready(level->exchange_ghosts[shape].send_ranks[n]);
-          //rdy = 1;
+          rdy = 1;
           if (rdy) {
             comm_isend(level->exchange_ghosts[shape].send_buffers[n],
                        level->exchange_ghosts[shape].send_sizes[n],
@@ -295,6 +295,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
   if (nMessages) {
     _timeStart = getTime();
+#if 0
       if (level->exchange_ghosts[shape].num_sends) {
 
         PUSH_RANGE("test ready + isend 2", SEND_COL);
@@ -320,7 +321,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
         POP_RANGE;
       }
-      
+#endif      
       level->timers.ghostZone_send += (getTime()-_timeStart);
       // wait for recv & sends
       _timeStart = getTime();
