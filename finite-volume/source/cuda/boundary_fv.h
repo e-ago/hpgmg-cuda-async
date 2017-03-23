@@ -672,7 +672,6 @@ void cuda_apply_BCs_v2(level_type level, int x_id, int shape)
 }
 #undef  KERNEL
 #define KERNEL(log_dim, shape) \
-  printf("log_dim: %d ,NUM_BATCH: %d,(BLOCK_SIZE/NUM_BATCH): %d, grid> %d, block: %d, level_type: %d, x_id: %d, shape: %d\n\n", log_dim, NUM_BATCH, (BLOCK_SIZE/NUM_BATCH), grid, block, level, x_id, shape); \
   apply_BCs_v4_kernel<log_dim,NUM_BATCH,(BLOCK_SIZE/NUM_BATCH)><<<grid,block>>>(level,x_id,shape);
 
 extern "C"
@@ -703,6 +702,8 @@ void cuda_extrapolate_betas(level_type level, int shape)
   if(grid<=0) return;
 
   int log_dim = (int)log2((double)level.dim.i);
+  printf("log_dim: %d ,NUM_BATCH: %d,(BLOCK_SIZE/NUM_BATCH): %d, grid> %d, block: %d, shape: %d\n\n", 
+    log_dim, NUM_BATCH, (BLOCK_SIZE/NUM_BATCH), grid, block, shape);
   KERNEL_LEVEL(log_dim, shape);
   CUDA_ERROR
 }
