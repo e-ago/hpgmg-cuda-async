@@ -202,7 +202,7 @@ int comm_init(MPI_Comm comm)
     
     comm_reg_t * send_buffers_reg;
     comm_reg_t * recv_buffers_reg;
-    comm_request_t  send_requests[1], recv_requests[1];
+    comm_request_t  send_requests[1], recv_requests[1], ready_requests[1];
 
     send_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
     recv_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
@@ -212,6 +212,11 @@ int comm_init(MPI_Comm comm)
                  !comm_rank,
                  &recv_requests[0]);
 
+    comm_send_ready(!comm_rank, &ready_requests[0]);
+    int rdy=0;
+    while(rdy == 0)
+        comm_test_ready(!comm_rank, &rdy);
+    
     comm_isend(bufSend, 20, MPI_CHAR,
                  send_buffers_reg,
                  !comm_rank,
