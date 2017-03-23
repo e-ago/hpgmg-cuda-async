@@ -477,8 +477,6 @@ __global__ void fused_copy_block_kernel(level_type level, int id, communicator_t
       }
     }
   }
-
-  
 }
 
 static int n_scheds = TOT_SCHEDS;

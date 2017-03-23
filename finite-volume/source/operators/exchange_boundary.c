@@ -173,6 +173,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
   comm_request_t ready_requests[level->exchange_ghosts[shape].num_recvs];
   comm_request_t  recv_requests[level->exchange_ghosts[shape].num_recvs];
   comm_request_t  send_requests[level->exchange_ghosts[shape].num_sends];
+  cudaError_t errorCode;
 
   if(level->use_cuda && (level->num_ranks > 1))
     cudaDeviceSynchronize();
@@ -216,6 +217,11 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       cuda_copy_block(*level,id,level->exchange_ghosts[shape],0, NULL);
       // need to make sure the kernel completes before we submit MPI request
       cudaDeviceSynchronize();
+      errorCode = cudaGetLastError();
+      if (cudaSuccess != errorCode) {                                    \
+        fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                    __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+      }   
     } else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[0])
       for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[0];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[0][buffer]);}
@@ -272,6 +278,11 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
     if (level->use_cuda) {
       cuda_copy_block(*level, id, level->exchange_ghosts[shape], 1, NULL);
+      errorCode = cudaGetLastError();
+      if (cudaSuccess != errorCode) {                                    \
+        fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                    __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+      }  
     } else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[1])
         for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[1];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[1][buffer]);}
@@ -327,7 +338,12 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
     PUSH_RANGE("upack", KERNEL_COL);
 
     if(level->use_cuda) {
-        cuda_copy_block(*level,id,level->exchange_ghosts[shape],2, NULL);  
+        cuda_copy_block(*level,id,level->exchange_ghosts[shape],2, NULL);
+        errorCode = cudaGetLastError();
+        if (cudaSuccess != errorCode) {                                    \
+          fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                      __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+        }  
     } else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[2])
         for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[2];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[2][buffer]);}
