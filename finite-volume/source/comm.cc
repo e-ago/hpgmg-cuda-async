@@ -316,7 +316,7 @@ int comm_send_ready(int rank, comm_request_t *creq)
     MP_CHECK(mp_iput(&remote_ready_values[rank], sizeof(uint32_t), &remote_ready_values_reg, 
                      peer, remote_offset, &ready_table_win, req, MP_PUT_INLINE));
     //MP_CHECK(mp_wait(req));
-    comm_track_request(req);
+//    comm_track_request(req);
     atomic_inc(&remote_ready_values[rank]);
 }
 
