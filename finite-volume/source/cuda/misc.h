@@ -31,8 +31,7 @@
 // CUB library is used for reductions
 #include "cub/cub.cuh"
 
-#if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ >= 600
-#else
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 600)
 __device__ double atomicAdd(double* address, double val)
 {
     unsigned long long int* address_as_ull = (unsigned long long int*)address;
@@ -103,49 +102,7 @@ __global__ void zero_vector_kernel(level_type level, int component_id)
       }
 }
 
-// this kernel zeros out the grid
-__global__ void dot_kernel(level_type level, int component_id)
-{
-  int block = blockIdx.x;
-
-    const int box = level.my_blocks[block].read.box;
-          int ilo = level.my_blocks[block].read.i;
-          int jlo = level.my_blocks[block].read.j;
-          int klo = level.my_blocks[block].read.k;
-          int ihi = level.my_blocks[block].dim.i + ilo;
-          int jhi = level.my_blocks[block].dim.j + jlo;
-          int khi = level.my_blocks[block].dim.k + klo;
-    const int jStride = level.my_boxes[box].jStride;
-    const int kStride = level.my_boxes[box].kStride;
-    const int  ghosts = level.my_boxes[box].ghosts;
-    const int     dim = level.my_boxes[box].dim;
-
-    // expand the size of the block to include the ghost zones...
-    if(ilo<=  0)ilo-=ghosts;
-    if(jlo<=  0)jlo-=ghosts;
-    if(klo<=  0)klo-=ghosts;
-    if(ihi>=dim)ihi+=ghosts;
-    if(jhi>=dim)jhi+=ghosts;
-    if(khi>=dim)khi+=ghosts;
-
-    double * __restrict__ grid = level.my_boxes[box].vectors[component_id] + ghosts*(1+jStride+kStride);
-
-    // note here that (ihi - ilo) can be greater than dim becasue of ghost blocks
-    int dim_i = (ihi - ilo);
-    int i = ilo + threadIdx.x % dim_i;
-    if (i >= ihi) return;
-
-    int j_block_stride = MISC_THREAD_BLOCK_SIZE / dim_i;
-
-    for (int j = jlo + threadIdx.x / dim_i; j < jhi; j += j_block_stride)
-      for (int k = klo; k < khi; k++) {
-        const int ijk = i + j*jStride + k*kStride;
-        grid[ijk] = 0.0;
-      }
-}
-
-
-// this kernel provides a generic axpy/mul implementation: 
+// this kernel provides a generic axpy/mul implementation:
 // if mul_vectors = 1: c = scale_a * a * b
 // if mul_vectors = 0: c = scale_a * a + scale_b * b + shift_a
 template <int mul_vectors>
@@ -166,7 +123,7 @@ __global__ void axpy_vector_kernel(level_type level, int id_c, double scale_a, d
     double * __restrict__ grid_c = level.my_boxes[box].vectors[id_c] + ghosts*(1+jStride+kStride);
     double * __restrict__ grid_a = level.my_boxes[box].vectors[id_a] + ghosts*(1+jStride+kStride);
     double * __restrict__ grid_b = level.my_boxes[box].vectors[id_b] + ghosts*(1+jStride+kStride);
-   
+
     int dim_i = (ihi - ilo);
     int i = ilo + threadIdx.x % dim_i;
     if (i >= ihi) return;
@@ -242,7 +199,7 @@ __global__ void reduction_kernel(level_type level, int id, double *res)
 
     int dim_i = (ihi - ilo);
     int i = ilo + threadIdx.x % dim_i;
-    if (i < ihi) { 
+    if (i < ihi) {
       int j_block_stride = MISC_THREAD_BLOCK_SIZE / dim_i;
       for (int j = jlo + threadIdx.x / dim_i; j < jhi; j += j_block_stride)
         for (int k = klo; k < khi; k++) {
@@ -280,7 +237,7 @@ void cuda_zero_vector(level_type d_level, int id)
 
   zero_vector_kernel<<<grid, block>>>(d_level, id);
   CUDA_ERROR
-} 
+}
 
 extern "C"
 void cuda_scale_vector(level_type d_level, int id_c, double scale_a, int id_a)
@@ -335,14 +292,8 @@ double cuda_sum(level_type d_level, int id)
 
   double *d_res;
   double h_res[1];
-
-  //    With gpu direct async, unified memory must be disabled
-//#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-//  CUDA_API_ERROR( cudaMallocHost(&d_res, sizeof(double)) )
-//#else
   CUDA_API_ERROR( cudaMallocManaged((void**)&d_res, sizeof(double), cudaMemAttachGlobal) )
   CUDA_API_ERROR( cudaMemsetAsync(d_res, 0, sizeof(double)) )
-//#endif
 
   reduction_kernel<0><<<grid, block>>>(d_level, id, d_res);
   CUDA_ERROR
@@ -351,13 +302,7 @@ double cuda_sum(level_type d_level, int id)
   CUDA_API_ERROR( cudaDeviceSynchronize() )
   h_res[0] = d_res[0];
 
-  //    With gpu direct async, unified memory must be disabled
-//#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-//  CUDA_API_ERROR( cudaFreeHost(d_res) )
-//#else
   CUDA_API_ERROR( cudaFree(d_res) )
-//#endif
-
   return h_res[0];
 }
 
@@ -370,14 +315,8 @@ double cuda_max_abs(level_type d_level, int id)
 
   double *d_res;
   double h_res[1];
-
-  //    With gpu direct async, unified memory must be disabled
- //#ifdef CUDA_DISABLE_UNIFIED_MEMORY
- // CUDA_API_ERROR( cudaMallocHost(&d_res, sizeof(double)) )
-//#else
   CUDA_API_ERROR( cudaMallocManaged((void**)&d_res, sizeof(double), cudaMemAttachGlobal) )
   CUDA_API_ERROR( cudaMemsetAsync(d_res, 0, sizeof(double)) )
-//#endif
 
   reduction_kernel<1><<<grid, block>>>(d_level, id, d_res);
   CUDA_ERROR
@@ -386,14 +325,8 @@ double cuda_max_abs(level_type d_level, int id)
   CUDA_API_ERROR( cudaDeviceSynchronize() )
   h_res[0] = d_res[0];
 
-  //    With gpu direct async, unified memory must be disabled
-//#ifdef CUDA_DISABLE_UNIFIED_MEMORY
-//  CUDA_API_ERROR( cudaFreeHost(d_res) )
-//#else
   CUDA_API_ERROR( cudaFree(d_res) )
-//#endif
-
-return h_res[0];
+  return h_res[0];
 }
 
 extern "C"

@@ -161,30 +161,3 @@
   case 19: { KERNEL(19, block_type) break; } \
   case 20: { KERNEL(20, block_type) break; } \
   default: { printf("CUDA ERROR: level size 2^%i is not supported in the GPU path, please update the macros!\n", log_dim); exit(1); }}
-
-
-#define KERNEL_LEVEL_STREAM(log_dim, block_type, stream)    \
-  switch(log_dim){                           \
-  case 0:  { KERNEL(0, block_type, stream)  break; } \
-  case 1:  { KERNEL(1, block_type, stream)  break; } \
-  case 2:  { KERNEL(2, block_type, stream)  break; } \
-  case 3:  { KERNEL(3, block_type, stream)  break; } \
-  case 4:  { KERNEL(4, block_type, stream)  break; } \
-  case 5:  { KERNEL(5, block_type, stream)  break; } \
-  case 6:  { KERNEL(6, block_type, stream)  break; } \
-  case 7:  { KERNEL(7, block_type, stream)  break; } \
-  case 8:  { KERNEL(8, block_type, stream)  break; } \
-  case 9:  { KERNEL(9, block_type, stream)  break; } \
-  case 10: { KERNEL(10, block_type, stream) break; } \
-  case 11: { KERNEL(11, block_type, stream) break; } \
-  case 12: { KERNEL(12, block_type, stream) break; } \
-  case 13: { KERNEL(13, block_type, stream) break; } \
-  case 14: { KERNEL(14, block_type, stream) break; } \
-  case 15: { KERNEL(15, block_type, stream) break; } \
-  case 16: { KERNEL(16, block_type, stream) break; } \
-  case 17: { KERNEL(17, block_type, stream) break; } \
-  case 18: { KERNEL(18, block_type, stream) break; } \
-  case 19: { KERNEL(19, block_type, stream) break; } \
-  case 20: { KERNEL(20, block_type, stream) break; } \
-  default: { printf("CUDA ERROR: level size 2^%i is not supported in the GPU path, please update the macros!\n", log_dim); exit(1); }}
-

@@ -189,7 +189,10 @@ static inline void interpolation_v2_block(level_type *level_f, int id_f, double 
 // Similarly, it waits for all remote data before copying any into local boxes.
 // It does however attempt to overlap local interpolation with MPI
 void interpolation_v2_plain(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c){
-//  double _timeCommunicationStart = getTime();
+    exchange_boundary(level_c,id_c,STENCIL_SHAPE_BOX);
+         apply_BCs_v2(level_c,id_c,STENCIL_SHAPE_BOX);
+
+  double _timeCommunicationStart = getTime();
   double _timeStart,_timeEnd;
   int buffer=0;
   int n;
@@ -312,10 +315,11 @@ void interpolation_v2_plain(level_type * level_f, int id_f, double prescale_f, l
   }
   #endif 
  
-  //level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
+ 
+  level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
 }
 
-
+// ======== Peersync change ===========
 
 void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c)
 {
@@ -492,3 +496,5 @@ void interpolation_v2(level_type * level_f, int id_f, double prescale_f, level_t
 
   POP_RANGE;
 }
+
+// ====================================

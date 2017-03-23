@@ -45,13 +45,7 @@ void zero_vector(level_type * level, int id_a){
     }}}
   }
   }
-
   level->timers.blas1 += (double)(getTime()-_timeStart);
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ cuda_zero_vector TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-#endif
 }
 
 
@@ -60,10 +54,7 @@ void initialize_valid_region(level_type * level){
   double _timeStart = getTime();
   int block;
 
-  if(level->use_cuda)
-  {
-    cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
-  }
+  if(level->use_cuda)cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
 
   PRAGMA_THREAD_ACROSS_BLOCKS(level,block,level->num_my_blocks)
   for(block=0;block<level->num_my_blocks;block++){
@@ -106,13 +97,6 @@ void initialize_valid_region(level_type * level){
     }}}
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ VALID REGION TIME: %f\n", (getTime()-_timeStart));
-#endif
-
 }
 
 
@@ -122,10 +106,7 @@ void init_vector(level_type * level, int id_a, double scalar){
   double _timeStart = getTime();
   int block;
 
-  if(level->use_cuda)
-  {
-    cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
-  } 
+  if(level->use_cuda)cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
 
   PRAGMA_THREAD_ACROSS_BLOCKS(level,block,level->num_my_blocks)
   for(block=0;block<level->num_my_blocks;block++){
@@ -161,13 +142,6 @@ void init_vector(level_type * level, int id_a, double scalar){
     }}}
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ init_vector TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-#endif
-
 }
 
 
@@ -210,13 +184,6 @@ void add_vectors(level_type * level, int id_c, double scale_a, int id_a, double 
   }
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ add_vectors TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-#endif
-
 }
 
 
@@ -259,13 +226,6 @@ void mul_vectors(level_type * level, int id_c, double scale, int id_a, int id_b)
   }
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ mul_vectors TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-#endif
-
 }
 
 
@@ -278,10 +238,7 @@ void invert_vector(level_type * level, int id_c, double scale_a, int id_a){
 
   int block;
 
-  if(level->use_cuda)
-  {
-    cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
-  }
+  if(level->use_cuda)cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
 
   PRAGMA_THREAD_ACROSS_BLOCKS(level,block,level->num_my_blocks)
   for(block=0;block<level->num_my_blocks;block++){
@@ -307,15 +264,6 @@ void invert_vector(level_type * level, int id_c, double scale_a, int id_a){
     }}}
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ invert_vector TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-
-#endif
-
 }
 
 
@@ -357,14 +305,6 @@ void scale_vector(level_type * level, int id_c, double scale_a, int id_a){
   }
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ scale_vector TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-#endif
-
 }
 
 
@@ -374,13 +314,12 @@ void scale_vector(level_type * level, int id_c, double scale_a, int id_a){
 double dot(level_type * level, int id_a, int id_b){
   double _timeStart = getTime();
 
+
   int block;
   double a_dot_b_level =  0.0;
 
-  if(level->use_cuda)
-  {
-    cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
-  }
+  if(level->use_cuda)cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
+
   PRAGMA_THREAD_ACROSS_BLOCKS_SUM(level,block,level->num_my_blocks,a_dot_b_level)
   for(block=0;block<level->num_my_blocks;block++){
     const int box = level->my_blocks[block].read.box;
@@ -408,11 +347,6 @@ double dot(level_type * level, int id_a, int id_b){
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
 
-#ifdef TIMERS_STAT
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ DOT TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-#endif
-
   #ifdef USE_MPI
   double _timeStartAllReduce = getTime();
   double send = a_dot_b_level;
@@ -421,20 +355,14 @@ double dot(level_type * level, int id_a, int id_b){
   level->timers.collectives   += (double)(_timeEndAllReduce-_timeStartAllReduce);
   #endif
 
-
   return(a_dot_b_level);
 }
 
 //------------------------------------------------------------------------------------------------------------------------------
 // return the max (infinity) norm of the vector id_a.
 // note, only non ghost zone values are included in this calculation
-
-//#define TIMERS_STAT 1
-
 double norm(level_type * level, int id_a){ // implements the max norm
   double _timeStart = getTime();
-
-  //PUSH_RANGE("norm", 3);
 
   int block;
   double max_norm =  0.0;
@@ -472,15 +400,6 @@ double norm(level_type * level, int id_a){ // implements the max norm
   } // use cuda
   level->timers.blas1 += (double)(getTime()-_timeStart);
 
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda == 1)
-    fprintf(stdout, "++++ Level use_cuda: %d norm TIME (comp): %f, blas1: %f\n", level->use_cuda, (getTime()-_timeStart), level->timers.blas1);
-
-#endif
-
-  //POP_RANGE;
-
   #ifdef USE_MPI
   double _timeStartAllReduce = getTime();
   double send = max_norm;
@@ -488,9 +407,9 @@ double norm(level_type * level, int id_a){ // implements the max norm
   double _timeEndAllReduce = getTime();
   level->timers.collectives   += (double)(_timeEndAllReduce-_timeStartAllReduce);
   #endif
-
   return(max_norm);
 }
+
 
 //------------------------------------------------------------------------------------------------------------------------------
 // return the mean (arithmetic average value) of vector id_a
@@ -498,6 +417,7 @@ double norm(level_type * level, int id_a){ // implements the max norm
 // note, only non ghost zone values are included in this calculation
 double mean(level_type * level, int id_a){
   double _timeStart = getTime();
+
 
   int block;
   double sum_level =  0.0;
@@ -533,11 +453,6 @@ double mean(level_type * level, int id_a){
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
   double ncells_level = (double)level->dim.i*(double)level->dim.j*(double)level->dim.k;
-
-#ifdef TIMERS_STAT
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ mean TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-#endif
 
   #ifdef USE_MPI
   double _timeStartAllReduce = getTime();
@@ -589,14 +504,6 @@ void shift_vector(level_type * level, int id_c, int id_a, double shift_a){
   }
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ shift_vector TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-
-#endif
-
 }
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -604,7 +511,7 @@ void shift_vector(level_type * level, int id_c, int id_a, double shift_a){
 // note, only non ghost zone values are included in this calculation
 double error(level_type * level, int id_a, int id_b){
   double h3 = level->h * level->h * level->h;
-               add_vectors(level,VECTOR_TEMP,1.0,id_a,-1.0,id_b);            // VECTOR_TEMP = id_a - id_b 
+               add_vectors(level,VECTOR_TEMP,1.0,id_a,-1.0,id_b);            // VECTOR_TEMP = id_a - id_b
   double   max =      norm(level,VECTOR_TEMP);                return(max);   // max norm of error function
   double    L2 = sqrt( dot(level,VECTOR_TEMP,VECTOR_TEMP)*h3);return( L2);   // normalized L2 error ?
 }
@@ -658,13 +565,6 @@ void color_vector(level_type * level, int id_a, int colors_in_each_dim, int icol
   }
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ color_vector TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-
-#endif
-
 }
 
 
@@ -676,10 +576,8 @@ void random_vector(level_type * level, int id_a){
   double _timeStart = getTime();
   int block;
 
-  if(level->use_cuda)
-  {
-    cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
-  }
+  if(level->use_cuda)cudaDeviceSynchronize(); // FIX... no CUDA version... must sync CPU/GPU before using CPU version...
+
   PRAGMA_THREAD_ACROSS_BLOCKS(level,block,level->num_my_blocks)
   for(block=0;block<level->num_my_blocks;block++){
     const int box = level->my_blocks[block].read.box;
@@ -703,14 +601,6 @@ void random_vector(level_type * level, int id_a){
     }}}
   }
   level->timers.blas1 += (double)(getTime()-_timeStart);
-
-#ifdef TIMERS_STAT
-
-  if(level->my_rank == 0 && level->use_cuda)
-    fprintf(stdout, "++++ random_vector TIME: %f, blas1: %f\n", (getTime()-_timeStart), level->timers.blas1);
-
-#endif
-
 }
 
 

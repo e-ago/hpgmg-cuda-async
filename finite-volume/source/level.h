@@ -16,13 +16,12 @@
 #include <string.h>
 #include <math.h>
 #include <cuda_runtime.h>
-#include <cuda_profiler_api.h>
 //------------------------------------------------------------------------------------------------------------------------------
 #ifdef USE_MPI
 #include <mpi.h>
 #include "comm.h"
-#endif
 #include "debug.h"
+#endif
 //------------------------------------------------------------------------------------------------------------------------------
 // supported boundary conditions
 #define BC_PERIODIC  0
@@ -85,12 +84,10 @@ typedef struct {
     #ifdef USE_MPI
     MPI_Request * __restrict__     requests;
     MPI_Status  * __restrict__       status;
-    //async change
+// ======== Peersync change ===========
     comm_reg_t     * __restrict__ send_buffers_reg;
     comm_reg_t     * __restrict__ recv_buffers_reg;
-
-    //async change
-    int                           nMessages;
+// ====================================
     #endif
 } communicator_type;
 
@@ -154,8 +151,6 @@ typedef struct {
 
   // GPU-related info
   int use_cuda;					// run operators on this level on GPU
-  cudaStream_t stream, stream_rec;
-
   int um_access_policy;				// access hints for GPU memory allocator
   double *chebyshev_c1, *chebyshev_c2;		// chebyshev coefficients in heap memory
 
@@ -194,8 +189,9 @@ typedef struct {
     // Collectives...
     double   collectives;
     double         Total;
-    //async change
+// ======== Peersync change ===========
     double         AsyncTimer;
+// ====================================
   }timers;
   int Krylov_iterations;        // total number of bottom solver iterations
   int CAKrylov_formations_of_G; // i.e. [G,g] = [P,R]^T[P,R,rt]

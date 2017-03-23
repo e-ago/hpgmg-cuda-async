@@ -255,19 +255,23 @@ static inline void interpolation_v4_block(level_type *level_f, int id_f, double 
 // This is a rather bulk synchronous implementation which packs all MPI buffers before initiating any sends
 // Similarly, it waits for all remote data before copying any into local boxes.
 // It does however attempt to overlap local interpolation with MPI
-void interpolation_v4_plain(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c)
-{
- //  double _timeCommunicationStart = getTime();
+void interpolation_v4_plain(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c){
+    exchange_boundary(level_c,id_c,STENCIL_SHAPE_BOX);
+         apply_BCs_v4(level_c,id_c,STENCIL_SHAPE_BOX);
+
+  double _timeCommunicationStart = getTime();
   double _timeStart,_timeEnd;
   int buffer=0;
   int n;
   int my_tag = (level_f->tag<<4) | 0x7;
+
 
   #ifdef USE_MPI
   // by convention, level_f allocates a combined array of requests for both level_f recvs and level_c sends...
   int nMessages = level_c->interpolation.num_sends + level_f->interpolation.num_recvs;
   MPI_Request *recv_requests = level_f->interpolation.requests;
   MPI_Request *send_requests = level_f->interpolation.requests + level_f->interpolation.num_recvs;
+
 
   // loop through packed list of MPI receives and prepost Irecv's...
   if(level_f->interpolation.num_recvs>0){
@@ -352,10 +356,10 @@ void interpolation_v4_plain(level_type * level_f, int id_f, double prescale_f, l
   #ifdef USE_MPI 
   if(nMessages>0){
     _timeStart = getTime();
-      MPI_Waitall(nMessages,level_f->interpolation.requests,level_f->interpolation.status);
-    #ifdef SYNC_DEVICE_AFTER_WAITALL
-      cudaDeviceSynchronize();
-    #endif
+    MPI_Waitall(nMessages,level_f->interpolation.requests,level_f->interpolation.status);
+  #ifdef SYNC_DEVICE_AFTER_WAITALL
+    cudaDeviceSynchronize();
+  #endif
     _timeEnd = getTime();
     level_f->timers.interpolation_wait += (_timeEnd-_timeStart);
   }
@@ -379,9 +383,10 @@ void interpolation_v4_plain(level_type * level_f, int id_f, double prescale_f, l
   #endif 
  
  
- // level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
+  level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
 }
 
+// ======== Peersync change ===========
 
 void interpolation_v4_comm(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c)
 {
@@ -562,3 +567,5 @@ void interpolation_v4(level_type * level_f, int id_f, double prescale_f, level_t
 
   POP_RANGE;
 }
+
+// ====================================

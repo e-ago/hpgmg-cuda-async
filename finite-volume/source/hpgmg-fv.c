@@ -39,9 +39,6 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#ifdef PROFILE_NVTX_RANGES
-#include <nvToolsExt.h>
-#endif
 //------------------------------------------------------------------------------------------------------------------------------
 #include "timers.h"
 #include "defines.h"
@@ -80,9 +77,7 @@ void bench_hpgmg(mg_type *all_grids, int onLevel, double a, double b, double dto
      int    minSolves = 10; // do at least minSolves MGSolves
   double timePerSolve = 0;
 
-  cudaProfilerStop();
-  for(doTiming=0;doTiming<=1;doTiming++)
-  { // first pass warms up, second pass times
+  for(doTiming=0;doTiming<=1;doTiming++){ // first pass warms up, second pass times
 
     #ifdef USE_HPM // IBM performance counters for BGQ...
     if( (doTiming==1) && (onLevel==0) )HPM_Start("FMGSolve()");
@@ -97,11 +92,7 @@ void bench_hpgmg(mg_type *all_grids, int onLevel, double a, double b, double dto
       if(MAX_SOLVES<minSolves) minSolves=MAX_SOLVES;	// check upper bound for maximum number of solves
       #endif
     }
-    
     #endif
-
-
-   // minSolves=MAX_SOLVES;
 
     if(all_grids->levels[onLevel]->my_rank==0){
       if(doTiming==0){fprintf(stdout,"\n\n===== Warming up by running %d solves ==========================================\n",minSolves);}
@@ -111,43 +102,19 @@ void bench_hpgmg(mg_type *all_grids, int onLevel, double a, double b, double dto
 
     int numSolves =  0; // solves completed
     MGResetTimers(all_grids);
-
-    
-    if (doTiming)
-      cudaProfilerStart();
-
-    if(doTiming == 0)
-      PUSH_RANGE("warmup_time", WARMUP_COL);
-
-    if(doTiming == 1)
-      PUSH_RANGE("exec_time", EXEC_COL);
-
     while( (numSolves<minSolves) ){
       zero_vector(all_grids->levels[onLevel],VECTOR_U);
       #ifdef USE_FCYCLES
       FMGSolve(all_grids,onLevel,VECTOR_U,VECTOR_F,a,b,dtol,rtol);
       #else
-      MGSolve(all_grids,onLevel,VECTOR_U,VECTOR_F,a,b,dtol,rtol);
+       MGSolve(all_grids,onLevel,VECTOR_U,VECTOR_F,a,b,dtol,rtol);
       #endif
       numSolves++;
     }
 
-    POP_RANGE;
-
-    
-    if (doTiming)
-      cudaProfilerStop();
-
-    if(doTiming==1){
-      double endTime1 = MPI_Wtime();
-      if(all_grids->levels[onLevel]->my_rank == 0)
-        fprintf(stdout, "\nEXEC_TIME TIME: %f\n", (endTime1-startTime));
-    }
     #ifdef USE_MPI
     if(doTiming==0){
       double endTime = MPI_Wtime();
-      if(all_grids->levels[onLevel]->my_rank == 0)
-        fprintf(stdout, "\nWARMUP TIME: %f\n", (endTime-startTime));
       timePerSolve = (endTime-startTime)/numSolves;
       MPI_Bcast(&timePerSolve,1,MPI_DOUBLE,0,MPI_COMM_WORLD); // after warmup, process 0 broadcasts the average time per solve (consensus)
     }
@@ -196,18 +163,25 @@ int main(int argc, char **argv){
   MPI_Init_thread(&argc, &argv, requested_threading_model, &actual_threading_model);
   MPI_Comm_size(MPI_COMM_WORLD, &num_tasks);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-  
-  mpi_comm_rank = my_rank;
-  
   // Set CUDA device for this rank...
   num_devices = cudaCheckPeerToPeer(my_rank);
   int my_device = my_rank % num_devices;
+
+#ifdef USE_DGX
+  if(my_device % 2 != 0)
+    my_device++;
+#endif
+
   cudaSetDevice(my_device);
   if (my_rank < 10) {
     struct cudaDeviceProp devProp;
     cudaGetDeviceProperties(&devProp, my_device);
     printf("rank %d:  Selecting device %d (%s)\n",my_rank,my_device,devProp.name);
   }
+
+  if(comm_use_comm())
+    comm_init(MPI_COMM_WORLD);
+
   #ifdef USE_SHM
   cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
   cudaDeviceSetCacheConfig(cudaFuncCachePreferShared);
@@ -218,10 +192,6 @@ int main(int argc, char **argv){
   HPM_Init();
   #endif
   #endif // USE_MPI
-
-  if(comm_use_comm())
-    comm_init(MPI_COMM_WORLD);
-
 
   NVTX_PUSH("main",1)  // start NVTX profiling
 
@@ -403,11 +373,8 @@ int main(int argc, char **argv){
   int l;
   #ifndef TEST_ERROR
 
-int REPEAT_TIME=1;
-
-
-  double AverageSolveTime[REPEAT_TIME];
-  for(l=0;l<REPEAT_TIME;l++){
+  double AverageSolveTime[3];
+  for(l=0;l<3;l++){
     if(l>0)restriction(MG_h.levels[l],VECTOR_F,MG_h.levels[l-1],VECTOR_F,RESTRICT_CELL);
     bench_hpgmg(&MG_h,l,a,b,dtol,rtol);
     AverageSolveTime[l] = (double)MG_h.timers.MGSolve / (double)MG_h.MGSolves_performed;
@@ -423,7 +390,7 @@ int REPEAT_TIME=1;
     double SecondsPerCycle = 1.0;
     #endif
     fprintf(stdout,"\n\n===== Performance Summary ======================================================\n");
-    for(l=0;l<REPEAT_TIME;l++){
+    for(l=0;l<3;l++){
       double DOF = (double)MG_h.levels[l]->dim.i*(double)MG_h.levels[l]->dim.j*(double)MG_h.levels[l]->dim.k;
       double seconds = SecondsPerCycle*(double)AverageSolveTime[l];
       double DOFs = DOF / seconds;
@@ -439,7 +406,7 @@ int REPEAT_TIME=1;
   // solve A^4h u^4h = f^4h
   // error analysis...
   MGResetTimers(&MG_h);
-  for(l=0;l<REPEAT_TIME;l++){
+  for(l=0;l<3;l++){
     if(l>0)restriction(MG_h.levels[l],VECTOR_F,MG_h.levels[l-1],VECTOR_F,RESTRICT_CELL);
            zero_vector(MG_h.levels[l],VECTOR_U);
     #ifdef USE_FCYCLES

@@ -52,10 +52,7 @@ double cuda_sum(level_type d_level, int id);
 double cuda_max_abs(level_type d_level, int id);
 void cuda_color_vector(level_type d_level, int id_a, int colors_in_each_dim, int icolor, int jcolor, int kcolor);
 
-void cuda_copy_block(level_type d_level, int id, communicator_type exchange_ghosts, int block_type, cudaStream_t stream);
+void cuda_copy_block(level_type d_level, int id, communicator_type exchange_ghosts, int block_type);
 void cuda_increment_block(level_type d_level, int id, double prescale, communicator_type exchange_ghosts, int block_type);
-void cuda_fused_copy_block(level_type d_level, int id, communicator_type exchange_ghosts, cudaStream_t stream, comm_dev_descs_t descs);
-void cuda_fused_copy_block_send(level_type d_level, int id, communicator_type exchange_ghosts, cudaStream_t stream, comm_dev_descs_t descs);
-void cuda_fused_copy_block_receive(level_type d_level, int id, communicator_type exchange_ghosts, cudaStream_t stream, comm_dev_descs_t descs);
 
 #include "extra.h"
