@@ -409,7 +409,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
     PUSH_RANGE("restriction_comm", OP_COL);
     restriction_comm(level_c, id_c, level_f, id_f, restrictionType);
 
-    errorCode = cudaGetLastError();
+    cudaError_t errorCode = cudaGetLastError();
     if (cudaSuccess != errorCode) {                                    \
       fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
                   __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
