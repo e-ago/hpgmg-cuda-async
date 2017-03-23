@@ -204,6 +204,7 @@ int comm_init(MPI_Comm comm)
     comm_reg_t * send_buffers_reg;
     comm_reg_t * recv_buffers_reg;
     comm_request_t  send_requests[1], recv_requests[1];
+
     send_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
     recv_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
     
@@ -235,6 +236,9 @@ static size_t comm_size_of_mpi_type(MPI_Datatype mpi_type)
 
     if (mpi_type == MPI_DOUBLE) {
         ret = sizeof(double);
+    }
+    else if (mpi_type == MPI_CHAR) {
+        ret = sizeof(char);
     } else {
         comm_err("invalid type\n");
         exit(1);
