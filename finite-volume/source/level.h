@@ -151,6 +151,8 @@ typedef struct {
 
   // GPU-related info
   int use_cuda;					// run operators on this level on GPU
+  cudaStream_t stream, stream_rec;
+
   int um_access_policy;				// access hints for GPU memory allocator
   double *chebyshev_c1, *chebyshev_c2;		// chebyshev coefficients in heap memory
 
