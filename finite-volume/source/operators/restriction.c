@@ -204,7 +204,7 @@ void restriction_plain(level_type * level_c, int id_c, level_type *level_f, int 
   if(level_c->restriction[restrictionType].num_blocks[2]>0){
     _timeStart = getTime();
     if(level_c->use_cuda) {
-      cuda_copy_block(*level_c,id_c,level_c->restriction[restrictionType],2);
+      cuda_copy_block(*level_c,id_c,level_c->restriction[restrictionType],2,NULL);
     }
     else {
     PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_c->restriction[restrictionType].num_blocks[2])
