@@ -213,9 +213,9 @@ int comm_init(MPI_Comm comm)
                  &recv_requests[0]);
 
     comm_send_ready(!comm_rank, &ready_requests[0]);
+
     int rdy=0;
-    while(rdy == 0)
-        comm_test_ready(!comm_rank, &rdy);
+    while(!rdy) comm_test_ready(!comm_rank, &rdy);
     
     comm_isend(bufSend, 20, MPI_CHAR,
                  send_buffers_reg,
