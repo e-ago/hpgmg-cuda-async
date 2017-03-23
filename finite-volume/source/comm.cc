@@ -355,7 +355,7 @@ int comm_test_ready(int rank, int *p_rdy)
     int ret = 0;
     int peer = comm_mpi_rank_to_peer(rank);
     static int cnt = 0;
-    DBG("rank=%d payload=%x\n", rank, ready_values[rank]);
+   // DBG("rank=%d payload=%x\n", rank, ready_values[rank]);
     do {
         rmb();
         *p_rdy = !(ACCESS_ONCE(ready_table[rank]) < ready_values[rank]);
