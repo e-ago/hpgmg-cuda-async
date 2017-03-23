@@ -67,7 +67,7 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
   if(level->exchange_ghosts[shape].num_blocks[0]){
     _timeStart = getTime();
     if(level->use_cuda) {
-      cuda_copy_block(*level,id,level->exchange_ghosts[shape],0);
+      cuda_copy_block(*level,id,level->exchange_ghosts[shape],0, NULL);
       cudaDeviceSynchronize();	// synchronize so the CPU sees the updated buffers which will be used for MPI transfers
     }
     else {
@@ -107,7 +107,7 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
   if(level->exchange_ghosts[shape].num_blocks[1]){
     _timeStart = getTime();
     if (level->use_cuda) {
-      cuda_copy_block(*level, id, level->exchange_ghosts[shape], 1);
+      cuda_copy_block(*level, id, level->exchange_ghosts[shape], 1, NULL);
     }
     else {
     PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[1])
@@ -137,7 +137,7 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
   if(level->exchange_ghosts[shape].num_blocks[2]){
     _timeStart = getTime();
     if(level->use_cuda) {
-      cuda_copy_block(*level,id,level->exchange_ghosts[shape],2);
+      cuda_copy_block(*level,id,level->exchange_ghosts[shape],2, NULL);
     }
     else {
     PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[2])
