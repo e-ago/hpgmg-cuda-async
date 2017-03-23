@@ -393,7 +393,7 @@ int main(int argc, char **argv){
     fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
                 __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
   }   
-  
+
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // HPGMG-500 benchmark proper
   // evaluate performance on problem sizes of h, 2h, and 4h
@@ -406,7 +406,21 @@ int main(int argc, char **argv){
   double AverageSolveTime[3];
   for(l=0;l<3;l++){
     if(l>0)restriction(MG_h.levels[l],VECTOR_F,MG_h.levels[l-1],VECTOR_F,RESTRICT_CELL);
+
+    errorCode = cudaGetLastError();
+    if (cudaSuccess != errorCode) {                                    \
+      fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                  __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+    }   
+    
     bench_hpgmg(&MG_h,l,a,b,dtol,rtol);
+    
+    errorCode = cudaGetLastError();
+    if (cudaSuccess != errorCode) {                                    \
+      fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                  __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+    }   
+    
     AverageSolveTime[l] = (double)MG_h.timers.MGSolve / (double)MG_h.MGSolves_performed;
     if(my_rank==0){fprintf(stdout,"\n\n===== Timing Breakdown =========================================================\n");}
     MGPrintTiming(&MG_h,l);
