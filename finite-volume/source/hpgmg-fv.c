@@ -169,7 +169,6 @@ int main(int argc, char **argv){
 
 #define USE_DGX 1
 #ifdef USE_DGX
-  printf("-----> USE_DGX enabled\n");
   if((my_device % 2) != 0)
     my_device++;
 #endif
@@ -349,8 +348,27 @@ int main(int argc, char **argv){
   if(my_rank==0)fprintf(stdout,"  Creating Poisson (a=%f, b=%f) test problem\n",a,b);
   #endif
   double h=1.0/( (double)boxes_in_i*(double)box_dim );  // [0,1]^3 problem
+  cudaError_t errorCode = cudaGetLastError();
+  if (cudaSuccess != errorCode) {                                    \
+    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+  }   
+
   initialize_problem(&level_h,h,a,b);                   // initialize VECTOR_ALPHA, VECTOR_BETA*, and VECTOR_F
+  
+  errorCode = cudaGetLastError();
+  if (cudaSuccess != errorCode) {                                    \
+    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+  }   
+
   rebuild_operator(&level_h,NULL,a,b);                  // calculate Dinv and lambda_max
+  errorCode = cudaGetLastError();
+  if (cudaSuccess != errorCode) {                                    \
+    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+  }   
+
   if(level_h.boundary_condition.type == BC_PERIODIC){   // remove any constants from the RHS for periodic problems
     double average_value_of_f = mean(&level_h,VECTOR_F);
     if(average_value_of_f!=0.0){
@@ -359,13 +377,23 @@ int main(int argc, char **argv){
     }
   }
 
+  errorCode = cudaGetLastError();
+  if (cudaSuccess != errorCode) {                                    \
+    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+  }   
 
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // create the MG hierarchy...
   mg_type MG_h;
   MGBuild(&MG_h,&level_h,a,b,minCoarseDim);             // build the Multigrid Hierarchy 
 
-
+  errorCode = cudaGetLastError();
+  if (cudaSuccess != errorCode) {                                    \
+    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
+                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
+  }   
+  
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // HPGMG-500 benchmark proper
   // evaluate performance on problem sizes of h, 2h, and 4h
