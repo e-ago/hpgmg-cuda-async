@@ -247,7 +247,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
     do {
       for(n=0; n<level->exchange_ghosts[shape].num_sends; n++)
         if (!send_msk[n]) {
-//          int rdy = 0;
+          int rdy = 0;
 //          comm_test_ready(level->exchange_ghosts[shape].send_ranks[n], &rdy);
           //comm_wait_ready(level->exchange_ghosts[shape].send_ranks[n]);
           rdy = 1;
