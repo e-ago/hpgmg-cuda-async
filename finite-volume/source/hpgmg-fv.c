@@ -167,6 +167,7 @@ int main(int argc, char **argv){
   num_devices = cudaCheckPeerToPeer(my_rank);
   int my_device = my_rank % num_devices;
 
+#define USE_DGX 1
 #ifdef USE_DGX
   printf("-----> USE_DGX enabled\n");
   if((my_device % 2) != 0)
