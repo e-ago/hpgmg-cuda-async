@@ -195,6 +195,33 @@ int comm_init(MPI_Comm comm)
 
     comm_initialized = 1;
 
+    char * bufRecv, * bufSend;
+    bufSend = (char *) calloc(20, sizeof(char));
+    memset(bufSend, 20, 'a');
+    bufRecv = (char *) calloc(20, sizeof(char));
+    memset(bufRecv, 20, 0);
+    
+    comm_reg_t * send_buffers_reg;
+    comm_reg_t * recv_buffers_reg;
+    comm_request_t  send_requests[1], recv_requests[1];
+    send_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
+    recv_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
+    
+    comm_irecv(bufRecv, 20, MPI_CHAR,
+                 recv_buffers_reg,
+                 !comm_rank,
+                 &recv_requests[0]);
+
+    comm_isend(bufSend, 20, MPI_CHAR,
+                 send_buffers_reg,
+                 !comm_rank,
+                 &send_requests[0]);
+
+    comm_wait(&send_requests[0]);
+    comm_wait(&recv_requests[0]);
+
+    printf("Received from %d buffer %s\n", !comm_rank, bufRecv);
+
     return 0;
 }
 
