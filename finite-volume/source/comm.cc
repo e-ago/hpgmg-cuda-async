@@ -222,9 +222,9 @@ int comm_init(MPI_Comm comm)
                  !comm_rank,
                  &send_requests[0]);
 
-    comm_wait(&send_requests[0]);
-    comm_wait(&recv_requests[0]);
-
+    //comm_wait(&send_requests[0]);
+    //comm_wait(&recv_requests[0]);
+    comm_flush();
     printf("Received from %d buffer %s\n", !comm_rank, bufRecv);
 
     return 0;
