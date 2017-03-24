@@ -802,7 +802,7 @@ void comm_test_ping_pong(const char * description) {
                  recv_buffers_reg,
                  !comm_rank,
                  &recv_requests[0]);
-#if 0
+#if 1
     comm_send_ready(!comm_rank, &ready_requests[0]);
 
     int rdy=0;
@@ -813,9 +813,9 @@ void comm_test_ping_pong(const char * description) {
                  !comm_rank,
                  &send_requests[0]);
 
-    //comm_wait(&send_requests[0]);
-    //comm_wait(&recv_requests[0]);
-    comm_flush();
+    comm_wait(&send_requests[0]);
+    comm_wait(&recv_requests[0]);
+    //comm_flush();
     printf("Test #%d (%s): Received from %d buffer %s\n", ping_pong_test, description, !comm_rank, bufRecv);
     ping_pong_test++;
 }
