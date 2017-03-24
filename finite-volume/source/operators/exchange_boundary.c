@@ -195,7 +195,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                  level->exchange_ghosts[shape].recv_ranks[n],
                  &recv_requests[n]);
 
-      comm_send_ready(level->exchange_ghosts[shape].recv_ranks[n], &ready_requests[n]);
+      //comm_send_ready(level->exchange_ghosts[shape].recv_ranks[n], &ready_requests[n]);
     }
     
     POP_RANGE;
