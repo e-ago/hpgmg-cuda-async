@@ -37,7 +37,7 @@ extern "C" {
     int comm_use_gdrdma();
     int comm_use_async();
     int comm_use_gpu_comm();
-    void comm_test_ping_pong();
+    void comm_test_ping_pong(const char * string);
     typedef struct comm_request  *comm_request_t;
     typedef struct comm_reg      *comm_reg_t;
     typedef struct CUstream_st   *comm_stream_t;
