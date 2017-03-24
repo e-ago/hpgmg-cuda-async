@@ -407,6 +407,7 @@ int comm_wait_all(int count, comm_request_t *creqs)
 int comm_wait(comm_request_t *creq)
 {
     int ret = 0;
+    DBG("setup mp_wait\n");
     assert(comm_initialized);
     mp_request_t *req = (mp_request_t*)creq;
     MP_CHECK(mp_wait(req));
