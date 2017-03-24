@@ -163,6 +163,9 @@ void rebuild_operator(level_type * level, level_type *fromLevel, double a, doubl
                     __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
       }  
       printf("=========== primo exchange boundary\n");
+
+      comm_test_ping_pong("prima del primo exchange");
+
   // exchange alpha/beta/...  (must be done before calculating Dinv)
   exchange_boundary(level,VECTOR_ALPHA ,STENCIL_SHAPE_BOX); // safe
   errorCode = cudaGetLastError();
