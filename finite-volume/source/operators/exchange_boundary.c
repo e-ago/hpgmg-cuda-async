@@ -326,7 +326,14 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       // wait for recv & sends
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
-      comm_flush();
+      int ir;
+      for(ir=0; ir < level->exchange_ghosts[shape].num_sends; ir++)
+        comm_wait(&send_requests[ir]);
+      
+      for(ir=0; ir < level->exchange_ghosts[shape].num_recvs; ir++)
+        comm_wait(&recv_requests[ir]);
+
+      //comm_flush();
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
