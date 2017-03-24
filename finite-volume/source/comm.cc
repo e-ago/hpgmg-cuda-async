@@ -285,7 +285,7 @@ int comm_send_ready(int rank, comm_request_t *creq)
     int remote_offset = /*my rank*/comm_rank * sizeof(uint32_t);
     DBG("dest_rank=%d payload=%x offset=%d\n", rank, remote_ready_values[rank], remote_offset);
     MP_CHECK(mp_iput(&remote_ready_values[rank], sizeof(uint32_t), &remote_ready_values_reg, 
-                     peer, remote_offset, &ready_table_win, req, MP_PUT_NOWAIT /*MP_PUT_INLINE*/));
+                     peer, remote_offset, &ready_table_win, req, MP_PUT_NOWAIT  /*MP_PUT_INLINE*/));
     //MP_CHECK(mp_wait(req));
 //    comm_track_request(req);
     atomic_inc(&remote_ready_values[rank]);
@@ -805,8 +805,8 @@ void comm_test_ping_pong(const char * description) {
 #if 1
     comm_send_ready(!comm_rank, &ready_requests[0]);
 
-    //int rdy=0;
-    //while(!rdy) comm_test_ready(!comm_rank, &rdy);
+    int rdy=0;
+    while(!rdy) comm_test_ready(!comm_rank, &rdy);
 #endif
     comm_isend(bufSend, 20, MPI_CHAR,
                  send_buffers_reg,
