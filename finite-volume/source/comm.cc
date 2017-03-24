@@ -40,6 +40,7 @@ static const int   bad_peer = -1;
 static int         comm_size;
 static int         comm_rank;
 
+static int          ping_pong_test=0;
 // tables are indexed by rank, not peer
 static uint32_t   *ready_table;
 static mp_reg_t    ready_table_reg;
@@ -195,37 +196,7 @@ int comm_init(MPI_Comm comm)
 
     comm_initialized = 1;
 
-    char * bufRecv, * bufSend;
-    bufSend = (char *) calloc(20, sizeof(char));
-    memset(bufSend, 'a', 20);
-    bufRecv = (char *) calloc(20, sizeof(char));
-    
-    comm_reg_t * send_buffers_reg;
-    comm_reg_t * recv_buffers_reg;
-    comm_request_t  send_requests[1], recv_requests[1], ready_requests[1];
-
-    send_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
-    recv_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
-    
-    comm_irecv(bufRecv, 20, MPI_CHAR,
-                 recv_buffers_reg,
-                 !comm_rank,
-                 &recv_requests[0]);
-#if 0
-    comm_send_ready(!comm_rank, &ready_requests[0]);
-
-    int rdy=0;
-    while(!rdy) comm_test_ready(!comm_rank, &rdy);
-#endif
-    comm_isend(bufSend, 20, MPI_CHAR,
-                 send_buffers_reg,
-                 !comm_rank,
-                 &send_requests[0]);
-
-    comm_wait(&send_requests[0]);
-    comm_wait(&recv_requests[0]);
-    //comm_flush();
-    printf("Received from %d buffer %s\n", !comm_rank, bufRecv);
+    comm_test_ping_pong("dentro comm_init");
 
     return 0;
 }
@@ -812,4 +783,39 @@ comm_dev_descs_t comm_prepared_requests()
     // reset dreqs for next usage
     memset(dreqs(), 0, sizeof(struct comm_dev_descs));
     return ret;
+}
+
+void comm_test_ping_pong(const char * description) {
+    char * bufRecv, * bufSend;
+    bufSend = (char *) calloc(20, sizeof(char));
+    memset(bufSend, 'a', 20);
+    bufRecv = (char *) calloc(20, sizeof(char));
+    
+    comm_reg_t * send_buffers_reg;
+    comm_reg_t * recv_buffers_reg;
+    comm_request_t  send_requests[1], recv_requests[1], ready_requests[1];
+
+    send_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
+    recv_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
+    
+    comm_irecv(bufRecv, 20, MPI_CHAR,
+                 recv_buffers_reg,
+                 !comm_rank,
+                 &recv_requests[0]);
+#if 0
+    comm_send_ready(!comm_rank, &ready_requests[0]);
+
+    int rdy=0;
+    while(!rdy) comm_test_ready(!comm_rank, &rdy);
+#endif
+    comm_isend(bufSend, 20, MPI_CHAR,
+                 send_buffers_reg,
+                 !comm_rank,
+                 &send_requests[0]);
+
+    comm_wait(&send_requests[0]);
+    comm_wait(&recv_requests[0]);
+    //comm_flush();
+    printf("Test #%d (%s): Received from %d buffer %s\n", ping_pong_test, description, !comm_rank, bufRecv);
+    ping_pong_test++;
 }

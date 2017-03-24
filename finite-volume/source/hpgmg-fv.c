@@ -348,21 +348,21 @@ int main(int argc, char **argv){
   if(my_rank==0)fprintf(stdout,"  Creating Poisson (a=%f, b=%f) test problem\n",a,b);
   #endif
   double h=1.0/( (double)boxes_in_i*(double)box_dim );  // [0,1]^3 problem
-  cudaError_t errorCode = cudaGetLastError();
-  if (cudaSuccess != errorCode) {                                    \
-    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-  }   
 
+  comm_test_ping_pong("prima di initialize_problem");
   initialize_problem(&level_h,h,a,b);                   // initialize VECTOR_ALPHA, VECTOR_BETA*, and VECTOR_F
-  
+  comm_test_ping_pong("dopo di initialize_problem");
+
   errorCode = cudaGetLastError();
   if (cudaSuccess != errorCode) {                                    \
     fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
                 __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-  }   
+    }   
 
   rebuild_operator(&level_h,NULL,a,b);                  // calculate Dinv and lambda_max
+
+  comm_test_ping_pong("dopo di rebuild_operator");
+
   errorCode = cudaGetLastError();
   if (cudaSuccess != errorCode) {                                    \
     fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
@@ -388,6 +388,9 @@ int main(int argc, char **argv){
   mg_type MG_h;
   MGBuild(&MG_h,&level_h,a,b,minCoarseDim);             // build the Multigrid Hierarchy 
 
+    comm_test_ping_pong("dopo di MGBuild");
+
+
   errorCode = cudaGetLastError();
   if (cudaSuccess != errorCode) {                                    \
     fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
@@ -405,7 +408,12 @@ int main(int argc, char **argv){
 
   double AverageSolveTime[3];
   for(l=0;l<3;l++){
+
+    comm_test_ping_pong("prima di loop restriction");
+
     if(l>0)restriction(MG_h.levels[l],VECTOR_F,MG_h.levels[l-1],VECTOR_F,RESTRICT_CELL);
+
+    comm_test_ping_pong("dopo di loop restriction");
 
     errorCode = cudaGetLastError();
     if (cudaSuccess != errorCode) {                                    \
@@ -420,7 +428,7 @@ int main(int argc, char **argv){
       fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
                   __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
     }   
-    
+
     AverageSolveTime[l] = (double)MG_h.timers.MGSolve / (double)MG_h.MGSolves_performed;
     if(my_rank==0){fprintf(stdout,"\n\n===== Timing Breakdown =========================================================\n");}
     MGPrintTiming(&MG_h,l);
