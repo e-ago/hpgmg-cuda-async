@@ -353,7 +353,7 @@ int main(int argc, char **argv){
   initialize_problem(&level_h,h,a,b);                   // initialize VECTOR_ALPHA, VECTOR_BETA*, and VECTOR_F
   comm_test_ping_pong("dopo di initialize_problem");
 
-  errorCode = cudaGetLastError();
+  cudaError_t errorCode = cudaGetLastError();
   if (cudaSuccess != errorCode) {                                    \
     fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
                 __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
