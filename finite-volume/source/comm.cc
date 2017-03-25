@@ -167,6 +167,7 @@ int comm_init(MPI_Comm comm)
     assert(comm_size-1 == n_peers);
     DBG("n_peers=%d\n", n_peers);
 
+    cudaFree(0);
     MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT));
 
     // init ready stuff
@@ -585,7 +586,7 @@ int comm_flush_request(comm_request_t * request, int count)
     assert(request);
     for(index=0; index < count; index++)
         comm_wait(&request[index]);
-    
+
     return ret;
 }
 
