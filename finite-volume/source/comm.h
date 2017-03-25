@@ -59,6 +59,7 @@ extern "C" {
     int comm_wait(comm_request_t *creq);
     int comm_flush();
     int comm_flush_new();
+    int comm_flush_request(comm_request_t * request, int count);
     int comm_progress();
 
     int comm_prepare_wait_ready(int rank);

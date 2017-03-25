@@ -579,6 +579,16 @@ int comm_flush()
     return ret;
 }
 
+int comm_flush_request(comm_request_t * request, int count)
+{
+    int index;
+    assert(request);
+    for(index=0; index < count; index++)
+        comm_wait(&request[index]);
+    
+    return ret;
+}
+
 int comm_flush_new()
 {
     int ret = 0;
@@ -804,7 +814,6 @@ void comm_test_ping_pong(const char * description) {
                  &recv_requests[0]);
 #if 1
     comm_send_ready(!comm_rank, &ready_requests[0]);
-
     int rdy=0;
     while(!rdy) comm_test_ready(!comm_rank, &rdy);
 #endif

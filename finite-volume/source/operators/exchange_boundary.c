@@ -188,6 +188,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       DBG("recv_rank[%d]=%d size=%d\n", n, 
           level->exchange_ghosts[shape].recv_ranks[n],
           level->exchange_ghosts[shape].recv_sizes[n]);
+      
       comm_irecv(level->exchange_ghosts[shape].recv_buffers[n],
                  level->exchange_ghosts[shape].recv_sizes[n],
                  MPI_DOUBLE,
@@ -195,13 +196,12 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                  level->exchange_ghosts[shape].recv_ranks[n],
                  &recv_requests[n]);
 
-      //comm_send_ready(level->exchange_ghosts[shape].recv_ranks[n], &ready_requests[n]);
+      comm_send_ready(level->exchange_ghosts[shape].recv_ranks[n], &ready_requests[n]);
     }
     
     POP_RANGE;
 
     level->timers.ghostZone_recv += (getTime()-_timeStart);
-    
   }
 
 
@@ -217,11 +217,6 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       cuda_copy_block(*level,id,level->exchange_ghosts[shape],0, NULL);
       // need to make sure the kernel completes before we submit MPI request
       cudaDeviceSynchronize();
-      errorCode = cudaGetLastError();
-      if (cudaSuccess != errorCode) {                                    \
-        fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                    __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-      }   
     } else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[0])
       for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[0];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[0][buffer]);}
@@ -248,7 +243,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       for(n=0; n<level->exchange_ghosts[shape].num_sends; n++)
         if (!send_msk[n]) {
           int rdy = 0;
-//          comm_test_ready(level->exchange_ghosts[shape].send_ranks[n], &rdy);
+          comm_test_ready(level->exchange_ghosts[shape].send_ranks[n], &rdy);
           //comm_wait_ready(level->exchange_ghosts[shape].send_ranks[n]);
           rdy = 1;
           if (rdy) {
@@ -278,24 +273,17 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
     if (level->use_cuda) {
       cuda_copy_block(*level, id, level->exchange_ghosts[shape], 1, NULL);
-      errorCode = cudaGetLastError();
-      if (cudaSuccess != errorCode) {                                    \
-        fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                    __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-      }  
     } else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[1])
-        for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[1];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[1][buffer]);}
+      for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[1];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[1][buffer]);}
     }
 
     POP_RANGE;
-
     level->timers.ghostZone_local += (getTime()-_timeStart);
   }
 
   if (nMessages) {
     _timeStart = getTime();
-#if 0
       if (level->exchange_ghosts[shape].num_sends) {
 
         PUSH_RANGE("test ready + isend 2", SEND_COL);
@@ -321,18 +309,22 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
         POP_RANGE;
       }
-#endif      
+
       level->timers.ghostZone_send += (getTime()-_timeStart);
       // wait for recv & sends
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
+
+      comm_flush_request(send_requests, level->exchange_ghosts[shape].num_sends);
+      comm_flush_request(recv_requests, level->exchange_ghosts[shape].num_recvs);
+
+/*
       int ir;
       for(ir=0; ir < level->exchange_ghosts[shape].num_sends; ir++)
         comm_wait(&send_requests[ir]);
-      
       for(ir=0; ir < level->exchange_ghosts[shape].num_recvs; ir++)
         comm_wait(&recv_requests[ir]);
-
+*/
       //comm_flush();
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
