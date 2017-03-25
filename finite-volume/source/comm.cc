@@ -317,7 +317,7 @@ int comm_wait_ready(int rank)
         arch_cpu_relax();
         ++cnt;
         if (cnt > 10000) {
-            comm_progress();
+            //comm_progress();
             cnt = 0;
         }
     }
