@@ -582,10 +582,10 @@ int comm_flush()
 
 int comm_flush_request(comm_request_t * request, int count)
 {
-    int index;
+    int index, ret;
     assert(request);
     for(index=0; index < count; index++)
-        comm_wait(&request[index]);
+        ret = comm_wait(&request[index]);
 
     return ret;
 }
