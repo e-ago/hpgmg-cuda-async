@@ -277,6 +277,8 @@ int comm_send_ready_on_stream(int rank, comm_request_t *creq, cudaStream_t strea
 
 int comm_send_ready(int rank, comm_request_t *creq)
 {
+    return 1;
+
     assert(comm_initialized);
     assert(rank < comm_size);
     int ret = 0;
@@ -306,6 +308,7 @@ int comm_wait_ready_on_stream(int rank, cudaStream_t stream)
 
 int comm_wait_ready(int rank)
 {
+    return 1;
     assert(comm_initialized);
     assert(rank < comm_size);
     int ret = 0;
