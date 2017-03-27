@@ -825,10 +825,10 @@ void comm_test_ping_pong(const char * description) {
 
     //comm_wait(&send_requests[0]);
     //comm_wait(&recv_requests[0]);
-    comm_wait_all(1, &send_requests[0]);
-    comm_wait_all(1, &recv_requests[0]);
+    //comm_wait_all(1, &send_requests[0]);
+    //comm_wait_all(1, &recv_requests[0]);
     
-    //comm_flush();
+    comm_flush();
     printf("Test #%d (%s): Received from %d buffer %s\n", ping_pong_test, description, !comm_rank, bufRecv);
     ping_pong_test++;
 }
