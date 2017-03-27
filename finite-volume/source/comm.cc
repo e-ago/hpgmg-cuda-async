@@ -823,8 +823,11 @@ void comm_test_ping_pong(const char * description) {
                  !comm_rank,
                  &send_requests[0]);
 
-    comm_wait(&send_requests[0]);
-    comm_wait(&recv_requests[0]);
+    //comm_wait(&send_requests[0]);
+    //comm_wait(&recv_requests[0]);
+    comm_wait_all(1, &send_requests[0]);
+    comm_wait_all(1, &recv_requests[0]);
+    
     //comm_flush();
     printf("Test #%d (%s): Received from %d buffer %s\n", ping_pong_test, description, !comm_rank, bufRecv);
     ping_pong_test++;
@@ -840,6 +843,7 @@ int comm_set_device(int mpiRank)
     char * value = getenv("USE_GPU"); 
     if (value != NULL) {
         deviceNumber = atoi(value);
+        printf("USE_GPU: %d\n", deviceNumber);
     }
     else
     {
