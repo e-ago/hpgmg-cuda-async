@@ -340,7 +340,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       }
       else
       {
-        DBG("comm_flush restriction_comm\n");
+        DBG("comm_flush restriction_comm, use_async: %d\n", use_async);
         comm_flush();
       }
     }
