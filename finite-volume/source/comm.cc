@@ -813,7 +813,7 @@ void comm_test_ping_pong(const char * description) {
                  recv_buffers_reg,
                  !comm_rank,
                  &recv_requests[0]);
-#if 1
+#if 0
     comm_send_ready(!comm_rank, &ready_requests[0]);
     int rdy=0;
     while(!rdy) comm_test_ready(!comm_rank, &rdy);
