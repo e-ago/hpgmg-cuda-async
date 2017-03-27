@@ -249,12 +249,14 @@ static void atomic_inc(uint32_t *ptr)
 
 static void comm_track_request(mp_request_t *req)
 {
-    assert(n_reqs < MAX_REQS);    
+    assert(n_reqs < MAX_REQS);
     reqs[n_reqs++] = *req;
     /*
     if(comm_rank == 0)
         printf("TRACK n_reqs: %d\n", n_reqs);
     */
+    if(req->type=NULL)
+        DBG("ATTENTION NULL REQUEST ADDED");
     DBG("n_reqs=%d\n", n_reqs);
 }
 
