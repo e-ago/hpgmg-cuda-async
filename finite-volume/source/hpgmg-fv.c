@@ -165,7 +165,8 @@ int main(int argc, char **argv){
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
   // Set CUDA device for this rank...
   num_devices = cudaCheckPeerToPeer(my_rank);
-  int my_device = my_rank % num_devices;
+  int my_device;
+  my_device = comm_set_device(my_rank);
 
 #define USE_DGX 1
 #ifdef USE_DGX

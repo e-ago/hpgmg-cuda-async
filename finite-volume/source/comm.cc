@@ -829,3 +829,24 @@ void comm_test_ping_pong(const char * description) {
     printf("Test #%d (%s): Received from %d buffer %s\n", ping_pong_test, description, !comm_rank, bufRecv);
     ping_pong_test++;
 }
+
+
+//DGX helper
+int comm_set_device(int mpiRank)
+{
+    int deviceNumber=0;
+    int numDevices=0;
+    
+    char * value = getenv("USE_GPU"); 
+    if (value != NULL) {
+        deviceNumber = atoi(value);
+    }
+    else
+    {
+        // query number of GPU devices in the system
+        cudaGetDeviceCount(&numDevices);
+        deviceNumber = mpiRank % numDevices;
+    }
+
+    return deviceNumber;
+}
