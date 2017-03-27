@@ -339,7 +339,10 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
                                 level_c->stream);
       }
       else
+      {
+        DBG("comm_flush restriction_comm\n");
         comm_flush();
+      }
     }
     
     _timeEnd = getTime();
@@ -395,6 +398,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
 #if 1
       if ((!level_c->use_cuda || !level_f->use_cuda) && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
+        DBG("comm_flush restriction\n");
         comm_flush(); //_new();
         POP_RANGE;
       } 
