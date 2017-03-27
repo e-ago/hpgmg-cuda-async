@@ -315,8 +315,11 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
 
-      comm_flush_request(send_requests, level->exchange_ghosts[shape].num_sends);
-      comm_flush_request(recv_requests, level->exchange_ghosts[shape].num_recvs);
+      comm_wait_all(level->exchange_ghosts[shape].num_sends, send_requests);
+      comm_wait_all(level->exchange_ghosts[shape].num_recvs, recv_requests);
+      
+      //comm_flush_request(send_requests, level->exchange_ghosts[shape].num_sends);
+      //comm_flush_request(recv_requests, level->exchange_ghosts[shape].num_recvs);
 
 /*
       int ir;
