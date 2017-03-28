@@ -317,8 +317,8 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
       DBG("comm_wait_all, send: %d recv: %d\n", level->exchange_ghosts[shape].num_sends, level->exchange_ghosts[shape].num_recvs);
 
-      comm_wait_all(level->exchange_ghosts[shape].num_sends, send_requests);
-      comm_wait_all(level->exchange_ghosts[shape].num_recvs, recv_requests);
+      //comm_wait_all(level->exchange_ghosts[shape].num_sends, send_requests);
+      //comm_wait_all(level->exchange_ghosts[shape].num_recvs, recv_requests);
       
       //comm_flush_request(send_requests, level->exchange_ghosts[shape].num_sends);
       //comm_flush_request(recv_requests, level->exchange_ghosts[shape].num_recvs);
@@ -330,7 +330,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       for(ir=0; ir < level->exchange_ghosts[shape].num_recvs; ir++)
         comm_wait(&recv_requests[ir]);
 */
-      //comm_flush();
+      comm_flush();
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
