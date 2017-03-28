@@ -702,8 +702,6 @@ void cuda_extrapolate_betas(level_type level, int shape)
   if(grid<=0) return;
 
   int log_dim = (int)log2((double)level.dim.i);
-  printf("log_dim: %d ,NUM_BATCH: %d,(BLOCK_SIZE/NUM_BATCH): %d, grid> %d, block: %d, shape: %d\n\n", 
-    log_dim, NUM_BATCH, (BLOCK_SIZE/NUM_BATCH), grid, block, shape);
   KERNEL_LEVEL(log_dim, shape);
   CUDA_ERROR
 }
