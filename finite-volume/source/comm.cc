@@ -167,7 +167,7 @@ int comm_init(MPI_Comm comm)
     assert(comm_size-1 == n_peers);
     DBG("n_peers=%d\n", n_peers);
 
-    //Assure CUDA context initialization
+    //CUDA context initialization
     cudaFree(0);
     MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT));
 
@@ -845,7 +845,7 @@ int comm_set_device(int mpiRank)
     char * value = getenv("USE_GPU"); 
     if (value != NULL) {
         deviceNumber = atoi(value);
-        printf("USE_GPU: %d\n", deviceNumber);
+        DBG("USE_GPU: %d\n", deviceNumber);
     }
     else
     {
