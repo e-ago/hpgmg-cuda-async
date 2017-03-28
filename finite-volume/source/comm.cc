@@ -254,8 +254,6 @@ static void comm_track_request(mp_request_t *req)
     if(comm_rank == 0)
         printf("TRACK n_reqs: %d\n", n_reqs);
     */
-    if(reqs[n_reqs].type == NULL)
-        DBG("ATTENTION NULL REQUEST ADDED %d\n", n_reqs);
     DBG("n_reqs=%d\n", n_reqs);
 }
 
