@@ -1231,9 +1231,9 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
 
 // ======== Peersync change ===========
   level->stream = NULL;
+  level->stream_rec = NULL; 
 
 #if 0
-  level->stream_rec = NULL; 
   if(comm_use_async() && level->use_cuda)
   {
     int ASYNC_2_STREAMS=0; //default value
