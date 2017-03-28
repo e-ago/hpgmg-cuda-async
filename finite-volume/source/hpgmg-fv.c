@@ -350,25 +350,8 @@ int main(int argc, char **argv){
   #endif
   double h=1.0/( (double)boxes_in_i*(double)box_dim );  // [0,1]^3 problem
 
-  comm_test_ping_pong("prima di initialize_problem");
   initialize_problem(&level_h,h,a,b);                   // initialize VECTOR_ALPHA, VECTOR_BETA*, and VECTOR_F
-  comm_test_ping_pong("dopo di initialize_problem");
-
-  cudaError_t errorCode = cudaGetLastError();
-  if (cudaSuccess != errorCode) {                                    \
-    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-    }   
-
   rebuild_operator(&level_h,NULL,a,b);                  // calculate Dinv and lambda_max
-
-  comm_test_ping_pong("dopo di rebuild_operator");
-
-  errorCode = cudaGetLastError();
-  if (cudaSuccess != errorCode) {                                    \
-    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-  }   
 
   if(level_h.boundary_condition.type == BC_PERIODIC){   // remove any constants from the RHS for periodic problems
     double average_value_of_f = mean(&level_h,VECTOR_F);
@@ -378,25 +361,10 @@ int main(int argc, char **argv){
     }
   }
 
-  errorCode = cudaGetLastError();
-  if (cudaSuccess != errorCode) {                                    \
-    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-  }   
-
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // create the MG hierarchy...
   mg_type MG_h;
   MGBuild(&MG_h,&level_h,a,b,minCoarseDim);             // build the Multigrid Hierarchy 
-
-    comm_test_ping_pong("dopo di MGBuild");
-
-
-  errorCode = cudaGetLastError();
-  if (cudaSuccess != errorCode) {                                    \
-    fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-  }   
 
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   // HPGMG-500 benchmark proper
@@ -407,29 +375,11 @@ int main(int argc, char **argv){
   int l;
   #ifndef TEST_ERROR
 
-  double AverageSolveTime[3];
-  for(l=0;l<3;l++){
-
-    comm_test_ping_pong("prima di loop restriction");
-
+#define GPU_SOLVER_TIME 1
+  double AverageSolveTime[GPU_SOLVER_TIME];
+  for(l=0;l<GPU_SOLVER_TIME;l++){
     if(l>0)restriction(MG_h.levels[l],VECTOR_F,MG_h.levels[l-1],VECTOR_F,RESTRICT_CELL);
-
-    comm_test_ping_pong("dopo di loop restriction");
-
-    errorCode = cudaGetLastError();
-    if (cudaSuccess != errorCode) {                                    \
-      fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                  __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-    }   
-    
     bench_hpgmg(&MG_h,l,a,b,dtol,rtol);
-    
-    errorCode = cudaGetLastError();
-    if (cudaSuccess != errorCode) {                                    \
-      fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                  __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-    }   
-
     AverageSolveTime[l] = (double)MG_h.timers.MGSolve / (double)MG_h.MGSolves_performed;
     if(my_rank==0){fprintf(stdout,"\n\n===== Timing Breakdown =========================================================\n");}
     MGPrintTiming(&MG_h,l);
@@ -443,7 +393,7 @@ int main(int argc, char **argv){
     double SecondsPerCycle = 1.0;
     #endif
     fprintf(stdout,"\n\n===== Performance Summary ======================================================\n");
-    for(l=0;l<3;l++){
+    for(l=0;l<GPU_SOLVER_TIME;l++){
       double DOF = (double)MG_h.levels[l]->dim.i*(double)MG_h.levels[l]->dim.j*(double)MG_h.levels[l]->dim.k;
       double seconds = SecondsPerCycle*(double)AverageSolveTime[l];
       double DOFs = DOF / seconds;

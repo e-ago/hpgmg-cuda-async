@@ -157,29 +157,9 @@ void rebuild_operator(level_type * level, level_type *fromLevel, double a, doubl
   // extrapolate the beta's into the ghost zones (needed for mixed derivatives)
   extrapolate_betas(level);
   //initialize_problem(level,level->h,a,b); // approach used for testing smooth beta's; destroys the black box nature of the solver
-  cudaError_t errorCode = cudaGetLastError();
-      if (cudaSuccess != errorCode) {                                    \
-        fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                    __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-      }  
-      printf("=========== primo exchange boundary\n");
-
-      comm_test_ping_pong("prima del primo exchange");
-
   // exchange alpha/beta/...  (must be done before calculating Dinv)
   exchange_boundary(level,VECTOR_ALPHA ,STENCIL_SHAPE_BOX); // safe
-  errorCode = cudaGetLastError();
-      if (cudaSuccess != errorCode) {                                    \
-        fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                    __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-      }  
-            printf("=========== secondo exchange boundary\n");
-
   exchange_boundary(level,VECTOR_BETA_I,STENCIL_SHAPE_BOX);
-
-        printf("=========== terzo exchange boundary\n");
-
-
   exchange_boundary(level,VECTOR_BETA_J,STENCIL_SHAPE_BOX);
   exchange_boundary(level,VECTOR_BETA_K,STENCIL_SHAPE_BOX);
 

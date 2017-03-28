@@ -315,21 +315,6 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
 
-      DBG("comm_wait_all, send: %d recv: %d\n", level->exchange_ghosts[shape].num_sends, level->exchange_ghosts[shape].num_recvs);
-
-      //comm_wait_all(level->exchange_ghosts[shape].num_sends, send_requests);
-      //comm_wait_all(level->exchange_ghosts[shape].num_recvs, recv_requests);
-      
-      //comm_flush_request(send_requests, level->exchange_ghosts[shape].num_sends);
-      //comm_flush_request(recv_requests, level->exchange_ghosts[shape].num_recvs);
-
-/*
-      int ir;
-      for(ir=0; ir < level->exchange_ghosts[shape].num_sends; ir++)
-        comm_wait(&send_requests[ir]);
-      for(ir=0; ir < level->exchange_ghosts[shape].num_recvs; ir++)
-        comm_wait(&recv_requests[ir]);
-*/
       comm_flush();
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
@@ -344,11 +329,6 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
     if(level->use_cuda) {
         cuda_copy_block(*level,id,level->exchange_ghosts[shape],2, NULL);
-        errorCode = cudaGetLastError();
-        if (cudaSuccess != errorCode) {                                    \
-          fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                      __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-        }  
     } else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->exchange_ghosts[shape].num_blocks[2])
         for(buffer=0;buffer<level->exchange_ghosts[shape].num_blocks[2];buffer++){CopyBlock(level,id,&level->exchange_ghosts[shape].blocks[2][buffer]);}
