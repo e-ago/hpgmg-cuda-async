@@ -41,7 +41,7 @@ extern "C" {
     typedef struct comm_request  *comm_request_t;
     typedef struct comm_reg      *comm_reg_t;
     typedef struct CUstream_st   *comm_stream_t;
-    int comm_init(MPI_Comm comm);
+    int comm_init(MPI_Comm comm, int gpuId);
     void comm_finalize();
     int comm_send_ready_on_stream(int rank, comm_request_t *creq, comm_stream_t stream);
     int comm_send_ready(int rank, comm_request_t *creq);
@@ -68,7 +68,7 @@ extern "C" {
     int comm_prepare_wait_all(int count, comm_request_t *creqs);
     comm_dev_descs_t comm_prepared_requests();
     int comm_register(void *buf, size_t size, comm_reg_t *creg);
-    int comm_set_device(int mpiRank);
+    int comm_select_device(int mpiRank);
    
 #ifdef __cplusplus
 }

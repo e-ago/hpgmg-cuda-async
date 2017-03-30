@@ -133,6 +133,7 @@ int main(int argc, char **argv){
   int num_tasks=1;
   int OMP_Threads = 1;
   int num_devices = 1;
+  int my_device=0;
 
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
   #ifdef _OPENMP
@@ -165,14 +166,7 @@ int main(int argc, char **argv){
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
   // Set CUDA device for this rank...
   num_devices = cudaCheckPeerToPeer(my_rank);
-  int my_device;
-  my_device = comm_set_device(my_rank);
-
-#define USE_DGX 1
-#ifdef USE_DGX
-  if((my_device % 2) != 0)
-    my_device++;
-#endif
+  my_device = comm_select_device(my_rank);
 
   cudaSetDevice(my_device);
   if (my_rank < 10) {
@@ -182,7 +176,7 @@ int main(int argc, char **argv){
   }
 
   if(comm_use_comm())
-    comm_init(MPI_COMM_WORLD);
+    comm_init(MPI_COMM_WORLD, my_device);
 
   #ifdef USE_SHM
   cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);

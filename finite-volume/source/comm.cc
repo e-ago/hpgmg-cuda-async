@@ -143,7 +143,7 @@ int comm_use_async()
     return use_async;
 }
 
-int comm_init(MPI_Comm comm)
+int comm_init(MPI_Comm comm, int gpuId)
 {
     int i, j;
 
@@ -170,6 +170,7 @@ int comm_init(MPI_Comm comm)
 
     //CUDA context initialization
     //cudaFree(0);
+    current_gpu_id=gpuId;
     mp_setup_gpu_id(current_gpu_id);
     MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT));
 
@@ -837,23 +838,23 @@ void comm_test_ping_pong(const char * description) {
 #endif
 }
 
-
 //DGX helper
-int comm_set_device(int mpiRank)
+int comm_select_device(int mpiRank)
 {
     int numDevices=0;
-    
+    int gpuId=0;
+
     char * value = getenv("USE_GPU"); 
     if (value != NULL) {
-        current_gpu_id = atoi(value);
-        DBG("USE_GPU: %d\n", current_gpu_id);
+        gpuId = atoi(value);
+        //DBG("USE_GPU: %d\n", gpuId);
     }
     else
     {
         // query number of GPU devices in the system
         cudaGetDeviceCount(&numDevices);
-        current_gpu_id = mpiRank % numDevices;
+        gpuId = mpiRank % numDevices;
     }
 
-    return current_gpu_id;
+    return gpuId;
 }
