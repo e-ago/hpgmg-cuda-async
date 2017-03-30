@@ -39,6 +39,7 @@ static int         n_peers = -1;
 static const int   bad_peer = -1;
 static int         comm_size;
 static int         comm_rank;
+static int         current_gpu_id=0;
 
 static int          ping_pong_test=0;
 // tables are indexed by rank, not peer
@@ -169,6 +170,7 @@ int comm_init(MPI_Comm comm)
 
     //CUDA context initialization
     cudaFree(0);
+    mp_setup_gpu_id(current_gpu_id);
     MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT));
 
     // init ready stuff
@@ -839,20 +841,19 @@ void comm_test_ping_pong(const char * description) {
 //DGX helper
 int comm_set_device(int mpiRank)
 {
-    int deviceNumber=0;
     int numDevices=0;
     
     char * value = getenv("USE_GPU"); 
     if (value != NULL) {
-        deviceNumber = atoi(value);
-        DBG("USE_GPU: %d\n", deviceNumber);
+        current_gpu_id = atoi(value);
+        DBG("USE_GPU: %d\n", current_gpu_id);
     }
     else
     {
         // query number of GPU devices in the system
         cudaGetDeviceCount(&numDevices);
-        deviceNumber = mpiRank % numDevices;
+        current_gpu_id = mpiRank % numDevices;
     }
 
-    return deviceNumber;
+    return current_gpu_id;
 }
