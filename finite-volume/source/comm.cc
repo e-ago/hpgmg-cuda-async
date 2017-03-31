@@ -39,7 +39,6 @@ static int         n_peers = -1;
 static const int   bad_peer = -1;
 static int         comm_size;
 static int         comm_rank;
-static int         comm_gpu_id=0;
 
 static int          ping_pong_test=0;
 // tables are indexed by rank, not peer
@@ -147,6 +146,13 @@ int comm_init(MPI_Comm comm, int gpuId)
 {
     int i, j;
 
+    if(gpuId < 0)
+    {
+        printf("ERROR: Wrong GPU ID (%d) \n", gpuId);
+        return -1;
+    }
+    
+
     MPI_Comm_size (comm, &comm_size);
     MPI_Comm_rank (comm, &comm_rank);
 
@@ -170,9 +176,7 @@ int comm_init(MPI_Comm comm, int gpuId)
 
     //CUDA context initialization
     //cudaFree(0);
-    comm_gpu_id=gpuId;
-    mp_setup_gpu_id(comm_gpu_id);
-    MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT));
+    MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT, gpuId));
 
     // init ready stuff
     size_t table_size = MAX(sizeof(*ready_table) * comm_size, PAGE_SIZE);
