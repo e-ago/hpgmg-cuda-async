@@ -175,7 +175,7 @@ int comm_init(MPI_Comm comm, int gpuId)
     DBG("n_peers=%d\n", n_peers);
 
     //CUDA context initialization
-    //cudaFree(0);
+    cudaFree(0);
     MP_CHECK(mp_init(comm, peers, n_peers, MP_INIT_DEFAULT, gpuId));
 
     // init ready stuff
