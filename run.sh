@@ -17,7 +17,12 @@ var_HOST_LEVEL_SIZE_THRESHOLD=10000
 var_GDS_CQ_MAP_SMART=0 #16384
 var_ASYNC_2_STREAMS=0 #$10
 
-$MPI_HOME/bin/mpirun -verbose     -x PATH    -x GDS_CQ_MAP_SMART=$var_GDS_CQ_MAP_SMART -x GDS_ENABLE_DEBUG=0    -x MP_ENABLE_DEBUG=0  \
+extra_params="$extra_params --mca btl openib,self"
+extra_params="$extra_params --mca btl_openib_want_cuda_gdr 1"
+extra_params="$extra_params --mca btl_openib_warn_default_gid_prefix 0"
+extra_params="$extra_params --mca btl_openib_verbose 1"
+
+$MPI_HOME/bin/mpirun -verbose  $extra_params   -x PATH    -x GDS_CQ_MAP_SMART=$var_GDS_CQ_MAP_SMART -x GDS_ENABLE_DEBUG=0    -x MP_ENABLE_DEBUG=0  \
 -x MP_EVENT_ASYNC=0     -x MP_ENABLE_WARN     -x MP_GUARD_PROGRESS=0     -x CUDA_VISIBLE_DEVICES     -x LD_LIBRARY_PATH     \
 -x SIZE     -x MAX_SIZE     -x KERNEL_TIME     -x CALC_SIZE     -x COMM_COMP_RATIO     -x USE_SINGLE_STREAM     -x USE_GPU_ASYNC \
 -x COMM_USE_COMM=$2  -x COMM_USE_ASYNC=$3   -x COMM_USE_GPU_COMM=$4     -x COMM_USE_GDRDMA     -x HPGMG_ENABLE_DEBUG=0 \
