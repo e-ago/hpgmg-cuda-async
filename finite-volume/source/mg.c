@@ -67,6 +67,7 @@ void MGPrintTiming(mg_type *all_grids, int fromLevel){
           printf("\n\n");
           printf("level                     ");for(level=fromLevel;level<(num_levels  );level++){printf("%12d ",level-fromLevel);}printf("\n");
           printf("level dimension           ");for(level=fromLevel;level<(num_levels  );level++){printf("%10d^3 ",all_grids->levels[level]->dim.i  );}printf("\n");
+          printf("use cuda                  ");for(level=fromLevel;level<(num_levels  );level++){printf("%10d   ",all_grids->levels[level]->use_cuda );}printf("\n");
           printf("box dimension             ");for(level=fromLevel;level<(num_levels  );level++){printf("%10d^3 ",all_grids->levels[level]->box_dim);}printf("       total\n");
   total=0;printf("------------------        ");for(level=fromLevel;level<(num_levels+1);level++){printf("------------ ");}printf("\n");
   total=0;printf("smooth                    ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.smooth;               total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
