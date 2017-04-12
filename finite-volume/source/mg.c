@@ -102,9 +102,9 @@ void MGPrintTiming(mg_type *all_grids, int fromLevel){
   total=0;printf("  MPI_Isend               ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_send;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
   total=0;printf("  MPI_Irecv               ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_recv;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
   total=0;printf("  MPI_Waitall             ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_wait;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
-  total=0;printf("  Send Wait             ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_wait_send;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
-  total=0;printf("  Recv Wait             ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_wait_recv;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
-  total=0;printf("  Ready Wait             ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_wait_ready;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
+  total=0;printf("  Send Wait               ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_wait_send;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
+  total=0;printf("  Recv Wait               ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_wait_recv;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
+  total=0;printf("  Ready Wait              ");for(level=fromLevel;level<(num_levels  );level++){time=scale*(double)all_grids->levels[level]->timers.ghostZone_wait_ready;       total+=time;printf("%12.6f ",time);}printf("%12.6f\n",total);
 
   #endif
   #ifdef USE_MPI
