@@ -267,7 +267,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
 
         _timeStartWait = getTime();
         comm_wait(&ready_requests[n]);
-        level->timers.restriction_wait += (getTime()-_timeStartWait);
+        level_f->timers.restriction_wait += (getTime()-_timeStartWait);
       }
     }
     _timeEnd = getTime();
@@ -314,7 +314,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
 
         _timeStartWait = getTime();
         comm_wait(&send_requests[n]);
-        level->timers.restriction_wait += (getTime()-_timeStartWait);
+        level_f->timers.restriction_wait += (getTime()-_timeStartWait);
       }
     }
     _timeEnd = getTime();
@@ -353,7 +353,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
         for(n=0;n<level_c->restriction[restrictionType].num_recvs;n++){
           _timeStartWait = getTime();
           comm_wait(&recv_requests[n]);
-          level->timers.restriction_wait += (getTime()-_timeStartWait);
+          level_f->timers.restriction_wait += (getTime()-_timeStartWait);
         }
       }
     }
