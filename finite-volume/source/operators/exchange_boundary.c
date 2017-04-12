@@ -347,7 +347,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
         level->timers.ghostZone_wait_recv += (getTime()-_timeStartWait); 
       }
 
-      level->timers.ghostZone_wait += level->timers.ghostZone_wait_recv + level->timers.ghostZone_wait_ready + level->timers.ghostZone_wait_send;
+      level->timers.ghostZone_wait = level->timers.ghostZone_wait_recv + level->timers.ghostZone_wait_ready + level->timers.ghostZone_wait_send;
 
 #else
       
