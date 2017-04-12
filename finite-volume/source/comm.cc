@@ -581,10 +581,15 @@ int comm_flush()
     //int diff = n_reqs - startGlobalFlushReqsIndex;
     ret = mp_wait_all(n_reqs, reqs); //+startGlobalFlushReqsIndex);
     n_reqs=0;
-    startGlobalReqsIndex=0;
-    startGlobalFlushReqsIndex=0;
+    //startGlobalReqsIndex=0;
+//    startGlobalFlushReqsIndex=0;
 
     return ret;
+}
+
+void comm_zero_req()
+{
+    n_reqs=0;
 }
 
 int comm_flush_request(comm_request_t * request, int count)

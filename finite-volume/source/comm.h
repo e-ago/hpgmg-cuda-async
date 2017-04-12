@@ -61,6 +61,7 @@ extern "C" {
     int comm_flush_new();
     int comm_flush_request(comm_request_t * request, int count);
     int comm_progress();
+void comm_zero_req();
 
     int comm_prepare_wait_ready(int rank);
     int comm_prepare_isend(void *send_buf, size_t size, MPI_Datatype type, comm_reg_t *creg,

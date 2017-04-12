@@ -355,18 +355,19 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       }
       else
       {
-        DBG("comm_flush restriction_comm, use_async: %d\n", use_async);
-        comm_flush();
 
 #ifdef COMM_SINGLE_TIMERS
+        comm_zero_req();
 
         for(n=0;n<level_c->restriction[restrictionType].num_recvs;n++){
           _timeStartWait = getTime();
           comm_wait(&recv_requests[n]);
           level_f->timers.restriction_wait += (getTime()-_timeStartWait);
         }
+#else
+        comm_flush();
 #endif
-        
+
       }
     }
     
@@ -420,15 +421,18 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       h   h ??
       h   d IMPOSSIBLE currently
      */    
-#if 1
+
       if ((!level_c->use_cuda || !level_f->use_cuda) && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
         DBG("comm_flush restriction\n");
+
+#ifdef COMM_SINGLE_TIMERS
+        comm_zero_req();
+#else
         comm_flush(); //_new();
+#endif
         POP_RANGE;
       } 
-#endif
-
 #if 0
     }
     else

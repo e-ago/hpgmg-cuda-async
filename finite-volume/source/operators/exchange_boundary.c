@@ -270,7 +270,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
             comm_wait(&send_requests[n]);
             level->timers.ghostZone_wait_send += (getTime()-_timeStartWait);
 #endif
-            
+
           }
         }
     } while (0);
@@ -336,6 +336,19 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       level->timers.ghostZone_send += (getTime()-_timeStart);
       // wait for recv & sends
 
+      
+
+#ifdef COMM_SINGLE_TIMERS
+
+      comm_zero_req();
+      for(n=0;n<level->exchange_ghosts[shape].num_recvs;n++){
+        _timeStartWait = getTime();
+        comm_wait(&recv_requests[n]);
+        level->timers.ghostZone_wait_recv += (getTime()-_timeStartWait); 
+      }
+
+#else
+      
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
 
@@ -343,16 +356,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
 
-#ifdef COMM_SINGLE_TIMERS
-
-      for(n=0;n<level->exchange_ghosts[shape].num_recvs;n++){
-        _timeStartWait = getTime();
-        comm_wait(&recv_requests[n]);
-        level->timers.ghostZone_wait_recv += (getTime()-_timeStartWait); 
-      }
-
 #endif
-
   }
 
   // unpack MPI receive buffers 
