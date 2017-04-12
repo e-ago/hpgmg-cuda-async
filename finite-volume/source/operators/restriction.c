@@ -349,7 +349,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       else
       {
         DBG("comm_flush restriction_comm, use_async: %d\n", use_async);
-        //comm_flush();
+        comm_flush();
         for(n=0;n<level_c->restriction[restrictionType].num_recvs;n++){
           _timeStartWait = getTime();
           comm_wait(&recv_requests[n]);

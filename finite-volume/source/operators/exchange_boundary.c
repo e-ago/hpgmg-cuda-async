@@ -333,6 +333,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
 #endif
+      comm_flush();
 
       for(n=0;n<level->exchange_ghosts[shape].num_recvs;n++){
         _timeStartWait = getTime();

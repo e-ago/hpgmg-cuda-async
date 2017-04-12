@@ -442,7 +442,7 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
     }
     if (!use_async)
     {
-     // comm_flush();
+      comm_flush();
       for(n=0;n<level_f->interpolation.num_recvs;n++){
         _timeStartWait = getTime();
         comm_wait(&recv_requests[n]);

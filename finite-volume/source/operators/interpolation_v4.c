@@ -514,7 +514,7 @@ void interpolation_v4_comm(level_type * level_f, int id_f, double prescale_f, le
     if (!use_async)
     {
       DBG("comm_flush interpolation_comm, use_async: %d\n", use_async);
-      //comm_flush();
+      comm_flush();
 
       for(n=0;n<level_f->interpolation.num_recvs;n++){
         _timeStartWait = getTime();
