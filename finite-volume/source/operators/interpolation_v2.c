@@ -324,7 +324,7 @@ void interpolation_v2_plain(level_type * level_f, int id_f, double prescale_f, l
 void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c)
 {
   //double _timeCommunicationStart = getTime();
-  double _timeStart,_timeEnd;
+  double _timeStart,_timeEnd, _timeStartWait;
   int buffer=0;
   int n;
   int nMessages = level_c->interpolation.num_sends + level_f->interpolation.num_recvs;
