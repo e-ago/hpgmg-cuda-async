@@ -353,6 +353,10 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
       } else {
         comm_send_ready(level_f->interpolation.recv_ranks[n],
                         &ready_requests[n]);
+
+        _timeStartWait = getTime();
+        comm_wait(&ready_requests[n]);
+        level_f->timers.interpolation_wait += (getTime()-_timeStartWait);
       }
     }
     _timeEnd = getTime();
@@ -400,6 +404,10 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
                    &level_f->interpolation.send_buffers_reg[n],
                    level_c->interpolation.send_ranks[n],
                    &send_requests[n]);
+
+        _timeStartWait = getTime();
+        comm_wait(&send_requests[n]);
+        level_f->timers.interpolation_wait += (getTime()-_timeStartWait);
       }
     }
     _timeEnd = getTime();
@@ -433,7 +441,14 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
       }
     }
     if (!use_async)
-      comm_flush();
+    {
+     // comm_flush();
+      for(n=0;n<level_f->interpolation.num_recvs;n++){
+        _timeStartWait = getTime();
+        comm_wait(&recv_requests[n]);
+        level_f->timers.interpolation_wait += (getTime()-_timeStartWait);
+      }
+    }
    
     _timeEnd = getTime();
     level_f->timers.interpolation_wait += (_timeEnd-_timeStart);
