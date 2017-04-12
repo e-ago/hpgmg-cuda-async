@@ -1405,6 +1405,9 @@ void reset_level_timers(level_type *level){
   level->timers.ghostZone_recv          = 0;
   level->timers.ghostZone_send          = 0;
   level->timers.ghostZone_wait          = 0;
+  level->timers.ghostZone_wait_ready          = 0;
+  level->timers.ghostZone_wait_send          = 0;
+  level->timers.ghostZone_wait_recv          = 0;
   level->timers.collectives             = 0;
 // ======== Peersync change ===========
   level->timers.AsyncTimer              = 0;

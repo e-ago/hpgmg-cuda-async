@@ -228,7 +228,7 @@ void restriction_plain(level_type * level_c, int id_c, level_type *level_f, int 
 void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int id_f, int restrictionType)
 {
   double _timeCommunicationStart = getTime();
-  double _timeStart,_timeEnd;
+  double _timeStart,_timeEnd, _timeStartWait;
   int buffer=0;
   int n;  
   int use_async = level_c->use_cuda && level_f->use_cuda && comm_use_async() && ENABLE_RESTRICTION_ASYNC;
@@ -264,6 +264,10 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       } else {
         comm_send_ready(level_c->restriction[restrictionType].recv_ranks[n], 
                         &ready_requests[n]);
+
+        _timeStartWait = getTime();
+        comm_wait(&ready_requests[n]);
+        level->timers.restriction_wait += (getTime()-_timeStartWait);
       }
     }
     _timeEnd = getTime();
@@ -307,6 +311,10 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
                    &level_f->restriction[restrictionType].send_buffers_reg[n],
                    level_f->restriction[restrictionType].send_ranks[n],
                    &send_requests[n]);
+
+        _timeStartWait = getTime();
+        comm_wait(&send_requests[n]);
+        level->timers.restriction_wait += (getTime()-_timeStartWait);
       }
     }
     _timeEnd = getTime();
@@ -341,7 +349,12 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       else
       {
         DBG("comm_flush restriction_comm, use_async: %d\n", use_async);
-        comm_flush();
+        //comm_flush();
+        for(n=0;n<level_c->restriction[restrictionType].num_recvs;n++){
+          _timeStartWait = getTime();
+          comm_wait(&recv_requests[n]);
+          level->timers.restriction_wait += (getTime()-_timeStartWait);
+        }
       }
     }
     
@@ -395,7 +408,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       h   h ??
       h   d IMPOSSIBLE currently
      */    
-#if 1
+#if 0
       if ((!level_c->use_cuda || !level_f->use_cuda) && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
         DBG("comm_flush restriction\n");

@@ -188,6 +188,11 @@ typedef struct {
     double     ghostZone_recv;
     double     ghostZone_send;
     double     ghostZone_wait;
+
+    double     ghostZone_wait_ready;
+    double     ghostZone_wait_send;
+    double     ghostZone_wait_recv;
+
     // Collectives...
     double   collectives;
     double         Total;

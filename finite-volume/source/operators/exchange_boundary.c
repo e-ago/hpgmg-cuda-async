@@ -159,7 +159,7 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
 
 void exchange_boundary_comm(level_type * level, int id, int shape){
   //double _timeCommunicationStart = getTime();
-  double _timeStart;
+  double _timeStart, _timeStartWait;
   int buffer=0, n;
   int nMessages = level->exchange_ghosts[shape].num_recvs + level->exchange_ghosts[shape].num_sends;
   /*
@@ -197,6 +197,10 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                  &recv_requests[n]);
 
       comm_send_ready(level->exchange_ghosts[shape].recv_ranks[n], &ready_requests[n]);
+
+      _timeStartWait = getTime();
+      comm_wait(&ready_requests[n]);
+      level->timers.ghostZone_wait_ready += (getTime()-_timeStartWait);
     }
     
     POP_RANGE;
@@ -255,6 +259,10 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                        &send_requests[n]);
             --n_sends;
             send_msk[n] = 1;
+        
+            _timeStartWait = getTime();
+            comm_wait(&send_requests[n]);
+            level->timers.ghostZone_wait_send += (getTime()-_timeStartWait);
           }
         }
     } while (0);
@@ -303,6 +311,10 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                            &send_requests[n]);
                 --n_sends;
                 send_msk[n] = 1;
+
+                _timeStartWait = getTime();
+                comm_wait(&send_requests[n]);
+                level->timers.ghostZone_wait_send += (getTime()-_timeStartWait);
               }
             }
         };
@@ -312,12 +324,21 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
       level->timers.ghostZone_send += (getTime()-_timeStart);
       // wait for recv & sends
+
+#if 0
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
 
       comm_flush();
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
+#endif
+
+      for(n=0;n<level->exchange_ghosts[shape].num_recvs;n++){
+        _timeStartWait = getTime();
+        comm_wait(&recv_requests[n]);
+        level->timers.ghostZone_wait_recv += (getTime()-_timeStartWait); 
+      }
   }
 
   // unpack MPI receive buffers 
