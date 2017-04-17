@@ -218,7 +218,7 @@ void restriction_plain(level_type * level_c, int id_c, level_type *level_f, int 
   #endif
  
  
-  level_f->timers.restriction_total += (double)(getTime()-_timeCommunicationStart);
+//  level_f->timers.restriction_total += (double)(getTime()-_timeCommunicationStart);
 }
 
 // ======== Peersync change ===========

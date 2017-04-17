@@ -316,7 +316,7 @@ void interpolation_v2_plain(level_type * level_f, int id_f, double prescale_f, l
   #endif 
  
  
-  level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
+//  level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
 }
 
 // ======== Peersync change ===========

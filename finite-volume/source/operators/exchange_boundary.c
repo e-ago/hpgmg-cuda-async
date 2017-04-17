@@ -151,7 +151,7 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
   #endif
 
  
-  level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
+ // level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
 }
 
 #include <assert.h>
