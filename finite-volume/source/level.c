@@ -1497,7 +1497,7 @@ void *um_malloc(size_t size, int access_policy)
   void *ptr;
   switch (access_policy) {
   case UM_ACCESS_GPU:
-    CUDA_API_ERROR( cudaMalloc(&ptr, size) )
+    CUDA_API_ERROR( cudaMallocHost((void**)&ptr, size) )
 
 //    CUDA_API_ERROR( cudaMallocManaged(&ptr, size, cudaMemAttachGlobal) )
     break;
