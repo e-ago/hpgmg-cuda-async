@@ -292,7 +292,7 @@ double cuda_sum(level_type d_level, int id)
 
   double *d_res;
   double h_res[1];
-  CUDA_API_ERROR( cudaMalloc((void**)&d_res, sizeof(double), cudaMemAttachGlobal) )
+  CUDA_API_ERROR( cudaMalloc((void**)&d_res, sizeof(double)) )
   CUDA_API_ERROR( cudaMemset(d_res, 0, sizeof(double)) )
 
   reduction_kernel<0><<<grid, block>>>(d_level, id, d_res);
