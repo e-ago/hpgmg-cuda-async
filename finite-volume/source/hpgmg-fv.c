@@ -191,8 +191,8 @@ int main(int argc, char **argv){
   #endif // USE_MPI
 
   NVTX_PUSH("main",1)  // start NVTX profiling
-  NVTX_POP  // stop NVTX profiling
-  cudaProfilerStop();
+//  NVTX_POP  // stop NVTX profiling
+//  cudaProfilerStop();
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
   // parse the arguments...
   int     log2_box_dim           =  6; // 64^3
