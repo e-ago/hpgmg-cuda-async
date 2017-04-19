@@ -1275,7 +1275,7 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
 
   // allocate my list of boxes
   level->my_boxes = (box_type*)um_malloc(level->num_my_boxes*sizeof(box_type), level->um_access_policy);
-  if((level->num_my_boxes>0)&&(level->my_boxes==NULL)){fprintf(stderr,"malloc failed - create_level/level->my_boxes\n");exit(0);}
+  if((level->num_my_boxes>0)&&(level->my_boxes==NULL)){fprintf(stderr,"malloc failed - create_level/level->my_boxes, level->um_access_policy: %d\n", level->um_access_policy);exit(0);}
 
 
   // allocate flattened vector FP data and create pointers...
