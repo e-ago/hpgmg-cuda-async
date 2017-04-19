@@ -179,6 +179,7 @@ int main(int argc, char **argv){
     comm_init(MPI_COMM_WORLD, my_device);
 
   #ifdef USE_SHM
+  printf("--------> USE_SHM\n");
   cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
   cudaDeviceSetCacheConfig(cudaFuncCachePreferShared);
   #else
@@ -190,7 +191,8 @@ int main(int argc, char **argv){
   #endif // USE_MPI
 
   NVTX_PUSH("main",1)  // start NVTX profiling
-
+  NVTX_POP  // stop NVTX profiling
+  cudaProfilerStop();
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
   // parse the arguments...
   int     log2_box_dim           =  6; // 64^3
@@ -412,7 +414,7 @@ int main(int argc, char **argv){
      MGSolve(&MG_h,l,VECTOR_U,VECTOR_F,a,b,dtol,rtol);
     #endif
   }
-  NVTX_POP  // stop NVTX profiling
+//  NVTX_POP  // stop NVTX profiling
   richardson_error(&MG_h,0,VECTOR_U);
 
 
