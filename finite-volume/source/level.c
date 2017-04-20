@@ -408,7 +408,6 @@ void append_block_to_list(blockCopy_type ** blocks, int *allocated_blocks, int *
     int dim_i_mod = dim_i-ii;if(dim_i_mod>blockcopy_tile_i)dim_i_mod=blockcopy_tile_i;
     if(*num_blocks >= *allocated_blocks){
       int oldSize = *allocated_blocks;
-      printf("allocated_blocks, um_malloc, policy: %d\n", um_access_policy);
       if(*allocated_blocks == 0){*allocated_blocks=BLOCK_LIST_MIN_SIZE;*blocks=(blockCopy_type*) um_malloc(                 (*allocated_blocks)*sizeof(blockCopy_type), um_access_policy);}
                             else{*allocated_blocks*=2;                 *blocks=(blockCopy_type*)um_realloc((void*)(*blocks),(*allocated_blocks)*sizeof(blockCopy_type), um_access_policy);}
       if(*blocks == NULL){fprintf(stderr,"realloc failed - append_block_to_list (%d -> %d)\n",oldSize,*allocated_blocks);exit(0);}
@@ -931,8 +930,6 @@ void build_exchange_ghosts(level_type *level, int shape){
              level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), UM_ACCESS_BOTH);
       memset(level->exchange_ghosts[shape].recv_buffers[neighbor],                0,level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double));
 #else
-            printf("recv_buffers, um_malloc, policy: %d\n", level->um_access_policy);
-
              level->exchange_ghosts[shape].recv_buffers[neighbor] = (double*)um_malloc(level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double), level->um_access_policy);
       memset(level->exchange_ghosts[shape].recv_buffers[neighbor],                0,level->exchange_ghosts[shape].recv_sizes[neighbor]*sizeof(double));
 #endif
@@ -1053,7 +1050,6 @@ void create_vectors(level_type *level, int numVectors){
   #ifdef  VECTOR_MALLOC_BULK
     // allocate one aligned, double-precision array and divide it among vectors...
     uint64_t malloc_size = (uint64_t)numVectors*level->num_my_boxes*level->box_volume*sizeof(double) + 4096;
-    printf("level->vectors_base, um_malloc. policy: %d\n", level->um_access_policy);
     level->vectors_base = (double*)um_malloc(malloc_size, level->um_access_policy);
     if((numVectors>0)&&(level->vectors_base==NULL)){fprintf(stderr,"malloc failed - level->vectors_base\n");exit(0);}
     double * tmpbuf = level->vectors_base;
@@ -1071,18 +1067,15 @@ void create_vectors(level_type *level, int numVectors){
     // allocate an array of pointers which point to the union of boxes for each vector
     // NOTE, this requires just one copyin per vector to an accelerator rather than requiring one copyin per box per vector
     if(level->numVectors>0)um_free(level->vectors, level->um_access_policy); // free any previously allocated vector array
-    printf("level->vectors1, um_malloc. policy: %d\n", level->um_access_policy);
     level->vectors = (double **)um_malloc(numVectors*sizeof(double*), level->um_access_policy);
     if((numVectors>0)&&(level->vectors==NULL)){fprintf(stderr,"malloc failed - level->vectors\n");exit(0);}
     uint64_t c;for(c=0;c<numVectors;c++){level->vectors[c] = tmpbuf + (uint64_t)c*level->num_my_boxes*level->box_volume;}
   #else
     // allocate vectors individually (simple, but may cause conflict misses)
     double ** old_vectors = level->vectors;
-    printf("level->vectors2, um_malloc. policy: %d\n", level->um_access_policy);
     level->vectors = (double **)um_malloc(numVectors*sizeof(double*), level->um_access_policy);
     cudaDeviceSynchronize();
     uint64_t c;
-    printf("level->vectors3, um_malloc. policy: %d\n", level->um_access_policy);
     for(c=                0;c<level->numVectors;c++){level->vectors[c] = old_vectors[c];}
     for(c=level->numVectors;c<       numVectors;c++){
       level->vectors[c] = (double*)um_malloc((uint64_t)level->num_my_boxes*level->box_volume*sizeof(double), level->um_access_policy);
@@ -1096,7 +1089,6 @@ void create_vectors(level_type *level, int numVectors){
   #endif
 
 
-    printf("level->my_boxes, um_malloc. policy: %d\n", level->um_access_policy);
   // build the list of boxes...
   int box=0;
   int i,j,k;
@@ -1281,7 +1273,6 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
     level->um_access_policy = UM_ACCESS_CPU;		// coarse level exclusively accessed by CPU
 #endif
 
-printf("level->my_boxes start, um_malloc. policy: %d\n", level->um_access_policy);
   // allocate my list of boxes
   level->my_boxes = (box_type*)um_malloc(level->num_my_boxes*sizeof(box_type), level->um_access_policy);
   if((level->num_my_boxes>0)&&(level->my_boxes==NULL)){fprintf(stderr,"malloc failed - create_level/level->my_boxes, level->um_access_policy: %d\n", level->um_access_policy);exit(0);}
@@ -1506,9 +1497,8 @@ void *um_malloc(size_t size, int access_policy)
   void *ptr;
   switch (access_policy) {
   case UM_ACCESS_GPU:
-    CUDA_API_ERROR( cudaMallocHost((void**)&ptr, size) )
-
-//    CUDA_API_ERROR( cudaMallocManaged(&ptr, size, cudaMemAttachGlobal) )
+//    CUDA_API_ERROR( cudaMallocHost(&ptr, size) )
+    CUDA_API_ERROR( cudaMallocManaged(&ptr, size, cudaMemAttachGlobal) )
     break;
   case UM_ACCESS_BOTH:
 #ifdef CUDA_UM_ZERO_COPY
