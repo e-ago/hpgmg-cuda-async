@@ -180,15 +180,15 @@ int comm_init(MPI_Comm comm, int gpuId)
 
     // init ready stuff
     size_t table_size = MAX(sizeof(*ready_table) * comm_size, PAGE_SIZE);
-//    ready_table = (uint32_t *)posix_memalign(PAGE_SIZE, table_size);
-    cudaMallocHost((void**)&(ready_table), table_size);
+    ready_table = (uint32_t *)posix_memalign(PAGE_SIZE, table_size);
+//    cudaMallocHost((void**)&(ready_table), table_size);
     assert(ready_table);
 
     ready_values = (uint32_t *)malloc(table_size);
     assert(ready_values);
 
-    //remote_ready_values = (uint32_t *)posix_memalign(PAGE_SIZE, table_size);
-    cudaMallocHost((void**)&(remote_ready_values), table_size);
+    remote_ready_values = (uint32_t *)posix_memalign(PAGE_SIZE, table_size);
+//    cudaMallocHost((void**)&(remote_ready_values), table_size);
     assert(remote_ready_values);
     
     for (i=0; i<comm_size; ++i) {
