@@ -157,6 +157,7 @@ void rebuild_operator(level_type * level, level_type *fromLevel, double a, doubl
   // extrapolate the beta's into the ghost zones (needed for mixed derivatives)
   extrapolate_betas(level);
   //initialize_problem(level,level->h,a,b); // approach used for testing smooth beta's; destroys the black box nature of the solver
+
   // exchange alpha/beta/...  (must be done before calculating Dinv)
   exchange_boundary(level,VECTOR_ALPHA ,STENCIL_SHAPE_BOX); // safe
   exchange_boundary(level,VECTOR_BETA_I,STENCIL_SHAPE_BOX);

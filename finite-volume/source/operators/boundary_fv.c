@@ -571,11 +571,6 @@ void extrapolate_betas(level_type * level){
   double _timeStart = getTime();
   if(level->use_cuda) {
     cuda_extrapolate_betas(*level,shape);
-    cudaError_t errorCode = cudaGetLastError();
-    if (cudaSuccess != errorCode) {                                    \
-      fprintf(stderr, "Assertion cudaSuccess\" failed at %s:%d errorCode=%d(%s)\n", \
-                  __FILE__, __LINE__, errorCode, cudaGetErrorString(errorCode)); \
-    }  
   }
   else {
   PRAGMA_THREAD_ACROSS_BLOCKS(level,buffer,level->boundary_condition.num_blocks[shape])

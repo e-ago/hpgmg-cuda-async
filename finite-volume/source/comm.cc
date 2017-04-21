@@ -40,7 +40,6 @@ static const int   bad_peer = -1;
 static int         comm_size;
 static int         comm_rank;
 
-static int          ping_pong_test=0;
 // tables are indexed by rank, not peer
 static uint32_t   *ready_table;
 static mp_reg_t    ready_table_reg;
@@ -146,13 +145,6 @@ int comm_init(MPI_Comm comm, int gpuId)
 {
     int i, j;
 
-    if(gpuId < 0)
-    {
-        printf("ERROR: Wrong GPU ID (%d) \n", gpuId);
-        return -1;
-    }
-    
-
     MPI_Comm_size (comm, &comm_size);
     MPI_Comm_rank (comm, &comm_rank);
 
@@ -180,15 +172,13 @@ int comm_init(MPI_Comm comm, int gpuId)
 
     // init ready stuff
     size_t table_size = MAX(sizeof(*ready_table) * comm_size, PAGE_SIZE);
-    ready_table = (uint32_t *)posix_memalign(PAGE_SIZE, table_size);
-//    cudaMallocHost((void**)&(ready_table), table_size);
+    ready_table = (uint32_t *)memalign(PAGE_SIZE, table_size);
     assert(ready_table);
 
     ready_values = (uint32_t *)malloc(table_size);
     assert(ready_values);
 
-    remote_ready_values = (uint32_t *)posix_memalign(PAGE_SIZE, table_size);
-//    cudaMallocHost((void**)&(remote_ready_values), table_size);
+    remote_ready_values = (uint32_t *)memalign(PAGE_SIZE, table_size);
     assert(remote_ready_values);
     
     for (i=0; i<comm_size; ++i) {
@@ -220,9 +210,6 @@ static size_t comm_size_of_mpi_type(MPI_Datatype mpi_type)
 
     if (mpi_type == MPI_DOUBLE) {
         ret = sizeof(double);
-    }
-    else if (mpi_type == MPI_CHAR) {
-        ret = sizeof(char);
     } else {
         comm_err("invalid type\n");
         exit(1);
@@ -257,7 +244,7 @@ static void atomic_inc(uint32_t *ptr)
 
 static void comm_track_request(mp_request_t *req)
 {
-    assert(n_reqs < MAX_REQS);
+    assert(n_reqs < MAX_REQS);    
     reqs[n_reqs++] = *req;
     /*
     if(comm_rank == 0)
@@ -295,8 +282,7 @@ int comm_send_ready(int rank, comm_request_t *creq)
     DBG("dest_rank=%d payload=%x offset=%d\n", rank, remote_ready_values[rank], remote_offset);
     MP_CHECK(mp_iput(&remote_ready_values[rank], sizeof(uint32_t), &remote_ready_values_reg, 
                      peer, remote_offset, &ready_table_win, req, MP_PUT_INLINE));
-    //MP_CHECK(mp_wait(req))
-    //MP_PUT_NOWAIT
+    //MP_CHECK(mp_wait(req));
     comm_track_request(req);
     atomic_inc(&remote_ready_values[rank]);
 }
@@ -326,7 +312,7 @@ int comm_wait_ready(int rank)
         arch_cpu_relax();
         ++cnt;
         if (cnt > 10000) {
-            //comm_progress();
+            comm_progress();
             cnt = 0;
         }
     }
@@ -341,7 +327,7 @@ int comm_test_ready(int rank, int *p_rdy)
     int ret = 0;
     int peer = comm_mpi_rank_to_peer(rank);
     static int cnt = 0;
-   // DBG("rank=%d payload=%x\n", rank, ready_values[rank]);
+    DBG("rank=%d payload=%x\n", rank, ready_values[rank]);
     do {
         rmb();
         *p_rdy = !(ACCESS_ONCE(ready_table[rank]) < ready_values[rank]);
@@ -388,7 +374,6 @@ int comm_wait_all(int count, comm_request_t *creqs)
 int comm_wait(comm_request_t *creq)
 {
     int ret = 0;
-    DBG("setup mp_wait\n");
     assert(comm_initialized);
     mp_request_t *req = (mp_request_t*)creq;
     MP_CHECK(mp_wait(req));
@@ -555,8 +540,8 @@ int comm_progress()
 
     DBG("n_reqs=%d\n", n_reqs);
     assert(n_reqs < MAX_REQS);
-    ret = mp_progress_all(n_reqs, reqs);
-#if 0
+    //ret = mp_progress_all(n_reqs, reqs);
+#if 1
     if( (startGlobalReqsIndex+CONST_PROGRESS) < n_reqs)
     {
 //        if(comm_rank == 0)
@@ -583,23 +568,8 @@ int comm_flush()
     //int diff = n_reqs - startGlobalFlushReqsIndex;
     ret = mp_wait_all(n_reqs, reqs); //+startGlobalFlushReqsIndex);
     n_reqs=0;
-    //startGlobalReqsIndex=0;
-//    startGlobalFlushReqsIndex=0;
-
-    return ret;
-}
-
-void comm_zero_req()
-{
-    n_reqs=0;
-}
-
-int comm_flush_request(comm_request_t * request, int count)
-{
-    int index, ret;
-    assert(request);
-    for(index=0; index < count; index++)
-        ret = comm_wait(&request[index]);
+    startGlobalReqsIndex=0;
+    startGlobalFlushReqsIndex=0;
 
     return ret;
 }
@@ -808,45 +778,6 @@ comm_dev_descs_t comm_prepared_requests()
     // reset dreqs for next usage
     memset(dreqs(), 0, sizeof(struct comm_dev_descs));
     return ret;
-}
-
-void comm_test_ping_pong(const char * description) {
-
-#if 0
-    char * bufRecv, * bufSend;
-    bufSend = (char *) calloc(20, sizeof(char));
-    memset(bufSend, 'a', 20);
-    bufRecv = (char *) calloc(20, sizeof(char));
-    
-    comm_reg_t * send_buffers_reg;
-    comm_reg_t * recv_buffers_reg;
-    comm_request_t  send_requests[1], recv_requests[1], ready_requests[1];
-
-    send_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
-    recv_buffers_reg = (comm_reg_t*)calloc(1, sizeof(comm_reg_t));
-    
-    comm_irecv(bufRecv, 20, MPI_CHAR,
-                 recv_buffers_reg,
-                 !comm_rank,
-                 &recv_requests[0]);
-
-    comm_send_ready(!comm_rank, &ready_requests[0]);
-    int rdy=0;
-    while(!rdy) comm_test_ready(!comm_rank, &rdy);
-    comm_isend(bufSend, 20, MPI_CHAR,
-                 send_buffers_reg,
-                 !comm_rank,
-                 &send_requests[0]);
-
-    //comm_wait(&send_requests[0]);
-    //comm_wait(&recv_requests[0]);
-    //comm_wait_all(1, &send_requests[0]);
-    //comm_wait_all(1, &recv_requests[0]);
-    
-    comm_flush();
-    printf("Test #%d (%s): Received from %d buffer %s\n", ping_pong_test, description, !comm_rank, bufRecv);
-    ping_pong_test++;
-#endif
 }
 
 //DGX helper

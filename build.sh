@@ -7,9 +7,8 @@ CXX=`which mpic++`
 NVCC=`which nvcc`
 
 # set gpu architectures to compile for
-#CUDA_ARCH+="-gencode code=sm_35,arch=compute_35 "
+CUDA_ARCH+="-gencode code=sm_35,arch=compute_35 "
 #CUDA_ARCH+="-gencode code=sm_50,arch=compute_50 "
-CUDA_ARCH+="-gencode code=sm_60,arch=compute_60 "
 
 # main tile size
 OPTS+="-DBLOCKCOPY_TILE_I=32 "
@@ -102,8 +101,6 @@ FLAGS_TESTS
 OPTS+="-DPROFILE_NVTX_RANGES "
 OPTS+="$GDSYNC_CPPFLAGS $CU_CPPFLAGS "
 
-#MPI_LIB="-L/lib64 -L/lib"  
-#DGX-1 required
 
 # GSRB smoother (default)
 
@@ -114,7 +111,7 @@ OPTS+="$GDSYNC_CPPFLAGS $CU_CPPFLAGS "
     --CXXFLAGS="-O2 $OPTS " \
     --NVCCFLAGS="-O2 -lineinfo $OPTS " \
     --CUDAARCH="$CUDA_ARCH " \
-    --LDFLAGS="$CU_LDFLAGS $GDSYNC_LDFLAGS" \
+    --LDFLAGS="$CU_LDFLAGS $GDSYNC_LDFLAGS " \
     --LDLIBS="-lmp -lgdsync -lgdrapi -lcuda -libverbs " \
     --no-fe
 

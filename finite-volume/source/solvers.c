@@ -63,6 +63,7 @@ void IterativeSolver(level_type * level, int u_id, int f_id, double a, double b,
     }
     residual(level,VECTOR_TEMP,u_id,f_id,a,b);
     //mul_vectors(level,VECTOR_TEMP,1.0,VECTOR_TEMP,VECTOR_DINV); //  Using ||D^{-1}(b-Ax)||_{inf} as convergence criteria...
+    
     double norm_of_r0 = norm(level,VECTOR_TEMP);
     int s=0,maxSmoothsBottom=200,converged=0;
     while( (s<maxSmoothsBottom) && !converged){
@@ -75,6 +76,7 @@ void IterativeSolver(level_type * level, int u_id, int f_id, double a, double b,
       }
       residual(level,VECTOR_TEMP,u_id,f_id,a,b);
       //mul_vectors(level,VECTOR_TEMP,1.0,VECTOR_TEMP,VECTOR_DINV); //  Using ||D^{-1}(b-Ax)||_{inf} as convergence criteria...
+    
       double norm_of_r = norm(level,VECTOR_TEMP);
       if(norm_of_r == 0.0){converged=1;break;}
       if(norm_of_r < desired_reduction_in_norm*norm_of_r0){converged=1;break;}

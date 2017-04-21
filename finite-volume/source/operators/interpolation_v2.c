@@ -189,10 +189,7 @@ static inline void interpolation_v2_block(level_type *level_f, int id_f, double 
 // Similarly, it waits for all remote data before copying any into local boxes.
 // It does however attempt to overlap local interpolation with MPI
 void interpolation_v2_plain(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c){
-    exchange_boundary(level_c,id_c,STENCIL_SHAPE_BOX);
-         apply_BCs_v2(level_c,id_c,STENCIL_SHAPE_BOX);
-
-  double _timeCommunicationStart = getTime();
+//  double _timeCommunicationStart = getTime();
   double _timeStart,_timeEnd;
   int buffer=0;
   int n;
@@ -315,16 +312,15 @@ void interpolation_v2_plain(level_type * level_f, int id_f, double prescale_f, l
   }
   #endif 
  
- 
-//  level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
+  //level_f->timers.interpolation_total += (double)(getTime()-_timeCommunicationStart);
 }
 
-// ======== Peersync change ===========
+
 
 void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, level_type *level_c, int id_c)
 {
   //double _timeCommunicationStart = getTime();
-  double _timeStart,_timeEnd, _timeStartWait;
+  double _timeStart,_timeEnd;
   int buffer=0;
   int n;
   int nMessages = level_c->interpolation.num_sends + level_f->interpolation.num_recvs;
@@ -353,15 +349,6 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
       } else {
         comm_send_ready(level_f->interpolation.recv_ranks[n],
                         &ready_requests[n]);
-
-#ifdef COMM_SINGLE_TIMERS
-
-        _timeStartWait = getTime();
-        comm_wait(&ready_requests[n]);
-        level_f->timers.interpolation_wait += (getTime()-_timeStartWait);
-
-#endif
-
       }
     }
     _timeEnd = getTime();
@@ -409,15 +396,6 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
                    &level_f->interpolation.send_buffers_reg[n],
                    level_c->interpolation.send_ranks[n],
                    &send_requests[n]);
-
-#ifdef COMM_SINGLE_TIMERS
-
-        _timeStartWait = getTime();
-        comm_wait(&send_requests[n]);
-        level_f->timers.interpolation_wait += (getTime()-_timeStartWait);
-
-#endif
-
       }
     }
     _timeEnd = getTime();
@@ -451,21 +429,7 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
       }
     }
     if (!use_async)
-    {
-
-#ifdef COMM_SINGLE_TIMERS
-      comm_zero_req();
-
-      for(n=0;n<level_f->interpolation.num_recvs;n++){
-        _timeStartWait = getTime();
-        comm_wait(&recv_requests[n]);
-        level_f->timers.interpolation_wait += (getTime()-_timeStartWait);
-      }
-#else
       comm_flush();
-#endif
-
-    }
    
     _timeEnd = getTime();
     level_f->timers.interpolation_wait += (_timeEnd-_timeStart);
@@ -528,5 +492,3 @@ void interpolation_v2(level_type * level_f, int id_f, double prescale_f, level_t
 
   POP_RANGE;
 }
-
-// ====================================

@@ -133,13 +133,13 @@ void restriction_plain(level_type * level_c, int id_c, level_type *level_f, int 
     _timeStart = getTime();
     if(level_f->use_cuda) {
       cuda_restriction(*level_c,id_c,*level_f,id_f,level_f->restriction[restrictionType],restrictionType,0);
-      cudaDeviceSynchronize(); // synchronize so the CPU sees the updated buffers which will be used for MPI transfers
+      cudaDeviceSynchronize();  // switchover point: must synchronize GPU
     }
     else {
-    PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_f->restriction[restrictionType].num_blocks[0])
-    for(buffer=0;buffer<level_f->restriction[restrictionType].num_blocks[0];buffer++){
-      restriction_pc_block(level_c,id_c,level_f,id_f,&level_f->restriction[restrictionType].blocks[0][buffer],restrictionType);
-    }
+      PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_f->restriction[restrictionType].num_blocks[0])
+      for(buffer=0;buffer<level_f->restriction[restrictionType].num_blocks[0];buffer++){
+        restriction_pc_block(level_c,id_c,level_f,id_f,&level_f->restriction[restrictionType].blocks[0][buffer],restrictionType);
+      }
     }
     _timeEnd = getTime();
     level_f->timers.restriction_pack += (_timeEnd-_timeStart);
@@ -176,10 +176,10 @@ void restriction_plain(level_type * level_c, int id_c, level_type *level_f, int 
       if (!level_c->use_cuda) cudaDeviceSynchronize();  // switchover point: must synchronize GPU
     }
     else {
-    PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_f->restriction[restrictionType].num_blocks[1])
-    for(buffer=0;buffer<level_f->restriction[restrictionType].num_blocks[1];buffer++){
-      restriction_pc_block(level_c,id_c,level_f,id_f,&level_f->restriction[restrictionType].blocks[1][buffer],restrictionType);
-    }
+      PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_f->restriction[restrictionType].num_blocks[1])
+      for(buffer=0;buffer<level_f->restriction[restrictionType].num_blocks[1];buffer++){
+        restriction_pc_block(level_c,id_c,level_f,id_f,&level_f->restriction[restrictionType].blocks[1][buffer],restrictionType);
+      }
     }
     _timeEnd = getTime();
     level_f->timers.restriction_local += (_timeEnd-_timeStart);
@@ -204,13 +204,13 @@ void restriction_plain(level_type * level_c, int id_c, level_type *level_f, int 
   if(level_c->restriction[restrictionType].num_blocks[2]>0){
     _timeStart = getTime();
     if(level_c->use_cuda) {
-      cuda_copy_block(*level_c,id_c,level_c->restriction[restrictionType],2,NULL);
+      cuda_copy_block(*level_c,id_c,level_c->restriction[restrictionType],2, NULL);
     }
     else {
-    PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_c->restriction[restrictionType].num_blocks[2])
-    for(buffer=0;buffer<level_c->restriction[restrictionType].num_blocks[2];buffer++){
-      CopyBlock(level_c,id_c,&level_c->restriction[restrictionType].blocks[2][buffer]);
-    }
+      PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_c->restriction[restrictionType].num_blocks[2])
+      for(buffer=0;buffer<level_c->restriction[restrictionType].num_blocks[2];buffer++){
+        CopyBlock(level_c,id_c,&level_c->restriction[restrictionType].blocks[2][buffer]);
+      }
     }
     _timeEnd = getTime();
     level_f->timers.restriction_unpack += (_timeEnd-_timeStart);
@@ -218,17 +218,16 @@ void restriction_plain(level_type * level_c, int id_c, level_type *level_f, int 
   #endif
  
  
-//  level_f->timers.restriction_total += (double)(getTime()-_timeCommunicationStart);
+  //level_f->timers.restriction_total += (double)(getTime()-_timeCommunicationStart);
 }
 
-// ======== Peersync change ===========
 #include <assert.h>
 #include "../debug.h"
 
 void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int id_f, int restrictionType)
 {
   double _timeCommunicationStart = getTime();
-  double _timeStart,_timeEnd, _timeStartWait;
+  double _timeStart,_timeEnd;
   int buffer=0;
   int n;  
   int use_async = level_c->use_cuda && level_f->use_cuda && comm_use_async() && ENABLE_RESTRICTION_ASYNC;
@@ -238,6 +237,13 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
   comm_request_t  recv_requests[nMessages];
   comm_request_t  send_requests[nMessages];
   comm_request_t ready_requests[nMessages];
+
+/*
+  int myRank=0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+  if(myRank == 0)
+    printf("use_async: %d, cuda_c: %d cuda_f: %d\n", use_async, level_c->use_cuda, level_f->use_cuda);
+*/
 
   DBG("id_c=%d type=%d nMessages=%d recvs=%d sends=%d\n", 
       id_c, restrictionType, nMessages, 
@@ -264,13 +270,6 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       } else {
         comm_send_ready(level_c->restriction[restrictionType].recv_ranks[n], 
                         &ready_requests[n]);
-
-#ifdef COMM_SINGLE_TIMERS
-
-        _timeStartWait = getTime();
-        comm_wait(&ready_requests[n]);
-        level_f->timers.restriction_wait += (getTime()-_timeStartWait);
-#endif
       }
     }
     _timeEnd = getTime();
@@ -286,7 +285,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
     else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_f->restriction[restrictionType].num_blocks[0])
       for(buffer=0;buffer<level_f->restriction[restrictionType].num_blocks[0];buffer++){
-        restriction_pc_block(level_c,id_c,level_f,id_f,&level_f->restriction[restrictionType].blocks[0][buffer],restrictionType); 
+        restriction_pc_block(level_c,id_c,level_f,id_f,&level_f->restriction[restrictionType].blocks[0][buffer],restrictionType);	
       }
     }
     _timeEnd = getTime();
@@ -314,14 +313,6 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
                    &level_f->restriction[restrictionType].send_buffers_reg[n],
                    level_f->restriction[restrictionType].send_ranks[n],
                    &send_requests[n]);
-
-#ifdef COMM_SINGLE_TIMERS
-
-        _timeStartWait = getTime();
-        comm_wait(&send_requests[n]);
-        level_f->timers.restriction_wait += (getTime()-_timeStartWait);
-#endif
-
       }
     }
     _timeEnd = getTime();
@@ -354,21 +345,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
                                 level_c->stream);
       }
       else
-      {
-
-#ifdef COMM_SINGLE_TIMERS
-        comm_zero_req();
-
-        for(n=0;n<level_c->restriction[restrictionType].num_recvs;n++){
-          _timeStartWait = getTime();
-          comm_wait(&recv_requests[n]);
-          level_f->timers.restriction_wait += (getTime()-_timeStartWait);
-        }
-#else
         comm_flush();
-#endif
-
-      }
     }
     
     _timeEnd = getTime();
@@ -385,7 +362,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
       PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_c->restriction[restrictionType].num_blocks[2])
       for(buffer=0;buffer<level_c->restriction[restrictionType].num_blocks[2];buffer++){
         CopyBlock(level_c,id_c,&level_c->restriction[restrictionType].blocks[2][buffer]);
-      }
+	    }
     }
     _timeEnd = getTime();
     level_f->timers.restriction_unpack += (_timeEnd-_timeStart);
@@ -420,28 +397,35 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       d   h <- need flush
       h   h ??
       h   d IMPOSSIBLE currently
-     */    
-
-      if ((!level_c->use_cuda || !level_f->use_cuda) && comm_use_async()) {
+     */
+    //if (level_f->use_cuda || level_c->use_cuda && comm_use_async()) {
+/*
+    //async
+    int HOST_LEVEL_SIZE_THRESHOLD=10000; //default value
+    const char *value = getenv("HOST_LEVEL_SIZE_THRESHOLD");
+    if (value != NULL) {
+        HOST_LEVEL_SIZE_THRESHOLD = atoi(value);
+    }
+      //In case of all levels use cuda
+    if(HOST_LEVEL_SIZE_THRESHOLD > 0)
+    {
+*/      //useless !level_c->use_cuda ??
+      
+#if 1
+      if (!level_c->use_cuda || !level_f->use_cuda && comm_use_async()) {
         PUSH_RANGE("Comm flush", COMM_COL);
-        DBG("comm_flush restriction\n");
-
-#ifdef COMM_SINGLE_TIMERS
-        comm_zero_req();
-#else
         comm_flush(); //_new();
-#endif
         POP_RANGE;
       } 
-#if 0
-    }
-    else
-      comm_progress();
 #endif
 
+/*    }
+    else
+      comm_progress();
+*/
     PUSH_RANGE("restriction_comm", OP_COL);
     restriction_comm(level_c, id_c, level_f, id_f, restrictionType);
-    
+
   } else {
     PUSH_RANGE("restriction_plain", OP_COL);
     restriction_plain(level_c, id_c, level_f, id_f, restrictionType);
@@ -451,4 +435,3 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
 
   POP_RANGE;
 }
-// ====================================

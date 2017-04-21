@@ -30,6 +30,10 @@
 
 #define READ(i)	__ldg(&read[i])
 
+/* ++++++++++++++++++++++ EXCHANGE BOUNDARY ++++++++++++++++++++++ */
+
+/* ============ Stream Functions ============ */
+
 template<int log_dim, int block_type>
 __global__ void copy_block_kernel(level_type level, int id, communicator_type exchange_ghosts)
 {
@@ -142,6 +146,7 @@ void cuda_copy_block(level_type level, int id, communicator_type exchange_ghosts
   }
 }
 
+/* ++++++++++++++++++++++ INTERPOLATION ++++++++++++++++++++++ */
 #undef  KERNEL
 #define KERNEL(log_dim, block_type) \
   increment_block_kernel<log_dim,block_type><<<grid,block>>>(level,id,prescale,exchange_ghosts);
@@ -162,11 +167,8 @@ void cuda_increment_block(level_type level, int id, double prescale, communicato
 }
 
 
+/* ============ Kernel Functions ============ */
 
-/* ============ Peersync kernel functions ============ */
-
-#include "../comm.h"
-#include <mp/device.cuh>
 template<int block_type>
 __device__ void copy_block_fuse(level_type level, int id, communicator_type exchange_ghosts, int block_id, int thread_id, int block_dim)
 {
@@ -215,6 +217,8 @@ __device__ void copy_block_fuse(level_type level, int id, communicator_type exch
 //--------------------------
 
 #include "cub/thread/thread_load.cuh"
+#include "../comm.h"
+#include <mp/device.cuh>
 using namespace cub;
 
 #ifndef ACCESS_ONCE
@@ -241,7 +245,7 @@ __global__ void scheds_init()
   assert(gridDim.x == 1);
   assert(blockDim.x >= max_scheds);
   if (j < max_scheds) {
-//    scheds[j].sema.sem = 0;
+ //   scheds[j].sema.sem = 0;
 //    scheds[j].sema.value = 1;
     scheds[j].block = 0;
     for (int i = 0; i < max_types; ++i)
@@ -307,238 +311,6 @@ static __device__ ns_t getTimerNs()
   #define TIME_SEND 3
   #define TIME_RECV 4
 #endif
-
-
-__global__ void fused_copy_block_kernel(level_type level, int id, communicator_type exchange_ghosts, int grid0, int grid1, int grid2, int max_grid01, int sched_id, struct comm_dev_descs *pdescs)
-{
-  assert(sched_id >= 0 && sched_id < max_scheds);
-  assert(gridDim.x >= max_grid01+grid2+1);
-
-  #ifdef TIMINGS_YES
-    long long int start, stop;
-    unsigned long long start_global, stop_global;
-  #endif
-
-  sched_info_t &sched = scheds[sched_id];
-  int block = elect_block(sched);
-  
-  //First block wait
-  if(block == 0)
-  {
-    #ifdef TIMINGS_YES
-        if(threadIdx.x == 0)
-        {
-          start = clock64();
-          start_global = getTimerNs();
-        }
-    #endif
-    assert(blockDim.x >= pdescs->n_wait);
-    if (threadIdx.x < pdescs->n_wait) {
-      mp::device::mlx5::wait(pdescs->wait[threadIdx.x]);
-      // write MP trk flag
-      // note: no mem barrier here!!!
-      mp::device::mlx5::signal(pdescs->wait[threadIdx.x]);
-    }
-    
-    __syncthreads();
-
-    #ifdef TIMINGS_YES
-      if(threadIdx.x == 0)
-      {
-        stop_global = getTimerNs();
-        stop = clock64();
-        times[TIME_RECV] = exchange_ghosts.blocks[2][block].dim.i*exchange_ghosts.blocks[2][block].dim.j*exchange_ghosts.blocks[2][block].dim.k; //((double)(stop-start)*1000)/((double)875500);
-        times_global[TIME_RECV] = (stop_global-start_global);
-      }
-    #endif
-
-    if (0 == threadIdx.x) {
-      // signal other blocks
-      ACCESS_ONCE(sched.done[1]) = 1;   
-    }
-  }
-  else
-  {
-    block--;
-    if (block < max_grid01)
-    {
-      // assign first N thread blocks to this task
-      if (block < grid0)
-      {
-        #ifdef TIMINGS_YES
-          if(0 == threadIdx.x && block == 0)
-          {
-            start = clock64();
-            start_global = getTimerNs();
-          }
-        #endif
-        // pack data
-        copy_block_fuse<0>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
-        
-        #ifdef TIMINGS_YES
-          if(0 == threadIdx.x && block == 0)
-          {
-            stop_global = getTimerNs();
-            stop = clock64();
-            times[TIME_PACK] = exchange_ghosts.blocks[0][block].dim.i*exchange_ghosts.blocks[0][block].dim.j*exchange_ghosts.blocks[0][block].dim.k*blockDim.x; // ((double)(stop-start)*1000)/((double)875500);
-            times_global[TIME_PACK] = (stop_global-start_global);
-          }
-        #endif
-
-        // elect last block to wait
-        int last_block = elect_one(sched, grid0, 0); //__syncthreads(); inside
-        if (0 == threadIdx.x)
-            __threadfence();
-
-        if (last_block == grid0-1) 
-        {
-          #ifdef TIMINGS_YES
-              if(threadIdx.x == 0)
-              {
-                start = clock64();
-                start_global = getTimerNs();
-              }
-          #endif
-
-          if (threadIdx.x < pdescs->n_ready) {
-            // wait for ready
-            gdsync::device::wait_geq(pdescs->ready[threadIdx.x]);
-            // signal NIC
-            mp::device::mlx5::send(pdescs->tx[threadIdx.x]);
-          }
-
-          #ifdef TIMINGS_YES
-            if(threadIdx.x == pdescs->n_ready-1)
-            {
-              stop_global = getTimerNs();
-              stop = clock64();
-              times[TIME_SEND] = 0; //((double)(stop-start)*1000)/((double)875500);
-              times_global[TIME_SEND] = (stop_global-start_global);
-            }
-          #endif
-        }
-      }
-
-      // maybe reuse same blocks for this task
-      if (block < grid1) {
-        #ifdef TIMINGS_YES
-          if(0 == threadIdx.x && block == 0)
-          {
-            start = clock64();
-            start_global = getTimerNs();
-          }  
-        #endif
-
-        copy_block_fuse<1>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
-
-        #ifdef TIMINGS_YES
-          if(0 == threadIdx.x && block == 0)
-          {
-            stop_global = getTimerNs();
-            stop = clock64();
-            times[TIME_LOCAL] = 0; //((double)(stop-start)*1000)/((double)875500);
-            times_global[TIME_LOCAL] = (stop_global-start_global);
-          }
-        #endif
-      }
-    }
-    else 
-    {
-      // use other blocks to wait and unpack
-      block -= max_grid01;
-      //if (0 == threadIdx.x) printf("[%d][%d] id=%d unpack\n", pid, block, sched_id);
-      if (0 <= block && block < grid2) {
-
-        if (0 == threadIdx.x)
-        {
-          while (ThreadLoad<LOAD_CG>(&sched.done[1]) < 1); // { __threadfence_block(); }
-        }
-
-        __syncthreads();
-        
-        #ifdef TIMINGS_YES
-          if(0 == threadIdx.x && block == 0){
-            start = clock64();
-            start_global = getTimerNs();
-          }
-        #endif
-        // execute sub-task
-        copy_block_fuse<2>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
-      
-        #ifdef TIMINGS_YES
-          if(0 == threadIdx.x && block == 0)
-          {
-            stop_global = getTimerNs();
-            stop = clock64();
-            times[TIME_UNPACK] = 0; //((double)(stop-start)*1000)/((double)875500);
-            times_global[TIME_UNPACK] = (stop_global-start_global);
-          }
-        #endif
-      }
-    }
-  }
-}
-
-static int n_scheds = TOT_SCHEDS;
-
-extern "C"
-void cuda_fused_copy_block(level_type level, int id, communicator_type exchange_ghosts, cudaStream_t stream, comm_dev_descs_t descs)
-{
-  int n_blocks = COPY_THREAD_BLOCK_SIZE;
-  int max_grid01 = std::max(exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1]);
-  int min_grids = std::min(std::min(exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1]), exchange_ghosts.num_blocks[2]);
-  int fused_grid = max_grid01 + exchange_ghosts.num_blocks[2];
-  DBG("id=%d blocks=%d grids={%d,%d,%d} fused_grid:%d descs: n_ready=%d n_tx=%d n_wait=%d\n", id, n_blocks, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2], fused_grid, descs->n_ready, descs->n_tx, descs->n_wait);
-  assert(min_grids > 0);
-  assert( descs->n_ready > 0 );
-  
-  if (n_scheds >= max_scheds) {
-    scheds_init<<<1, max_scheds, 0, stream>>>();
-    n_scheds = 0;
-  }
-
-  #ifdef TIMINGS_YES
-    double * times, * times_d;
-    ns_t * times_global, * times_d_global;
-
-    cudaHostAlloc( (void**)&times, 5*sizeof(double), cudaHostAllocMapped );
-    cudaHostGetDevicePointer ( &times_d, times, 0 );
-    times[0] = 0;
-    times[1] = 0;
-    times[2] = 0;
-    times[3] = 0;
-    times[4] = 0;
-
-    cudaHostAlloc( (void**)&times_global, 5*sizeof(ns_t), cudaHostAllocMapped );
-    cudaHostGetDevicePointer ( &times_d_global, times_global, 0 );
-    times_global[0] = 0;
-    times_global[1] = 0;
-    times_global[2] = 0;
-    times_global[3] = 0;
-    times_global[4] = 0;
-
-  #endif
-
-  fused_copy_block_kernel<<<fused_grid+1, n_blocks, 0, stream>>>(level, id, exchange_ghosts, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2], max_grid01, n_scheds++, descs);
-
-  #ifdef TIMINGS_YES
-    cudaDeviceSynchronize();
-
-    fprintf(stdout, "\n\n**** RANK %d TIMES, grid0: %d, grid1: %d, grid2:%d****\n", level.my_rank, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2]);
-    fprintf(stdout, "RANK %d, pack: %f size, global: %d\n", level.my_rank, times[TIME_PACK], times_global[TIME_PACK]);
-    fprintf(stdout, "RANK %d, local: %f size, global: %d\n", level.my_rank, times[TIME_LOCAL], times_global[TIME_LOCAL]);
-    fprintf(stdout, "RANK %d, unpack: %f size, global: %d\n", level.my_rank, times[TIME_UNPACK], times_global[TIME_UNPACK]);
-    fprintf(stdout, "RANK %d, send: %f size, global: %d\n", level.my_rank, times[TIME_SEND], times_global[TIME_SEND]);
-    fprintf(stdout, "RANK %d, recv: %f size, global: %d\n", level.my_rank, times[TIME_RECV], times_global[TIME_RECV]);
-    fprintf(stdout, "***************\n\n");
-       
-    cudaFreeHost(times);
-    cudaFreeHost(times_global);
-  #endif
-}
-
-
-
 
 /*
 __device__ int clockrate; // 875500
@@ -731,4 +503,243 @@ __global__ void fused_copy_block_kernel_old(level_type level, int id, communicat
     }
   }
 }
+*/
+__global__ void fused_copy_block_kernel(level_type level, int id, communicator_type exchange_ghosts, int grid0, int grid1, int grid2, int max_grid01, int sched_id, struct comm_dev_descs *pdescs)
+{
+  assert(sched_id >= 0 && sched_id < max_scheds);
+  assert(gridDim.x >= max_grid01+grid2+1);
+
+  #ifdef TIMINGS_YES
+    long long int start, stop;
+    unsigned long long start_global, stop_global;
+  #endif
+
+  sched_info_t &sched = scheds[sched_id];
+  int block = elect_block(sched);
+  
+  //First block wait
+  if(block == 0)
+  {
+    #ifdef TIMINGS_YES
+        if(threadIdx.x == 0)
+        {
+          start = clock64();
+          start_global = getTimerNs();
+        }
+    #endif
+    assert(blockDim.x >= pdescs->n_wait);
+    if (threadIdx.x < pdescs->n_wait) {
+      mp::device::mlx5::wait(pdescs->wait[threadIdx.x]);
+      // write MP trk flag
+      // note: no mem barrier here!!!
+      mp::device::mlx5::signal(pdescs->wait[threadIdx.x]);
+    }
+    
+    __syncthreads();
+
+    #ifdef TIMINGS_YES
+      if(threadIdx.x == 0)
+      {
+        stop_global = getTimerNs();
+        stop = clock64();
+        times[TIME_RECV] = exchange_ghosts.blocks[2][block].dim.i*exchange_ghosts.blocks[2][block].dim.j*exchange_ghosts.blocks[2][block].dim.k; //((double)(stop-start)*1000)/((double)875500);
+        times_global[TIME_RECV] = (stop_global-start_global);
+      }
+    #endif
+
+    if (0 == threadIdx.x) {
+      // signal other blocks
+      ACCESS_ONCE(sched.done[1]) = 1;   
+    }
+  }
+  else
+  {
+    block--;
+    if (block < max_grid01)
+    {
+      // assign first N thread blocks to this task
+      if (block < grid0)
+      {
+        #ifdef TIMINGS_YES
+          if(0 == threadIdx.x && block == 0)
+          {
+            start = clock64();
+            start_global = getTimerNs();
+          }
+        #endif
+        // pack data
+        copy_block_fuse<0>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
+        
+        #ifdef TIMINGS_YES
+          if(0 == threadIdx.x && block == 0)
+          {
+            stop_global = getTimerNs();
+            stop = clock64();
+            times[TIME_PACK] = exchange_ghosts.blocks[0][block].dim.i*exchange_ghosts.blocks[0][block].dim.j*exchange_ghosts.blocks[0][block].dim.k*blockDim.x; // ((double)(stop-start)*1000)/((double)875500);
+            times_global[TIME_PACK] = (stop_global-start_global);
+          }
+        #endif
+
+        // elect last block to wait
+        int last_block = elect_one(sched, grid0, 0); //__syncthreads(); inside
+        if (0 == threadIdx.x)
+            __threadfence();
+
+        if (last_block == grid0-1) 
+        {
+          #ifdef TIMINGS_YES
+              if(threadIdx.x == 0)
+              {
+                start = clock64();
+                start_global = getTimerNs();
+              }
+          #endif
+
+          if (threadIdx.x < pdescs->n_ready) {
+            // wait for ready
+            gdsync::device::wait_geq(pdescs->ready[threadIdx.x]);
+            // signal NIC
+            mp::device::mlx5::send(pdescs->tx[threadIdx.x]);
+          }
+
+          #ifdef TIMINGS_YES
+            if(threadIdx.x == pdescs->n_ready-1)
+            {
+              stop_global = getTimerNs();
+              stop = clock64();
+              times[TIME_SEND] = 0; //((double)(stop-start)*1000)/((double)875500);
+              times_global[TIME_SEND] = (stop_global-start_global);
+            }
+          #endif
+        }
+      }
+
+      // maybe reuse same blocks for this task
+      if (block < grid1) {
+        #ifdef TIMINGS_YES
+          if(0 == threadIdx.x && block == 0)
+          {
+            start = clock64();
+            start_global = getTimerNs();
+          }  
+        #endif
+
+        copy_block_fuse<1>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
+
+        #ifdef TIMINGS_YES
+          if(0 == threadIdx.x && block == 0)
+          {
+            stop_global = getTimerNs();
+            stop = clock64();
+            times[TIME_LOCAL] = 0; //((double)(stop-start)*1000)/((double)875500);
+            times_global[TIME_LOCAL] = (stop_global-start_global);
+          }
+        #endif
+      }
+    }
+    else 
+    {
+      // use other blocks to wait and unpack
+      block -= max_grid01;
+      //if (0 == threadIdx.x) printf("[%d][%d] id=%d unpack\n", pid, block, sched_id);
+      if (0 <= block && block < grid2) {
+
+        if (0 == threadIdx.x)
+        {
+          while (ThreadLoad<LOAD_CG>(&sched.done[1]) < 1); // { __threadfence_block(); }
+        }
+
+        __syncthreads();
+        
+        #ifdef TIMINGS_YES
+          if(0 == threadIdx.x && block == 0){
+            start = clock64();
+            start_global = getTimerNs();
+          }
+        #endif
+        // execute sub-task
+        copy_block_fuse<2>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
+      
+        #ifdef TIMINGS_YES
+          if(0 == threadIdx.x && block == 0)
+          {
+            stop_global = getTimerNs();
+            stop = clock64();
+            times[TIME_UNPACK] = 0; //((double)(stop-start)*1000)/((double)875500);
+            times_global[TIME_UNPACK] = (stop_global-start_global);
+          }
+        #endif
+      }
+    }
+  }
+
+  
+}
+
+static int n_scheds = TOT_SCHEDS;
+
+extern "C"
+void cuda_fused_copy_block(level_type level, int id, communicator_type exchange_ghosts, cudaStream_t stream, comm_dev_descs_t descs)
+{
+  int n_blocks = COPY_THREAD_BLOCK_SIZE;
+  int max_grid01 = std::max(exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1]);
+  int min_grids = std::min(std::min(exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1]), exchange_ghosts.num_blocks[2]);
+  int fused_grid = max_grid01 + exchange_ghosts.num_blocks[2];
+  DBG("id=%d blocks=%d grids={%d,%d,%d} fused_grid:%d descs: n_ready=%d n_tx=%d n_wait=%d\n", id, n_blocks, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2], fused_grid, descs->n_ready, descs->n_tx, descs->n_wait);
+  assert(min_grids > 0);
+  assert( descs->n_ready > 0 );
+  
+  if (n_scheds >= max_scheds) {
+    scheds_init<<<1, max_scheds, 0, stream>>>();
+    n_scheds = 0;
+  }
+
+  #ifdef TIMINGS_YES
+    double * times, * times_d;
+    ns_t * times_global, * times_d_global;
+
+    cudaHostAlloc( (void**)&times, 5*sizeof(double), cudaHostAllocMapped );
+    cudaHostGetDevicePointer ( &times_d, times, 0 );
+    times[0] = 0;
+    times[1] = 0;
+    times[2] = 0;
+    times[3] = 0;
+    times[4] = 0;
+
+    cudaHostAlloc( (void**)&times_global, 5*sizeof(ns_t), cudaHostAllocMapped );
+    cudaHostGetDevicePointer ( &times_d_global, times_global, 0 );
+    times_global[0] = 0;
+    times_global[1] = 0;
+    times_global[2] = 0;
+    times_global[3] = 0;
+    times_global[4] = 0;
+
+      //clockrate = 875500
+    /*  cudaDeviceProp prop;
+      cudaGetDeviceProperties(&prop, 0);
+      cudaMemcpyToSymbol(clockrate, (void *)&prop.clockRate, sizeof(int), 0, cudaMemcpyHostToDevice);
+    */
+  #endif
+
+  fused_copy_block_kernel<<<fused_grid+1, n_blocks, 0, stream>>>(level, id, exchange_ghosts, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2], max_grid01, n_scheds++, descs);
+
+  #ifdef TIMINGS_YES
+    cudaDeviceSynchronize();
+
+    fprintf(stdout, "\n\n**** RANK %d TIMES, grid0: %d, grid1: %d, grid2:%d****\n", level.my_rank, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2]);
+    fprintf(stdout, "RANK %d, pack: %f size, global: %d\n", level.my_rank, times[TIME_PACK], times_global[TIME_PACK]);
+    fprintf(stdout, "RANK %d, local: %f size, global: %d\n", level.my_rank, times[TIME_LOCAL], times_global[TIME_LOCAL]);
+    fprintf(stdout, "RANK %d, unpack: %f size, global: %d\n", level.my_rank, times[TIME_UNPACK], times_global[TIME_UNPACK]);
+    fprintf(stdout, "RANK %d, send: %f size, global: %d\n", level.my_rank, times[TIME_SEND], times_global[TIME_SEND]);
+    fprintf(stdout, "RANK %d, recv: %f size, global: %d\n", level.my_rank, times[TIME_RECV], times_global[TIME_RECV]);
+    fprintf(stdout, "***************\n\n");
+       
+    cudaFreeHost(times);
+    cudaFreeHost(times_global);
+  #endif
+}
+
+/*
+/peersync/include/mp_device.cuh:102: void mp::device::release(S &) [with S = mp::isem32]: block: [11,0,0], thread: [0,0,0] Assertion `0 != sem.access_once()` failed.
+./wrapper.sh: line 47: 22951 Segmentation fault      (core dumped) $exe $params
 */

@@ -308,6 +308,9 @@ void rebuild_operator(level_type * level, level_type *fromLevel, double a, doubl
     }}}
     if(block_eigenvalue>dominant_eigenvalue){dominant_eigenvalue = block_eigenvalue;}
   }
+
+  if(level->my_rank == 0)
+    fprintf(stdout, "++++ rebuild_operator TIME: %f\n", (getTime()-_timeStart));
   level->timers.blas1 += (double)(getTime()-_timeStart);
 
 

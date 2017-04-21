@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef __cplusplus
-#include "mp/device.cuh"
+#include <mp/device.cuh>
 struct comm_dev_descs {
     enum { max_n_descs = 32 };
     int n_ready;
@@ -37,7 +37,7 @@ extern "C" {
     int comm_use_gdrdma();
     int comm_use_async();
     int comm_use_gpu_comm();
-    void comm_test_ping_pong(const char * string);
+
     typedef struct comm_request  *comm_request_t;
     typedef struct comm_reg      *comm_reg_t;
     typedef struct CUstream_st   *comm_stream_t;
@@ -59,9 +59,7 @@ extern "C" {
     int comm_wait(comm_request_t *creq);
     int comm_flush();
     int comm_flush_new();
-    int comm_flush_request(comm_request_t * request, int count);
     int comm_progress();
-void comm_zero_req();
 
     int comm_prepare_wait_ready(int rank);
     int comm_prepare_isend(void *send_buf, size_t size, MPI_Datatype type, comm_reg_t *creg,
@@ -69,8 +67,8 @@ void comm_zero_req();
     int comm_prepare_wait_all(int count, comm_request_t *creqs);
     comm_dev_descs_t comm_prepared_requests();
     int comm_register(void *buf, size_t size, comm_reg_t *creg);
-    int comm_select_device(int mpiRank);
-   
+        int comm_select_device(int mpiRank);
+
 #ifdef __cplusplus
 }
 #endif
