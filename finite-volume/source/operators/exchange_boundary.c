@@ -403,8 +403,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 
   sendStream = level->stream;
   recvStream = level->stream;
-  if(level->stream_rec != NULL)
-    sendStream = level->stream_rec;
+//  if(level->stream_rec != NULL) sendStream = level->stream_rec;
   /*
     Even if comm_use_comm() == 1 and comm_use_async() == 1, if level->use_cuda == 0 means that copy_block operations must be done by CPU.
     In this situation, use the async communication is useless because a cudaDeviceSynchronize() must be done before unpack
@@ -417,6 +416,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
   comm_request_t  recv_requests[level->exchange_ghosts[shape].num_recvs];
   comm_request_t  send_requests[level->exchange_ghosts[shape].num_sends];
 
+#if 0
   //Not Working with 2 streams!
   if(level->stream_rec != NULL)
   {
@@ -560,6 +560,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
   }
   else
   {
+#endif
     // loop through packed list of MPI receives and prepost Irecv's...
     if(level->exchange_ghosts[shape].num_recvs>0){
       //JUST FOR TIMERS
@@ -680,7 +681,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
       level->timers.ghostZone_unpack += (getTime()-_timeStart);
     }
 
-  #if 0
+  #if 1
     // wait for send
     if (level->exchange_ghosts[shape].num_sends > 0) {
       //JUST FOR TIMERS
@@ -697,7 +698,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
       level->timers.ghostZone_wait += (getTime()-_timeStart);
     }
   #endif
-  }
+  
 
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
