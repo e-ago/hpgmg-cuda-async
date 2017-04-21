@@ -35,7 +35,7 @@ $MPI_HOME/bin/mpirun -verbose  $extra_params   -x PATH    -x GDS_CQ_MAP_SMART=$v
 -x OMP_NUM_THREADS=1 -x ASYNC_2_STREAMS=$var_ASYNC_2_STREAMS \
 -x MP_DBREC_ON_GPU=0 -x MP_RX_CQ_ON_GPU=0 -x MP_TX_CQ_ON_GPU=0 \
 -x USE_MPI=1 \
---map-by node  -np $procNumber -hoostfile hostfile ./wrapper.sh ./build/bin/hpgmg-fv $5 $6
+--map-by node  -np $procNumber -hostfile hostfile ./wrapper.sh ./build/bin/hpgmg-fv $5 $6
 
 #-x MPI_ALLOC_ZERO_COPY=$var_MPI_ALLOC_ZERO_COPY -x MPI_ALLOC_PINNED=$var_MPI_ALLOC_PINNED -x HOST_LEVEL_SIZE_THRESHOLD=$var_HOST_LEVEL_SIZE_THRESHOLD \
 
