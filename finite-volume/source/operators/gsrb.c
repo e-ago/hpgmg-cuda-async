@@ -23,6 +23,9 @@
 //------------------------------------------------------------------------------------------------------------------------------
 void smooth(level_type * level, int x_id, int rhs_id, double a, double b){
   int block,s;
+
+  PUSH_RANGE("Smooth", OP_COL);
+
   for(s=0;s<2*NUM_SMOOTHS;s++){ // there are two sweeps per GSRB smooth
 
     // exchange the ghost zone...
@@ -136,6 +139,8 @@ void smooth(level_type * level, int x_id, int rhs_id, double a, double b){
     } // use-cuda
     level->timers.smooth += (double)(getTime()-_timeStart);
   } // s-loop
+
+  POP_RANGE;
 }
 
 
