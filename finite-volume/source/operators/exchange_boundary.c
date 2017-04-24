@@ -824,8 +824,3 @@ void exchange_boundary(level_type * level, int id, int shape) {
   level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
   POP_RANGE;
 }
-
-/*
-void force_comm_flush() {
-  comm_flush_force();
-}*/

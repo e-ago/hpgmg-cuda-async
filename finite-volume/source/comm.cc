@@ -562,9 +562,10 @@ int comm_flush()
 {
     int ret = 0;
     DBG("n_reqs=%d\n", n_reqs);
+    if(n_reqs == 0)
+        return ret;
+
     assert(n_reqs < MAX_REQS);
-    //if(comm_rank == 0)
-    //    printf("FLUSH NEW n_req: %d startGlobalFlushReqsIndex: %d\n", n_reqs, startGlobalFlushReqsIndex);
     //int diff = n_reqs - startGlobalFlushReqsIndex;
     ret = mp_wait_all(n_reqs, reqs); //+startGlobalFlushReqsIndex);
     n_reqs=0;
@@ -573,6 +574,8 @@ int comm_flush()
 
     return ret;
 }
+
+#if 0
 
 int comm_flush_new()
 {
@@ -660,6 +663,7 @@ int comm_flush_force()
 
     return ret;
 }
+#endif
 
 static struct comm_dev_descs *dreqs()
 {
