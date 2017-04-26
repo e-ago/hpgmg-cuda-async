@@ -213,7 +213,12 @@ int main(int argc, char **argv){
   }
   
   if(comm_use_comm())
+  {
+#ifdef USE_MPI_BARRIER
+    printf("Using MPI_Barrier instead of RDMA\n");
+#endif
     comm_init(MPI_COMM_WORLD, my_device);
+  }
   
   #ifdef USE_SHM
   cudaDeviceSetSharedMemConfig(cudaSharedMemBankSizeEightByte);
