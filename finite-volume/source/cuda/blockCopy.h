@@ -596,8 +596,11 @@ __global__ void fused_copy_block_kernel(level_type level, int id, communicator_t
           #endif
 
           if (threadIdx.x < pdescs->n_ready) {
+#ifndef USE_MPI_BARRIER
             // wait for ready
             gdsync::device::wait_geq(pdescs->ready[threadIdx.x]);
+#endif
+            
             // signal NIC
             mp::device::mlx5::send(pdescs->tx[threadIdx.x]);
           }
