@@ -690,8 +690,9 @@ void cuda_fused_copy_block(level_type level, int id, communicator_type exchange_
   int fused_grid = max_grid01 + exchange_ghosts.num_blocks[2];
   DBG("id=%d blocks=%d grids={%d,%d,%d} fused_grid:%d descs: n_ready=%d n_tx=%d n_wait=%d\n", id, n_blocks, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2], fused_grid, descs->n_ready, descs->n_tx, descs->n_wait);
   assert(min_grids > 0);
+#ifndef USE_MPI_BARRIER
   assert( descs->n_ready > 0 );
-  
+#endif  
   if (n_scheds >= max_scheds) {
     scheds_init<<<1, max_scheds, 0, stream>>>();
     n_scheds = 0;
