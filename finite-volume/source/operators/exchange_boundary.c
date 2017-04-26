@@ -200,16 +200,6 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
 
 //#define TIMINGS_YES 1
 
-/*
-  #ifdef CUDA_UM_ZERO_COPY    ----> alloc only pinned memory... need async copy to be used by device
-      // assumes that the direct access to sysmem is supported on this OS/GPU
-      CUDA_API_ERROR( cudaMallocHost(&ptr, size) )
-  #else                       ----> alloc using unified memory, so recv_buffers can be used by both host and device
-      // default is the managed allocation with global attach
-      CUDA_API_ERROR( cudaMallocManaged(&ptr, size, cudaMemAttachGlobal) )
-  #endif
-*/
-
 void exchange_boundary_comm(level_type * level, int id, int shape){
   //double _timeCommunicationStart = getTime();
   double _timeStart;
@@ -248,6 +238,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                  &recv_requests[n]);
 
 #ifndef USE_MPI_BARRIER
+      printf("uso ready\n");
       comm_send_ready(level->exchange_ghosts[shape].recv_ranks[n], &ready_requests[n]);
 #endif
     }
@@ -259,6 +250,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
   }
 
 #ifdef USE_MPI_BARRIER
+  printf("myrank=%d, uso barrier\n", level->my_rank);
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
@@ -346,9 +338,9 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
     level->timers.ghostZone_local += (getTime()-_timeStart);
   }
 
-#ifndef USE_MPI_BARRIER
 
   if (nMessages) {
+#ifndef USE_MPI_BARRIER
     _timeStart = getTime();
       if (level->exchange_ghosts[shape].num_sends) {
 
@@ -377,6 +369,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       }
       
       level->timers.ghostZone_send += (getTime()-_timeStart);
+#endif
       // wait for recv & sends
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
@@ -384,7 +377,6 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       POP_RANGE;      
       level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
-#endif
 
   // unpack MPI receive buffers 
   if(level->exchange_ghosts[shape].num_blocks[2])
@@ -457,15 +449,15 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 #endif
       }
 
-#ifdef USE_MPI_BARRIER
-      MPI_Barrier(MPI_COMM_WORLD);
-#endif
-
       POP_RANGE;
       //JUST FOR TIMERS
       //cudaDeviceSynchronize();
       level->timers.ghostZone_recv += (getTime()-_timeStart);
     }
+
+#ifdef USE_MPI_BARRIER
+      MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
     // pack MPI send buffers...
     if(level->exchange_ghosts[shape].num_blocks[0] > 0){
@@ -628,14 +620,18 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
 #ifdef USE_MPI_BARRIER
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
-  
+
   // loop through MPI send buffers and post Isend's...
   _timeStart = getTime();
   for(n=0;n<level->exchange_ghosts[shape].num_sends;n++){
     DBG("send_rank[%d]=%d size=%d\n", n,
         level->exchange_ghosts[shape].send_ranks[n], 
         level->exchange_ghosts[shape].send_sizes[n]);
+
+#ifndef USE_MPI_BARRIER
     comm_prepare_wait_ready(level->exchange_ghosts[shape].send_ranks[n]);
+#endif
+
     COMM_CHECK(comm_prepare_isend(level->exchange_ghosts[shape].send_buffers[n],
                                   level->exchange_ghosts[shape].send_sizes[n],
                                   MPI_DOUBLE,
