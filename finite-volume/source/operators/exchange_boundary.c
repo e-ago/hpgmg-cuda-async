@@ -237,10 +237,9 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                  level->exchange_ghosts[shape].recv_ranks[n],
                  &recv_requests[n]);
 
-#ifndef USE_MPI_BARRIER
-      printf("uso ready\n");
+//#ifndef USE_MPI_BARRIER
       comm_send_ready(level->exchange_ghosts[shape].recv_ranks[n], &ready_requests[n]);
-#endif
+//#endif
     }
     
     POP_RANGE;
@@ -248,12 +247,12 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
     level->timers.ghostZone_recv += (getTime()-_timeStart);
     
   }
-
+/*
 #ifdef USE_MPI_BARRIER
   printf("myrank=%d, uso barrier\n", level->my_rank);
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
-
+*/
   if(level->exchange_ghosts[shape].num_blocks[0] > 0){
     // pack MPI send buffers...
     _timeStart = getTime();
@@ -292,13 +291,13 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
       for(n=0; n<level->exchange_ghosts[shape].num_sends; n++)
         if (!send_msk[n]) {
 
-#ifndef USE_MPI_BARRIER
+//#ifndef USE_MPI_BARRIER
           int rdy = 0;
           comm_test_ready(level->exchange_ghosts[shape].send_ranks[n], &rdy);
           //comm_wait_ready(level->exchange_ghosts[shape].send_ranks[n]);
           //rdy = 1;
           if (rdy) {
-#endif
+//#endif
             comm_isend(level->exchange_ghosts[shape].send_buffers[n],
                        level->exchange_ghosts[shape].send_sizes[n],
                        MPI_DOUBLE,
@@ -308,9 +307,9 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
             --n_sends;
             send_msk[n] = 1;
 
-#ifndef USE_MPI_BARRIER
+//#ifndef USE_MPI_BARRIER
           }
-#endif
+//#endif
         }
     } while (0);
 
@@ -340,7 +339,6 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 
 
   if (nMessages) {
-#ifndef USE_MPI_BARRIER
     _timeStart = getTime();
       if (level->exchange_ghosts[shape].num_sends) {
 
@@ -350,9 +348,11 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
         while (n_sends) {
           for(n=0;n<level->exchange_ghosts[shape].num_sends;n++)
             if (!send_msk[n]) {
+//#ifndef USE_MPI_BARRIER
               int rdy = 0;
               comm_test_ready(level->exchange_ghosts[shape].send_ranks[n], &rdy);
               if (rdy) {
+//#endif
                 comm_isend(level->exchange_ghosts[shape].send_buffers[n],
                            level->exchange_ghosts[shape].send_sizes[n],
                            MPI_DOUBLE,
@@ -362,14 +362,15 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
                 --n_sends;
                 send_msk[n] = 1;
               }
+//#ifndef USE_MPI_BARRIER
             }
+//#endif
         };
 
         POP_RANGE;
       }
       
       level->timers.ghostZone_send += (getTime()-_timeStart);
-#endif
       // wait for recv & sends
       _timeStart = getTime();
       PUSH_RANGE("wait", WAIT_COL);
