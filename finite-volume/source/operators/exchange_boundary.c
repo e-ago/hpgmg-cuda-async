@@ -670,7 +670,7 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
   if(level->exchange_ghosts[shape].num_recvs>0){
       _timeStart = getTime();
         PUSH_RANGE("wait ready", WAIT_COL);
-        comm_wait_all_on_stream(level->exchange_ghosts[shape].num_recvs, ready_requests, recvStream);
+        comm_wait_all_on_stream(level->exchange_ghosts[shape].num_recvs, ready_requests, level->stream);
         POP_RANGE;
       level->timers.ghostZone_wait += (getTime()-_timeStart);
     }
