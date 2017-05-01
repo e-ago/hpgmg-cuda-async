@@ -264,9 +264,9 @@ int comm_send_ready_on_stream(int rank, comm_request_t *creq, cudaStream_t strea
     int remote_offset = /*self rank*/comm_rank * sizeof(uint32_t);
     DBG("dest_rank=%d payload=%x offset=%d\n", rank, remote_ready_values[rank], remote_offset);
     MP_CHECK(mp_iput_on_stream(&remote_ready_values[rank], sizeof(uint32_t), &remote_ready_values_reg, 
-                               peer, remote_offset, &ready_table_win, req, MP_PUT_INLINE, stream));
+                               peer, remote_offset, &ready_table_win, req, MP_PUT_INLINE | MP_PUT_NOWAIT, stream));
     //MP_CHECK(mp_wait(req));
-    comm_track_request(req);
+    //comm_track_request(req);
     atomic_inc(&remote_ready_values[rank]);
 }
 
@@ -281,9 +281,9 @@ int comm_send_ready(int rank, comm_request_t *creq)
     int remote_offset = /*my rank*/comm_rank * sizeof(uint32_t);
     DBG("dest_rank=%d payload=%x offset=%d\n", rank, remote_ready_values[rank], remote_offset);
     MP_CHECK(mp_iput(&remote_ready_values[rank], sizeof(uint32_t), &remote_ready_values_reg, 
-                     peer, remote_offset, &ready_table_win, req, MP_PUT_INLINE));
+                     peer, remote_offset, &ready_table_win, req, MP_PUT_INLINE | MP_PUT_NOWAIT));
     //MP_CHECK(mp_wait(req));
-    comm_track_request(req);
+    //comm_track_request(req);
     atomic_inc(&remote_ready_values[rank]);
 }
 
