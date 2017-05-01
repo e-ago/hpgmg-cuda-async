@@ -135,7 +135,11 @@ void rebuild_operator_blackbox(level_type * level, double a, double b, int color
       }}}
     }
     }
-  }}}
+  }}
+    
+    comm_flush();
+    //cudaDeviceSynchronize();
+  }
 
   // make sure GPU kernels have finished since the following part runs on CPU
   cudaDeviceSynchronize();
