@@ -552,11 +552,8 @@ void exchange_boundary_async(level_type * level, int id, int shape){
       level->timers.ghostZone_unpack += (getTime()-_timeStart);
     }
 
-  #if 1
     // wait for send
     if (level->exchange_ghosts[shape].num_sends > 0) {
-      //JUST FOR TIMERS
-      //cudaDeviceSynchronize();
       _timeStart = getTime();
 
         PUSH_RANGE("wait send", WAIT_COL);
@@ -564,21 +561,25 @@ void exchange_boundary_async(level_type * level, int id, int shape){
                                 send_requests,
                                 sendStream);
         POP_RANGE;
-        //JUST FOR TIMERS
-      //cudaDeviceSynchronize();
       level->timers.ghostZone_wait += (getTime()-_timeStart);
     }
-  #endif
-  
+
+    if(level->exchange_ghosts[shape].num_recvs>0){
+      _timeStart = getTime();
+        PUSH_RANGE("wait ready", WAIT_COL);
+        comm_wait_all_on_stream(level->exchange_ghosts[shape].num_recvs,
+                                ready_requests,
+                                recvStream);
+        POP_RANGE;
+      level->timers.ghostZone_wait += (getTime()-_timeStart);
+    }  
 
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
   POP_RANGE;
-
   
   //async x profiler
  // cudaDeviceSynchronize();
-  //level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
 }
 
 void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
@@ -657,20 +658,26 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
 
   level->timers.ghostZone_local += (getTime()-_timeStart);
 
-#if 0
   // wait for send
   if (level->exchange_ghosts[shape].num_sends) {
     _timeStart = getTime();
+    PUSH_RANGE("wait send", WAIT_COL);
     comm_wait_all_on_stream(level->exchange_ghosts[shape].num_sends, send_requests, level->stream);
+    POP_RANGE;
     level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
-#endif
+
+  if(level->exchange_ghosts[shape].num_recvs>0){
+      _timeStart = getTime();
+        PUSH_RANGE("wait ready", WAIT_COL);
+        comm_wait_all_on_stream(level->exchange_ghosts[shape].num_recvs, ready_requests, recvStream);
+        POP_RANGE;
+      level->timers.ghostZone_wait += (getTime()-_timeStart);
+    }
 
   PUSH_RANGE("progress", KERNEL_COL);
   comm_progress();
   POP_RANGE;
-
-//  level->timers.ghostZone_total += (double)(getTime()-_timeCommunicationStart);
 }
 
 void exchange_boundary(level_type * level, int id, int shape) {
