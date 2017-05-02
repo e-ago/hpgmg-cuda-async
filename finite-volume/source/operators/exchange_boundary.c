@@ -564,7 +564,7 @@ void exchange_boundary_async(level_type * level, int id, int shape){
       level->timers.ghostZone_wait += (getTime()-_timeStart);
     }
 
-#if 0
+#ifdef WAIT_READY
     if(level->exchange_ghosts[shape].num_recvs>0){
       _timeStart = getTime();
         PUSH_RANGE("wait ready", WAIT_COL);
@@ -669,7 +669,7 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
     level->timers.ghostZone_wait += (getTime()-_timeStart);
   }
 
-#if 0
+#ifdef WAIT_READY
   if(level->exchange_ghosts[shape].num_recvs>0){
       _timeStart = getTime();
         PUSH_RANGE("wait ready", WAIT_COL);
