@@ -115,10 +115,9 @@ void exchange_boundary_plain(level_type * level, int id, int shape){
                 MPI_COMM_WORLD,
                 &send_requests[n]
       ); 
+    }
     
     POP_RANGE;
-
-    }
     
     level->timers.ghostZone_send += (getTime()-_timeStart);
   }
