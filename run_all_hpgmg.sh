@@ -41,7 +41,7 @@ do
         		fi
         		echo "MODE: $var_print_mode, SIZE: $var_size, PROC: $var_proc"
         		file_out="hpgmg-$var_print_mode-s$var_size-p$var_proc.txt"
-        		$PREFIX/src/hpgmg/run.sh $var_proc $var_comm $var_async $var_gpu $var_size 8 &> $file_out
+        		./run.sh $var_proc $var_comm $var_async $var_gpu $var_size 8 &> $file_out
         		egrep "use cuda" $file_out
         		egrep "Total by level" $file_out
         	done
