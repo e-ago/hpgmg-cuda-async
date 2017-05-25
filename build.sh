@@ -21,13 +21,8 @@ OPTS=" $OPTS -DBOUNDARY_TILE_I=64 "
 OPTS=" $OPTS -DBOUNDARY_TILE_J=16 "
 OPTS=" $OPTS -DBOUNDARY_TILE_K=16 "
 
-# host level threshold: number of grid elements
-#OPTS=" $OPTS -DHOST_LEVEL_SIZE_THRESHOLD=10000 "
-#become environment variable
-
 # max number of solves after warmup
 OPTS=" $OPTS -DMAX_SOLVES=100 "
-
 
 # host level threshold: number of grid elements
 OPTS=" $OPTS -DHOST_LEVEL_SIZE_THRESHOLD=10000 "
