@@ -20,7 +20,7 @@ OMPI_params="$OMPI_params --mca btl_openib_want_cuda_gdr 1"
 OMPI_params="$OMPI_params --mca btl_openib_warn_default_gid_prefix 0"
 
 $MPI_HOME/bin/mpirun -verbose  $OMPI_params   \
- -x GDS_CQ_MAP_SMART=0 -x GDS_ENABLE_DEBUG=0 -x MP_ENABLE_DEBUG=0 -x HPGMG_ENABLE_DEBUG=0 -x MP_EVENT_ASYNC=0 -x MP_ENABLE_WARN -x MP_GUARD_PROGRESS=0 \
+ -x GDS_CQ_MAP_SMART=0 -x GDS_ENABLE_DEBUG=0 -x MP_ENABLE_DEBUG=0 -x HPGMG_ENABLE_DEBUG=0 -x MP_EVENT_ASYNC=0 -x MP_ENABLE_WARN \
  -x LD_LIBRARY_PATH -x PATH \
  -x GDS_DISABLE_WRITE64=0 \
  -x GDS_SIMULATE_WRITE64=0 \
