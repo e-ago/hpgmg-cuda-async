@@ -681,6 +681,91 @@ __global__ void fused_copy_block_kernel(level_type level, int id, communicator_t
   
 }
 
+__global__ void fused_copy_block_kernel_inverted(level_type level, int id, communicator_type exchange_ghosts, int grid0, int grid1, int grid2, int max_grid01, int sched_id, struct comm_dev_descs *pdescs)
+{
+  assert(sched_id >= 0 && sched_id < max_scheds);
+  assert(gridDim.x >= max_grid01+grid2+1);
+
+  #ifdef TIMINGS_YES
+    long long int start, stop;
+    unsigned long long start_global, stop_global;
+  #endif
+
+  sched_info_t &sched = scheds[sched_id];
+  int block = elect_block(sched);
+  
+  if (block < max_grid01)
+  {
+    // assign first N thread blocks to this task
+    if (block < grid0)
+    {
+      // pack data
+      copy_block_fuse<0>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
+    
+      // elect last block to wait
+      int last_block = elect_one(sched, grid0, 0); //__syncthreads(); inside
+      if (0 == threadIdx.x)
+          __threadfence();
+
+      if (last_block == grid0-1) 
+      {
+        if (threadIdx.x < pdescs->n_tx /* n_ready */) {
+          // wait for ready
+          gdsync::device::wait_geq(pdescs->ready[threadIdx.x]); 
+          // signal NIC
+          mp::device::mlx5::send(pdescs->tx[threadIdx.x]);
+        }
+      }
+    }
+
+    // maybe reuse same blocks for this task
+    if (block < grid1) {
+      copy_block_fuse<1>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
+    }
+  }
+  else 
+  {
+    // use other blocks to wait and unpack
+    block -= max_grid01;
+
+    if(block == 0)
+    {
+      assert(blockDim.x >= pdescs->n_wait);
+      if (threadIdx.x < pdescs->n_wait) {
+        mp::device::mlx5::wait(pdescs->wait[threadIdx.x]);
+        // write MP trk flag
+        // note: no mem barrier here!!!
+        mp::device::mlx5::signal(pdescs->wait[threadIdx.x]);
+      }
+      
+      __syncthreads();
+
+      if (0 == threadIdx.x) {
+        // signal other blocks
+        ACCESS_ONCE(sched.done[1]) = 1;   
+      }
+    }
+    else
+    {
+      block--;
+      if (0 <= block && block < grid2) {
+
+          if (0 == threadIdx.x)
+          {
+            while (ThreadLoad<LOAD_CG>(&sched.done[1]) < 1); // { __threadfence_block(); }
+          }
+
+          __syncthreads();
+          
+          // execute sub-task
+          copy_block_fuse<2>(level, id, exchange_ghosts, block, threadIdx.x, blockDim.x);
+        }
+    }
+    //if (0 == threadIdx.x) printf("[%d][%d] id=%d unpack\n", pid, block, sched_id); 
+  }
+}
+
+
 static int n_scheds = TOT_SCHEDS;
 
 extern "C"
