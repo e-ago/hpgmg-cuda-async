@@ -19,6 +19,7 @@ OMPI_params="$OMPI_params --mca btl openib,self"
 OMPI_params="$OMPI_params --mca btl_openib_want_cuda_gdr 1"
 OMPI_params="$OMPI_params --mca btl_openib_warn_default_gid_prefix 0"
 
+set -x
 $MPI_HOME/bin/mpirun -verbose  $OMPI_params   \
  -x GDS_CQ_MAP_SMART=0 -x GDS_ENABLE_DEBUG=0 -x MP_ENABLE_DEBUG=0 -x HPGMG_ENABLE_DEBUG=0 -x MP_EVENT_ASYNC=0 -x MP_ENABLE_WARN \
  -x LD_LIBRARY_PATH -x PATH \
@@ -32,7 +33,7 @@ $MPI_HOME/bin/mpirun -verbose  $OMPI_params   \
  -x MP_DBREC_ON_GPU=0 -x MP_RX_CQ_ON_GPU=0 -x MP_TX_CQ_ON_GPU=0 \
  -x USE_MPI=1 \
  -x CUDA_PASCAL_FORCE_40_BIT=1 \
- --map-by node  -np $NP -hostfile hostfile ./wrapper.sh ./build/bin/hpgmg-fv $5 $6
+ --map-by node -np $NP -hostfile hostfile ./wrapper.sh ./build/bin/hpgmg-fv $5 $6
 
 echo "COMM_USE_COMM=$2"
 echo "COMM_USE_ASYNC=$3"

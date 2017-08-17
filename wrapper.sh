@@ -29,6 +29,8 @@ case ${HOSTNAME} in
     *ivy3*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *hsw0*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *hsw1*)                         USE_GPU=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0; 
+    #Wilkes
+    *gpu-e-*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; USE_GPU=0; MP_USE_IB_HCA=mlx5_0;;
     ;;
 esac
 
