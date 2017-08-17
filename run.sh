@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-if [ "$#" -ne 6 ]; then
+if [[ $# -ne 6 ]]; then
     echo "Illegal parameters number: hpgmg-fv <MPI proc num> <use comm> <use async> <use gpu> <log box size> <num boxes>"
 	exit 1
 fi
 
 NP=$1
-if [ "$NP" < 2 ]; then
+if [[ $NP -lt 2 ]]; then
     echo "Illegal procs number: $NP"
 	exit 1
 fi
