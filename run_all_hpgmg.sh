@@ -49,8 +49,10 @@ do
                                         printf "\n\n===========================================================================\n\n" &>> $file_out
                                         ./run.sh $var_proc $var_comm $var_async $var_gpu $var_size 8 &>> $file_out
                 		fi
-                                egrep "use cuda" $file_out
-                		egrep "Total by level" $file_out
+                                if [[ $num_iter -eq 5 ]]; then
+                                        egrep "use cuda" $file_out
+                                        egrep "Total by level" $file_out
+                                fi
                 	done
                 done
         done
