@@ -313,7 +313,7 @@ static __device__ ns_t getTimerNs()
   #define TIME_RECV 4
 #endif
 
-/*
+#if 0
 __device__ int clockrate; // 875500
 
 struct grids {
@@ -504,7 +504,8 @@ __global__ void fused_copy_block_kernel_old(level_type level, int id, communicat
     }
   }
 }
-*/
+#endif
+
 __global__ void fused_copy_block_kernel(level_type level, int id, communicator_type exchange_ghosts, int grid0, int grid1, int grid2, int max_grid01, int sched_id, struct comm_dev_descs *pdescs)
 {
   assert(sched_id >= 0 && sched_id < max_scheds);
@@ -835,8 +836,3 @@ void cuda_fused_copy_block(level_type level, int id, communicator_type exchange_
     cudaFreeHost(times_global);
   #endif
 }
-
-/*
-/peersync/include/mp_device.cuh:102: void mp::device::release(S &) [with S = mp::isem32]: block: [11,0,0], thread: [0,0,0] Assertion `0 != sem.access_once()` failed.
-./wrapper.sh: line 47: 22951 Segmentation fault      (core dumped) $exe $params
-*/
