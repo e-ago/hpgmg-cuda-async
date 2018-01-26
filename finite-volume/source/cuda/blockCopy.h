@@ -217,6 +217,7 @@ __device__ void copy_block_fuse(level_type level, int id, communicator_type exch
 //--------------------------
 
 #include "cub/thread/thread_load.cuh"
+#include "cub/thread/thread_store.cuh"
 #include "../comm.h"
 #include <mp/device.cuh>
 using namespace cub;
@@ -549,6 +550,7 @@ __global__ void fused_copy_block_kernel(level_type level, int id, communicator_t
     #endif
 
     if (0 == threadIdx.x) {
+      //ThreadStore<STORE_CG>((int*)(&sched.done[1]), 1);
       // signal other blocks
       ACCESS_ONCE(sched.done[1]) = 1;   
     }
@@ -647,11 +649,11 @@ __global__ void fused_copy_block_kernel(level_type level, int id, communicator_t
       // use other blocks to wait and unpack
       block -= max_grid01;
       //if (0 == threadIdx.x) printf("[%d][%d] id=%d unpack\n", pid, block, sched_id);
-      if (0 <= block && block < grid2) {
-
+      if (0 <= block && block < grid2)
+      {
         if (0 == threadIdx.x)
         {
-          while (ThreadLoad<LOAD_CG>(&sched.done[1]) < 1); // { __threadfence_block(); }
+          while (ThreadLoad<LOAD_CG>(&sched.done[1]) < 1) { __threadfence_block(); }
         }
 
         __syncthreads();
@@ -752,7 +754,7 @@ __global__ void fused_copy_block_kernel_inverted(level_type level, int id, commu
 
           if (0 == threadIdx.x)
           {
-            while (ThreadLoad<LOAD_CG>(&sched.done[1]) < 1); // { __threadfence_block(); }
+            while (ThreadLoad<LOAD_CG>(&sched.done[1]) < 1) { __threadfence_block(); }
           }
 
           __syncthreads();
@@ -775,7 +777,6 @@ void cuda_fused_copy_block(level_type level, int id, communicator_type exchange_
   int max_grid01 = std::max(exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1]);
   int min_grids = std::min(std::min(exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1]), exchange_ghosts.num_blocks[2]);
   int fused_grid = max_grid01 + exchange_ghosts.num_blocks[2];
-  DBG("id=%d blocks=%d grids={%d,%d,%d} fused_grid:%d descs: n_ready=%d n_tx=%d n_wait=%d\n", id, n_blocks, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2], fused_grid, descs->n_ready, descs->n_tx, descs->n_wait);
   assert(min_grids > 0);
 
 #ifndef USE_MPI_BARRIER
@@ -786,6 +787,9 @@ void cuda_fused_copy_block(level_type level, int id, communicator_type exchange_
     scheds_init<<<1, max_scheds, 0, stream>>>();
     n_scheds = 0;
   }
+  DBG("id=%d blocks=%d grids={%d,%d,%d} fused_grid:%d n_scheds: %d, descs: n_ready=%d n_tx=%d n_wait=%d\n", 
+    id, n_blocks, exchange_ghosts.num_blocks[0], exchange_ghosts.num_blocks[1], exchange_ghosts.num_blocks[2], fused_grid, 
+    n_scheds, descs->n_ready, descs->n_tx, descs->n_wait);
 
   #ifdef TIMINGS_YES
     double * times, * times_d;
