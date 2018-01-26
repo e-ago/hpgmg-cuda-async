@@ -7,9 +7,10 @@ CXX=`which mpic++`
 NVCC=`which nvcc`
 
 # set gpu architectures to compile for
-#CUDA_ARCH="-gencode code=sm_35,arch=compute_35 "
-#CUDA_ARCH="-gencode code=sm_50,arch=compute_50 "
-CUDA_ARCH="-gencode code=sm_60,arch=compute_60 "
+CUDA_ARCH="-gencode code=sm_35,arch=compute_35 "
+CUDA_ARCH="$CUDA_ARCH -gencode code=sm_50,arch=compute_50 "
+CUDA_ARCH="$CUDA_ARCH -gencode code=sm_60,arch=compute_60 "
+CUDA_ARCH="$CUDA_ARCH -gencode code=sm_70,arch=compute_70 "
 
 # main tile size
 OPTS="-DBLOCKCOPY_TILE_I=32 "

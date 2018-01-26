@@ -33,6 +33,7 @@ $MPI_HOME/bin/mpirun -verbose  $OMPI_params   \
  -x MP_DBREC_ON_GPU=0 -x MP_RX_CQ_ON_GPU=0 -x MP_TX_CQ_ON_GPU=0 \
  -x USE_MPI=1 \
  -x CUDA_PASCAL_FORCE_40_BIT=1 \
+ -x GDS_FLUSHER_SERVICE=0 -x GDS_GPU_HAS_FLUSHER=0 \
  --map-by node -np $NP -hostfile hostfile ./wrapper.sh ./build/bin/hpgmg-fv $5 $6
 
 echo "COMM_USE_COMM=$2"
