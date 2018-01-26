@@ -27,6 +27,8 @@ case ${HOSTNAME} in
     *ivy1*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *ivy2*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *ivy3*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
+    *brdw0*) CUDA_VISIBLE_DEVICES=3; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
+    *brdw1*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *hsw0*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *hsw1*)                         USE_GPU=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     #Wilkes
@@ -49,7 +51,8 @@ export \
     COMM_USE_COMM COMM_USE_ASYNC COMM_USE_GPU_COMM OMP_NUM_THREADS \
     OMPI_MCA_btl_openib_if_include \
     GDS_ENABLE_DUMP_MEMOPS \
-    USE_MPI 
+    USE_MPI \
+    GDS_FLUSHER_SERVICE GDS_GPU_HAS_FLUSHER
 
     
 #set -x
