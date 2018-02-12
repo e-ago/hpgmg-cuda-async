@@ -86,13 +86,12 @@ static int n_reqs = 0;
 #define PAGE_OFF  (PAGE_SIZE-1)
 #define PAGE_MASK (~(PAGE_OFF))
 
+#if defined(__x86_64__) || defined (__i386__)
+
 #define mb()    __asm__ volatile("mfence":::"memory")
 #define rmb()   __asm__ volatile("lfence":::"memory")
 #define wmb()   __asm__ volatile("sfence" ::: "memory")
 #define iomb() mb()
-
-#define ACCESS_ONCE(V)                          \
-    (*(volatile __typeof__ (V) *)&(V))
 
 static inline void arch_pause(void)
 {
@@ -109,6 +108,40 @@ static inline void arch_cpu_relax(void)
         //BUG: poll_lat hangs after a few iterations
         //arch_wait();
 }
+
+
+#elif defined(__powerpc__)
+
+static void mb(void) __attribute__((unused)) ;
+static void mb(void)
+{
+    asm volatile("sync") ;
+}
+
+static void wmb(void) __attribute__((unused)) ;
+static void wmb(void)
+{
+    asm volatile("sync") ;
+}
+static void rmb(void) __attribute__((unused)) ;
+static void rmb(void)
+{
+    asm volatile("sync") ;
+}
+
+#define iomb() mb()
+
+static void arch_cpu_relax(void) __attribute__((unused)) ;
+static void arch_cpu_relax(void)
+{
+}
+
+#else
+#error "platform not supported"
+#endif
+#define ACCESS_ONCE(V)                          \
+    (*(volatile __typeof__ (V) *)&(V))
+
 
 int comm_use_comm()
 {
@@ -781,7 +814,7 @@ int comm_prepare_isend(void *send_buf, size_t size, MPI_Datatype type, comm_reg_
         goto unreg;
     }
 
-    printf("prepares send=%p (%d), rank: %d, %d\n", &dreqs()->tx[(dreqs()->n_tx-1)], dreqs()->n_tx, peer, dest_rank);
+    DBG("prepares send=%p (%d), rank: %d, %d\n", &dreqs()->tx[(dreqs()->n_tx-1)], dreqs()->n_tx, peer, dest_rank);
 
     comm_track_request(req);
 
