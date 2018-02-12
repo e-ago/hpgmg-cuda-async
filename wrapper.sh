@@ -8,7 +8,7 @@ extra_params=
 lrank=$OMPI_COMM_WORLD_LOCAL_RANK
 
 case ${HOSTNAME} in
-    *sdgx*)
+    *dgx*)
     # let's pick:
     # GPU #0,2,4,6
     # HCA #0,1,2,3
@@ -52,8 +52,7 @@ export \
     OMPI_MCA_btl_openib_if_include \
     GDS_ENABLE_DUMP_MEMOPS \
     USE_MPI \
-    GDS_FLUSHER_SERVICE GDS_GPU_HAS_FLUSHER
-
+    GDS_FLUSHER_TYPE
     
 #set -x
 
