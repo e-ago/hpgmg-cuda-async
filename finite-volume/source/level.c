@@ -1346,38 +1346,40 @@ void create_level(level_type *level, int boxes_in_i, int box_dim, int box_ghosts
       HOST_LEVEL_SIZE_THRESHOLD = atoi(value);
   }
 */
-  // determine if this level is big enough so that it makes sense to run on GPU
-  level->use_cuda = (level->box_dim * level->box_dim * level->box_dim * level->num_my_boxes > HOST_LEVEL_SIZE_THRESHOLD);
-   //async change
-  level->stream = NULL;
-  level->stream_rec = NULL; 
+	// determine if this level is big enough so that it makes sense to run on GPU
+	level->use_cuda = (level->box_dim * level->box_dim * level->box_dim * level->num_my_boxes > HOST_LEVEL_SIZE_THRESHOLD);
+	//async change
+	level->stream = NULL;
+	level->stream_rec = NULL; 
 
+	if(comm_use_async() && level->use_cuda)
+	{
+		int ASYNC_2_STREAMS=0; //default value
+		const char *value2 = getenv("ASYNC_2_STREAMS");
+		if (value2 != NULL) {
+			ASYNC_2_STREAMS = atoi(value2);
+		}
 
-  if(comm_use_async() && level->use_cuda)
-  {
-    int ASYNC_2_STREAMS=0; //default value
-    const char *value2 = getenv("ASYNC_2_STREAMS");
-    if (value2 != NULL) {
-        ASYNC_2_STREAMS = atoi(value2);
-    }
+		if(ASYNC_2_STREAMS == 1)
+		{
+			cudaError_t ret;
+			//Must sync with default for previous CUDA kernel calls
+			ret = cudaStreamCreateWithFlags(&(level->stream), 0);
+			if (ret != cudaSuccess) {
+				fprintf(stderr,"[%d] cannot allocate stream %d(%s)\n", my_rank, ret, cudaGetErrorString(ret));
+				exit(0);
+			}
+			ret = cudaStreamCreateWithFlags(&(level->stream_rec), 0);
+			if (ret != cudaSuccess) {
+				fprintf(stderr,"[%d] cannot allocate stream %d(%s)\n", my_rank, ret, cudaGetErrorString(ret));
+				exit(0);
+			}
+		}
+	}
 
-    if(ASYNC_2_STREAMS == 1)
-    {
-      static cudaStream_t cuda_stream = NULL;
-      if (!cuda_stream) {
-          cudaError_t ret = cudaStreamCreateWithFlags(&cuda_stream, cudaStreamNonBlocking);
-          if (ret != cudaSuccess) {
-              fprintf(stderr,"[%d] cannot allocate stream %d(%s)\n", my_rank, ret, cudaGetErrorString(ret));exit(0);
-          }
-      }
-      level->stream_rec = cuda_stream;
-
-    }
-  }
-
-   // this is the local problem size
-  if( (parent_level != NULL) && (parent_level->use_cuda==0) ){level->use_cuda=0;} // once we switch to using the CPU, all coarser grids are on the CPU // FIX !!!
-  if(my_rank==0){if(level->use_cuda)fprintf(stdout,"  This level will be run on the GPU\n");else fprintf(stdout,"  This level will be run on the host\n");fflush(stdout);}
+	// this is the local problem size
+	if( (parent_level != NULL) && (parent_level->use_cuda==0) ){level->use_cuda=0;} // once we switch to using the CPU, all coarser grids are on the CPU // FIX !!!
+	if(my_rank==0){if(level->use_cuda)fprintf(stdout,"  This level will be run on the GPU\n");else fprintf(stdout,"  This level will be run on the host\n");fflush(stdout);}
 
 #ifdef CUDA_UM_ALLOC
   // determine CPU/GPU access policy for this level
