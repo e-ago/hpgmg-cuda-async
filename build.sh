@@ -88,8 +88,8 @@ OPTS=" $OPTS -DPROFILE_NVTX_RANGES "
 #PEERSYNC REQUIRED
 [ -z "$PREFIX" ] && { PREFIX="$HOME/peersync"; }
 
-MPI_INCLUDE=" -I$MPI_HOME/../include "
-MPI_LIB=" -L/lib64 -L/lib "
+MPI_INCLUDE=" -I$MPI_HOME/include "
+MPI_LIB=" -L$MPI_HOME/lib -L/lib64 -L/lib "
 
 CUDA_LIB=" -L$CUDA_HOME/lib64 -lcudart "
 CUDA_INCLUDE=" -I$CUDA_HOME/include "
