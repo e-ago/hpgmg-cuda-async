@@ -1130,100 +1130,47 @@ void richardson_error(mg_type *all_grids, int levelh, int u_id){
 }
 
 
-//#define TIME_STAT 1
-
 //------------------------------------------------------------------------------------------------------------------------------
 void MGVCycle(mg_type *all_grids, int e_id, int R_id, double a, double b, int level){
-  if(!all_grids->levels[level]->active)return;
-  double _LevelStart;
+	if(!all_grids->levels[level]->active)return;
+	double _LevelStart;
 
-  double LevelTmp = getTime();
+	double LevelTmp = getTime();
 
-  // bottom solve...
-  if(level==all_grids->num_levels-1){
-    double _timeBottomStart = getTime();
-    IterativeSolver(all_grids->levels[level],e_id,R_id,a,b,MG_DEFAULT_BOTTOM_NORM);
+	// bottom solve...
+	if(level==all_grids->num_levels-1){
+		double _timeBottomStart = getTime();
+		IterativeSolver(all_grids->levels[level],e_id,R_id,a,b,MG_DEFAULT_BOTTOM_NORM);
 
-/*
-#ifdef TIME_STAT
+		all_grids->levels[level]->timers.Total += (double)(getTime()-_timeBottomStart);
+		return;
+	}
 
-    if(all_grids->levels[level]->my_rank == 0)
-      fprintf(stdout, "** Level: %d, Iterative Solver: %f\n", level, getTime()-LevelTmp);
-    LevelTmp = getTime();
-#endif
-*/
-    all_grids->levels[level]->timers.Total += (double)(getTime()-_timeBottomStart);
-    return;
-  }
+	// down...
+	_LevelStart = getTime();
 
-  // down...
-  _LevelStart = getTime();
+	smooth(all_grids->levels[level  ],e_id,R_id,a,b);
+	residual(all_grids->levels[level  ],VECTOR_TEMP,e_id,R_id,a,b);
+	restriction(all_grids->levels[level+1],R_id,all_grids->levels[level],VECTOR_TEMP,RESTRICT_CELL);
+	zero_vector(all_grids->levels[level+1],e_id);
 
-       smooth(all_grids->levels[level  ],e_id,R_id,a,b);
-/*
-#ifdef TIME_STAT
+	double _tmpStart = getTime();
+	all_grids->levels[level]->timers.AsyncTimer += (double)(getTime()-_tmpStart);
+	all_grids->levels[level]->timers.Total += (double)(getTime()-_LevelStart);
+	// recursion...
+	MGVCycle(all_grids,e_id,R_id,a,b,level+1);
 
-    if(all_grids->levels[level]->my_rank == 0)
-      fprintf(stdout, "** Level: %d, Down Step - smooth: %f\n", level, getTime()-LevelTmp);
-    LevelTmp = getTime();
-#endif
-*/
-     residual(all_grids->levels[level  ],VECTOR_TEMP,e_id,R_id,a,b);
-
-
-#ifdef TIME_STAT
-    if(all_grids->levels[level]->my_rank == 0)
-      fprintf(stdout, "** Level: %d, Down Step - residual: %f\n", level, getTime()-LevelTmp);
-    LevelTmp = getTime();
-#endif
-
-    restriction(all_grids->levels[level+1],R_id,all_grids->levels[level],VECTOR_TEMP,RESTRICT_CELL);
-
-#ifdef TIME_STAT
-    if(all_grids->levels[level]->my_rank == 0)
-      fprintf(stdout, "** Level: %d, Down Step - restriction: %f\n", level, getTime()-LevelTmp);
-
-    LevelTmp = getTime();
-#endif
-
-    zero_vector(all_grids->levels[level+1],e_id);
-
-#ifdef TIME_STAT
-    if(all_grids->levels[level]->my_rank == 0)
-      fprintf(stdout, "** Level: %d, Down Step - zero_vector: %f\n", level, getTime()-LevelTmp);
-    LevelTmp = getTime();
-#endif
-
- 
-  double _tmpStart = getTime();
- // cudaDeviceSynchronize();
-  all_grids->levels[level]->timers.AsyncTimer += (double)(getTime()-_tmpStart);
-
-  all_grids->levels[level]->timers.Total += (double)(getTime()-_LevelStart);
+	// up...
+	_LevelStart = getTime();
+	interpolation_vcycle(all_grids->levels[level  ],e_id,1.0,all_grids->levels[level+1],e_id);
+	        smooth(all_grids->levels[level  ],e_id,R_id,a,b);
+	//async change
+	_tmpStart = getTime();
+	//cudaDeviceSynchronize();
+	all_grids->levels[level]->timers.AsyncTimer += (double)(getTime()-_tmpStart);
 
 
-  // recursion...
-  MGVCycle(all_grids,e_id,R_id,a,b,level+1);
-
-  // up...
-  _LevelStart = getTime();
-  interpolation_vcycle(all_grids->levels[level  ],e_id,1.0,all_grids->levels[level+1],e_id);
-                smooth(all_grids->levels[level  ],e_id,R_id,a,b);
-/*
-#ifdef TIME_STAT
-
-    if(all_grids->levels[level]->my_rank == 0)
-      fprintf(stdout, "** Level: %d, interpolation + smooth: %f\n", level, getTime()-LevelTmp);
-    LevelTmp = getTime();
-#endif
-*/
-    //async change
-  _tmpStart = getTime();
-  //cudaDeviceSynchronize();
-  all_grids->levels[level]->timers.AsyncTimer += (double)(getTime()-_tmpStart);
-
-
-  all_grids->levels[level]->timers.Total += (double)(getTime()-_LevelStart);
+	all_grids->levels[level]->timers.Total += (double)(getTime()-_LevelStart);
 }
 
 

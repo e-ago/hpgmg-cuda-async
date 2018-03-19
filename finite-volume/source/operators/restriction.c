@@ -280,7 +280,8 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
     _timeStart = getTime();
     if(level_f->use_cuda) {
       cuda_restriction(*level_c,id_c,*level_f,id_f,level_f->restriction[restrictionType],restrictionType,0);
-      cudaDeviceSynchronize();  // switchover point: must synchronize GPU
+      if (!use_async && level_c->interpolation.num_sends > 0)
+      	cudaDeviceSynchronize();  // switchover point: must synchronize GPU
     }
     else {
       PRAGMA_THREAD_ACROSS_BLOCKS(level_f,buffer,level_f->restriction[restrictionType].num_blocks[0])
