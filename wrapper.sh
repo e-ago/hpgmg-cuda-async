@@ -7,6 +7,9 @@ params=$*
 extra_params=
 lrank=$OMPI_COMM_WORLD_LOCAL_RANK
 
+USE_GPU=0;
+USE_CPU=0;
+MP_USE_IB_HCA=mlx5_0;
 case ${HOSTNAME} in
     *dgx*)
     # let's pick:
@@ -29,8 +32,8 @@ case ${HOSTNAME} in
     *ivy3*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *brdw0*) CUDA_VISIBLE_DEVICES=3; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     *brdw1*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
-    *hsw0*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
-    *hsw1*)                         USE_GPU=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
+    *hsw*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
+    #*hsw1*)                         USE_GPU=0; USE_CPU=0; MP_USE_IB_HCA=mlx5_0;;
     #Wilkes
     *gpu-e-*) CUDA_VISIBLE_DEVICES=0; USE_CPU=0; USE_GPU=0; MP_USE_IB_HCA=mlx5_0;
     ;;
@@ -52,7 +55,7 @@ export \
     OMPI_MCA_btl_openib_if_include \
     GDS_ENABLE_DUMP_MEMOPS \
     USE_MPI \
-    GDS_FLUSHER_TYPE
+    LD_LIBRARY_PATH PATH GDS_FLUSHER_TYPE
     
 #set -x
 
