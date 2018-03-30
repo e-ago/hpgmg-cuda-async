@@ -1,0 +1,1471 @@
+./run.sh 2 1 0 0 4 8
+[drossetti-ivy2.nvidia.com:14679] Warning: could not find environment variable "MP_ENABLE_WARN"
+# drossetti-ivy2.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+
+
+# drossetti-ivy3.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+[drossetti-ivy3.nvidia.com:18777] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[drossetti-ivy2.nvidia.com:14683] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+rank 0:  Number of visible GPUs:  1
+rank 0:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+rank 1:  Number of visible GPUs:  1
+rank 1:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+[18777] [1] MP INFO mp_init() using IB device: mlx5_0 
+[18777] [1] MP INFO mp_init() HCA dev: mlx5_0
+[18777] GDS WARN  gds_create_qp() using peer res_domain 0x7f70fe497b60 for QP
+[18777] GDS WARN  gds_create_qp() using peer res_domain 0x7f70fe497b60 for QP
+[14683] [0] MP INFO mp_init() using IB device: mlx5_0 
+[14683] [0] MP INFO mp_init() HCA dev: mlx5_0
+[14683] GDS WARN  gds_create_qp() using peer res_domain 0x7fe494dc31d0 for QP
+[14683] GDS WARN  gds_create_qp() using peer res_domain 0x7fe494dc31d0 for QP
+
+
+********************************************************************************
+***                            HPGMG-FV Benchmark                            ***
+********************************************************************************
+Requested MPI_THREAD_FUNNELED, got MPI_THREAD_FUNNELED
+2 MPI Tasks of 1 threads
+
+
+===== Benchmark setup ==========================================================
+
+attempting to create a 32^3 level from 8 x 16^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+WARNING: disabling GPUDirect Async for communications
+  This level will be run on the GPU
+  Allocating vectors... WARNING: disabling GPUDirect Async for communications
+done
+  Duplicating MPI_COMM_WORLD... done (0.000098 seconds)
+  Calculating boxes per process... target=4.000, max=4
+  Creating Poisson (a=0.000000, b=1.000000) test problem
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+  calculating D^{-1} exactly for level h=3.125000e-02 using 64 colors...  done (0.014038 seconds)
+  estimating  lambda_max... <2.223793917728256e+00
+
+attempting to create a 16^3 level from 8 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000060 seconds)
+  Calculating boxes per process... target=4.000, max=4
+
+attempting to create a 8^3 level from 1 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000311 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 4^3 level from 1 x 4^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000191 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 2^3 level from 1 x 2^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000143 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+  Building restriction and interpolation lists... done
+
+  Building MPI subcommunicator for level 1... done (0.000463 seconds)
+  Building MPI subcommunicator for level 2... done (0.000030 seconds)
+  Building MPI subcommunicator for level 3... done (0.000027 seconds)
+  Building MPI subcommunicator for level 4... done (0.000024 seconds)
+
+  calculating D^{-1} exactly for level h=6.250000e-02 using 64 colors...  done (0.007508 seconds)
+  estimating  lambda_max... <2.226274197285770e+00
+  calculating D^{-1} exactly for level h=1.250000e-01 using 64 colors...  done (0.001612 seconds)
+  estimating  lambda_max... <2.230456209215220e+00
+  calculating D^{-1} exactly for level h=2.500000e-01 using 64 colors...  done (0.000392 seconds)
+  estimating  lambda_max... <2.232895071943511e+00
+  calculating D^{-1} exactly for level h=5.000000e-01 using 8 colors...  done (0.000031 seconds)
+  estimating  lambda_max... <1.375886524822695e+00
+
+
+
+===== Warming up by running 10 solves ==========================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006570 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006429 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006401 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006429 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006428 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006420 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006417 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006399 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.008027 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+
+WARMUP TIME: 0.066439
+
+
+===== Running 100 solves ========================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006427 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006412 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006428 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007958 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006399 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006372 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006409 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006409 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006412 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006364 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007930 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006392 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006366 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006425 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006420 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007973 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006415 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006436 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006417 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006419 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006433 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006389 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007942 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006371 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006386 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006384 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006397 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006374 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006373 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006363 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006383 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006343 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007907 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006362 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006372 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006384 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006344 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006385 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006364 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006375 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007938 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006373 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006401 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006352 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006389 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007913 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006404 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006370 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006332 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006373 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006355 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006370 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006365 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006378 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006355 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007976 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006345 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006372 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006357 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006368 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006363 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006375 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006385 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006359 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006385 seconds)
+
+EXEC_TIME TIME: 0.656021
+
+
+===== Timing Breakdown =========================================================
+
+
+level                                0              1              2              3              4   
+level dimension                   32^3         16^3          8^3          4^3          2^3 
+use cuda                           1            0            0            0            0   
+box dimension                     16^3          8^3          8^3          4^3          2^3        total
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+smooth                        0.000067     0.001111     0.000378     0.000084     0.000000     0.001641
+residual                      0.000011     0.000157     0.000051     0.000011     0.000004     0.000235
+applyOp                       0.000000     0.000000     0.000000     0.000000     0.000010     0.000010
+BLAS1                         0.000344     0.000007     0.000003     0.000002     0.000033     0.000389
+BLAS3                         0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+Boundary Conditions           0.000145     0.000240     0.000182     0.000132     0.000029     0.000728
+Restriction                   0.000171     0.000032     0.000004     0.000003     0.000000     0.000210
+  local restriction           0.000169     0.000010     0.000003     0.000002     0.000000     0.000184
+  pack MPI buffers            0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  unpack MPI buffers          0.000000     0.000003     0.000000     0.000000     0.000000     0.000003
+  MPI_Isend                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Irecv                   0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+  MPI_Waitall                 0.000000     0.000012     0.000000     0.000000     0.000000     0.000012
+Interpolation                 0.000122     0.000120     0.000028     0.000016     0.000000     0.000285
+  local interpolation         0.000075     0.000049     0.000015     0.000005     0.000000     0.000144
+  pack MPI buffers            0.000000     0.000047     0.000000     0.000000     0.000000     0.000047
+  unpack MPI buffers          0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Isend                   0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+  MPI_Irecv                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Waitall                 0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+Ghost Zone Exchange           0.002538     0.000450     0.000004     0.000004     0.000002     0.002999
+  local exchange              0.000339     0.000058     0.000000     0.000000     0.000000     0.000397
+  pack MPI buffers            0.000549     0.000050     0.000000     0.000000     0.000000     0.000599
+  unpack MPI buffers          0.000093     0.000046     0.000000     0.000000     0.000000     0.000140
+  MPI_Isend                   0.000036     0.000071     0.000000     0.000000     0.000000     0.000107
+  MPI_Irecv                   0.000026     0.000037     0.000000     0.000000     0.000000     0.000062
+  MPI_Waitall                 0.000047     0.000171     0.000000     0.000000     0.000000     0.000218
+MPI_collectives               0.000022     0.000000     0.000000     0.000000     0.000065     0.000087
+AsyncTimer                    0.000000     0.000000     0.000000     0.000000     0.000000     0.000001
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+Total by level                0.003386     0.002076     0.000644     0.000251     0.000143     0.006501
+
+   Total time in MGBuild      0.017134 seconds
+   Total time in MGSolve      0.006509 seconds
+      number of v-cycles             1
+Bottom solver iterations             8
+
+
+
+
+===== Performance Summary ======================================================
+  h=3.125000000000000e-02  DOF=3.276800000000000e+04  time=0.006509  DOF/s=5.034e+06  MPI=2  OMP=1  ACC=1
+
+
+===== Richardson error analysis ================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007913 seconds)
+  h=3.125000000000000e-02  ||error||=2.425638666068649e-03
+  order=-10.022
+
+
+===== Deallocating memory ======================================================
+attempting to free the restriction and interpolation lists... done
+attempting to free the     2^3 level... done
+attempting to free the     4^3 level... done
+attempting to free the     8^3 level... done
+attempting to free the    16^3 level... done
+attempting to free the    32^3 level... done
+
+
+===== Done =====================================================================
+Use LibMP=1
+Use GPUDirect Async, SA model=0
+Use GPUDirect Async, KI model=0
+
+
+===========================================================================
+
+./run.sh 2 1 0 0 4 8
+[drossetti-ivy2.nvidia.com:14690] Warning: could not find environment variable "MP_ENABLE_WARN"
+
+# drossetti-ivy3.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+
+# drossetti-ivy2.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+[drossetti-ivy3.nvidia.com:18809] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[drossetti-ivy2.nvidia.com:14694] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+rank 1:  Number of visible GPUs:  1
+rank 0:  Number of visible GPUs:  1
+rank 0:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+rank 1:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+[18809] [1] MP INFO mp_init() using IB device: mlx5_0 
+[18809] [1] MP INFO mp_init() HCA dev: mlx5_0
+[18809] GDS WARN  gds_create_qp() using peer res_domain 0x7f51fcc7f0f0 for QP
+[18809] GDS WARN  gds_create_qp() using peer res_domain 0x7f51fcc7f0f0 for QP
+[14694] [0] MP INFO mp_init() using IB device: mlx5_0 
+[14694] [0] MP INFO mp_init() HCA dev: mlx5_0
+[14694] GDS WARN  gds_create_qp() using peer res_domain 0x7f8a606bfca0 for QP
+[14694] GDS WARN  gds_create_qp() using peer res_domain 0x7f8a606bfca0 for QP
+
+
+********************************************************************************
+***                            HPGMG-FV Benchmark                            ***
+********************************************************************************
+Requested MPI_THREAD_FUNNELED, got MPI_THREAD_FUNNELED
+2 MPI Tasks of 1 threads
+
+
+===== Benchmark setup ==========================================================
+
+attempting to create a 32^3 level from 8 x 16^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+WARNING: disabling GPUDirect Async for communications
+  This level will be run on the GPU
+  Allocating vectors... WARNING: disabling GPUDirect Async for communications
+done
+  Duplicating MPI_COMM_WORLD... done (0.000124 seconds)
+  Calculating boxes per process... target=4.000, max=4
+  Creating Poisson (a=0.000000, b=1.000000) test problem
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+  calculating D^{-1} exactly for level h=3.125000e-02 using 64 colors...  done (0.014072 seconds)
+  estimating  lambda_max... <2.223793917728256e+00
+
+attempting to create a 16^3 level from 8 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000112 seconds)
+  Calculating boxes per process... target=4.000, max=4
+
+attempting to create a 8^3 level from 1 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000340 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 4^3 level from 1 x 4^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000173 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 2^3 level from 1 x 2^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000149 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+  Building restriction and interpolation lists... done
+
+  Building MPI subcommunicator for level 1... done (0.000429 seconds)
+  Building MPI subcommunicator for level 2... done (0.000037 seconds)
+  Building MPI subcommunicator for level 3... done (0.000044 seconds)
+  Building MPI subcommunicator for level 4... done (0.000036 seconds)
+
+  calculating D^{-1} exactly for level h=6.250000e-02 using 64 colors...  done (0.007556 seconds)
+  estimating  lambda_max... <2.226274197285770e+00
+  calculating D^{-1} exactly for level h=1.250000e-01 using 64 colors...  done (0.001647 seconds)
+  estimating  lambda_max... <2.230456209215220e+00
+  calculating D^{-1} exactly for level h=2.500000e-01 using 64 colors...  done (0.000381 seconds)
+  estimating  lambda_max... <2.232895071943511e+00
+  calculating D^{-1} exactly for level h=5.000000e-01 using 8 colors...  done (0.000032 seconds)
+  estimating  lambda_max... <1.375886524822695e+00
+
+
+
+===== Warming up by running 10 solves ==========================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006565 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006461 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006457 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006418 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006440 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.008001 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006377 seconds)
+
+WARMUP TIME: 0.066430
+
+
+===== Running 100 solves ========================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006386 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006422 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006368 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006429 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006372 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006383 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007979 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006367 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006394 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006413 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006348 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006377 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006420 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007987 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006352 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006412 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006386 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006419 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006431 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006355 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006401 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007928 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006426 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006375 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006412 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006433 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007994 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006369 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006416 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006355 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007979 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006430 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006365 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006415 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006417 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006363 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007974 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006375 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006415 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006367 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006361 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006433 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006369 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006392 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006426 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007935 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006417 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006374 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006427 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006385 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006347 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.008006 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006386 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006358 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006397 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006346 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006377 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006361 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006396 seconds)
+
+EXEC_TIME TIME: 0.657027
+
+
+===== Timing Breakdown =========================================================
+
+
+level                                0              1              2              3              4   
+level dimension                   32^3         16^3          8^3          4^3          2^3 
+use cuda                           1            0            0            0            0   
+box dimension                     16^3          8^3          8^3          4^3          2^3        total
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+smooth                        0.000067     0.001110     0.000377     0.000084     0.000000     0.001638
+residual                      0.000011     0.000158     0.000051     0.000011     0.000004     0.000235
+applyOp                       0.000000     0.000000     0.000000     0.000000     0.000010     0.000010
+BLAS1                         0.000346     0.000007     0.000003     0.000002     0.000032     0.000391
+BLAS3                         0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+Boundary Conditions           0.000145     0.000240     0.000182     0.000132     0.000029     0.000727
+Restriction                   0.000170     0.000030     0.000004     0.000003     0.000000     0.000208
+  local restriction           0.000169     0.000010     0.000003     0.000002     0.000000     0.000184
+  pack MPI buffers            0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  unpack MPI buffers          0.000000     0.000003     0.000000     0.000000     0.000000     0.000003
+  MPI_Isend                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Irecv                   0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+  MPI_Waitall                 0.000000     0.000011     0.000000     0.000000     0.000000     0.000011
+Interpolation                 0.000136     0.000120     0.000028     0.000016     0.000000     0.000299
+  local interpolation         0.000088     0.000049     0.000015     0.000005     0.000000     0.000157
+  pack MPI buffers            0.000000     0.000047     0.000000     0.000000     0.000000     0.000047
+  unpack MPI buffers          0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Isend                   0.000000     0.000004     0.000000     0.000000     0.000000     0.000004
+  MPI_Irecv                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Waitall                 0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+Ghost Zone Exchange           0.002541     0.000453     0.000004     0.000004     0.000002     0.003005
+  local exchange              0.000338     0.000057     0.000000     0.000000     0.000000     0.000396
+  pack MPI buffers            0.000550     0.000048     0.000000     0.000000     0.000000     0.000599
+  unpack MPI buffers          0.000097     0.000047     0.000000     0.000000     0.000000     0.000144
+  MPI_Isend                   0.000037     0.000072     0.000000     0.000000     0.000000     0.000109
+  MPI_Irecv                   0.000026     0.000036     0.000000     0.000000     0.000000     0.000062
+  MPI_Waitall                 0.000047     0.000174     0.000000     0.000000     0.000000     0.000221
+MPI_collectives               0.000019     0.000000     0.000000     0.000000     0.000064     0.000082
+AsyncTimer                    0.000000     0.000000     0.000000     0.000000     0.000000     0.000001
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+Total by level                0.003402     0.002074     0.000643     0.000252     0.000140     0.006510
+
+   Total time in MGBuild      0.017287 seconds
+   Total time in MGSolve      0.006519 seconds
+      number of v-cycles             1
+Bottom solver iterations             8
+
+
+
+
+===== Performance Summary ======================================================
+  h=3.125000000000000e-02  DOF=3.276800000000000e+04  time=0.006519  DOF/s=5.027e+06  MPI=2  OMP=1  ACC=1
+
+
+===== Richardson error analysis ================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007959 seconds)
+  h=3.125000000000000e-02  ||error||=2.425638666068649e-03
+  order=-10.022
+
+
+===== Deallocating memory ======================================================
+attempting to free the restriction and interpolation lists... done
+attempting to free the     2^3 level... done
+attempting to free the     4^3 level... done
+attempting to free the     8^3 level... done
+attempting to free the    16^3 level... done
+attempting to free the    32^3 level... done
+
+
+===== Done =====================================================================
+Use LibMP=1
+Use GPUDirect Async, SA model=0
+Use GPUDirect Async, KI model=0
+
+
+===========================================================================
+
+./run.sh 2 1 0 0 4 8
+[drossetti-ivy2.nvidia.com:14701] Warning: could not find environment variable "MP_ENABLE_WARN"
+
+# drossetti-ivy3.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+
+# drossetti-ivy2.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+[drossetti-ivy3.nvidia.com:18841] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[drossetti-ivy2.nvidia.com:14705] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+rank 0:  Number of visible GPUs:  1
+rank 0:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+rank 1:  Number of visible GPUs:  1
+rank 1:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+[18841] [1] MP INFO mp_init() using IB device: mlx5_0 
+[18841] [1] MP INFO mp_init() HCA dev: mlx5_0
+[18841] GDS WARN  gds_create_qp() using peer res_domain 0x7f3249b7e7b0 for QP
+[18841] GDS WARN  gds_create_qp() using peer res_domain 0x7f3249b7e7b0 for QP
+[14705] [0] MP INFO mp_init() using IB device: mlx5_0 
+[14705] [0] MP INFO mp_init() HCA dev: mlx5_0
+[14705] GDS WARN  gds_create_qp() using peer res_domain 0x7f3fbb78e0d0 for QP
+[14705] GDS WARN  gds_create_qp() using peer res_domain 0x7f3fbb78e0d0 for QP
+
+
+********************************************************************************
+***                            HPGMG-FV Benchmark                            ***
+********************************************************************************
+Requested MPI_THREAD_FUNNELED, got MPI_THREAD_FUNNELED
+2 MPI Tasks of 1 threads
+
+
+===== Benchmark setup ==========================================================
+
+attempting to create a 32^3 level from 8 x 16^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+WARNING: disabling GPUDirect Async for communications
+  This level will be run on the GPU
+  Allocating vectors... WARNING: disabling GPUDirect Async for communications
+done
+  Duplicating MPI_COMM_WORLD... done (0.000099 seconds)
+  Calculating boxes per process... target=4.000, max=4
+  Creating Poisson (a=0.000000, b=1.000000) test problem
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+  calculating D^{-1} exactly for level h=3.125000e-02 using 64 colors...  WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+done (0.014190 seconds)
+  estimating  lambda_max... <2.223793917728256e+00
+
+attempting to create a 16^3 level from 8 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000125 seconds)
+  Calculating boxes per process... target=4.000, max=4
+
+attempting to create a 8^3 level from 1 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000317 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 4^3 level from 1 x 4^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000187 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 2^3 level from 1 x 2^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000155 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+  Building restriction and interpolation lists... done
+
+  Building MPI subcommunicator for level 1... done (0.000446 seconds)
+  Building MPI subcommunicator for level 2... done (0.000033 seconds)
+  Building MPI subcommunicator for level 3... done (0.000026 seconds)
+  Building MPI subcommunicator for level 4... done (0.000026 seconds)
+
+  calculating D^{-1} exactly for level h=6.250000e-02 using 64 colors...  done (0.007551 seconds)
+  estimating  lambda_max... <2.226274197285770e+00
+  calculating D^{-1} exactly for level h=1.250000e-01 using 64 colors...  done (0.001623 seconds)
+  estimating  lambda_max... <2.230456209215220e+00
+  calculating D^{-1} exactly for level h=2.500000e-01 using 64 colors...  done (0.000382 seconds)
+  estimating  lambda_max... <2.232895071943511e+00
+  calculating D^{-1} exactly for level h=5.000000e-01 using 8 colors...  done (0.000031 seconds)
+  estimating  lambda_max... <1.375886524822695e+00
+
+
+
+===== Warming up by running 10 solves ==========================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006632 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006474 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006468 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006421 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006464 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006419 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006424 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006430 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.008033 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006434 seconds)
+
+WARMUP TIME: 0.066729
+
+
+===== Running 100 solves ========================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006419 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006430 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006397 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006423 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006396 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006415 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006432 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006416 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007953 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006439 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006419 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006429 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006446 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006370 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006433 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006399 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.008037 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006430 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006431 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006424 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006399 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006427 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006428 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006399 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006427 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006415 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007936 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006425 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006430 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006401 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006415 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006384 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006434 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006433 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006420 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007999 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006434 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006425 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006415 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006422 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007974 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006419 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006416 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006437 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006421 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006401 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006435 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006385 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007930 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006441 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006423 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006433 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006425 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006392 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006423 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007951 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006422 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006370 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006419 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006421 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006422 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006367 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007980 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006397 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006424 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006438 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006384 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006423 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006409 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006424 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006417 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006404 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006428 seconds)
+
+EXEC_TIME TIME: 0.658579
+
+
+===== Timing Breakdown =========================================================
+
+
+level                                0              1              2              3              4   
+level dimension                   32^3         16^3          8^3          4^3          2^3 
+use cuda                           1            0            0            0            0   
+box dimension                     16^3          8^3          8^3          4^3          2^3        total
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+smooth                        0.000067     0.001107     0.000379     0.000085     0.000000     0.001638
+residual                      0.000011     0.000157     0.000051     0.000011     0.000004     0.000235
+applyOp                       0.000000     0.000000     0.000000     0.000000     0.000010     0.000010
+BLAS1                         0.000344     0.000007     0.000004     0.000002     0.000032     0.000389
+BLAS3                         0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+Boundary Conditions           0.000144     0.000240     0.000183     0.000133     0.000029     0.000729
+Restriction                   0.000170     0.000032     0.000004     0.000003     0.000000     0.000209
+  local restriction           0.000169     0.000010     0.000003     0.000002     0.000000     0.000185
+  pack MPI buffers            0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  unpack MPI buffers          0.000000     0.000003     0.000000     0.000000     0.000000     0.000003
+  MPI_Isend                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Irecv                   0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+  MPI_Waitall                 0.000000     0.000012     0.000000     0.000000     0.000000     0.000012
+Interpolation                 0.000114     0.000119     0.000029     0.000016     0.000000     0.000278
+  local interpolation         0.000066     0.000048     0.000016     0.000005     0.000000     0.000136
+  pack MPI buffers            0.000000     0.000047     0.000000     0.000000     0.000000     0.000047
+  unpack MPI buffers          0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Isend                   0.000000     0.000004     0.000000     0.000000     0.000000     0.000004
+  MPI_Irecv                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Waitall                 0.000000     0.000004     0.000000     0.000000     0.000000     0.000004
+Ghost Zone Exchange           0.002572     0.000457     0.000004     0.000004     0.000002     0.003039
+  local exchange              0.000349     0.000057     0.000000     0.000000     0.000000     0.000405
+  pack MPI buffers            0.000563     0.000049     0.000000     0.000000     0.000000     0.000612
+  unpack MPI buffers          0.000096     0.000047     0.000000     0.000000     0.000000     0.000143
+  MPI_Isend                   0.000038     0.000071     0.000000     0.000000     0.000000     0.000108
+  MPI_Irecv                   0.000026     0.000036     0.000000     0.000000     0.000000     0.000062
+  MPI_Waitall                 0.000047     0.000180     0.000000     0.000000     0.000000     0.000227
+MPI_collectives               0.000019     0.000000     0.000000     0.000000     0.000065     0.000083
+AsyncTimer                    0.000000     0.000000     0.000000     0.000000     0.000000     0.000001
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+Total by level                0.003410     0.002076     0.000645     0.000253     0.000142     0.006526
+
+   Total time in MGBuild      0.017252 seconds
+   Total time in MGSolve      0.006535 seconds
+      number of v-cycles             1
+Bottom solver iterations             8
+
+
+
+
+===== Performance Summary ======================================================
+  h=3.125000000000000e-02  DOF=3.276800000000000e+04  time=0.006535  DOF/s=5.015e+06  MPI=2  OMP=1  ACC=1
+
+
+===== Richardson error analysis ================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007973 seconds)
+  h=3.125000000000000e-02  ||error||=2.425638666068649e-03
+  order=-10.022
+
+
+===== Deallocating memory ======================================================
+attempting to free the restriction and interpolation lists... done
+attempting to free the     2^3 level... done
+attempting to free the     4^3 level... done
+attempting to free the     8^3 level... done
+attempting to free the    16^3 level... done
+attempting to free the    32^3 level... done
+
+
+===== Done =====================================================================
+Use LibMP=1
+Use GPUDirect Async, SA model=0
+Use GPUDirect Async, KI model=0
+
+
+===========================================================================
+
+./run.sh 2 1 0 0 4 8
+[drossetti-ivy2.nvidia.com:14712] Warning: could not find environment variable "MP_ENABLE_WARN"
+
+# drossetti-ivy3.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+
+# drossetti-ivy2.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+[drossetti-ivy3.nvidia.com:18873] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[drossetti-ivy2.nvidia.com:14716] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+rank 0:  Number of visible GPUs:  1
+rank 0:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+rank 1:  Number of visible GPUs:  1
+rank 1:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+[18873] [1] MP INFO mp_init() using IB device: mlx5_0 
+[18873] [1] MP INFO mp_init() HCA dev: mlx5_0
+[18873] GDS WARN  gds_create_qp() using peer res_domain 0x7f8fb56bb400 for QP
+[18873] GDS WARN  gds_create_qp() using peer res_domain 0x7f8fb56bb400 for QP
+[14716] [0] MP INFO mp_init() using IB device: mlx5_0 
+[14716] [0] MP INFO mp_init() HCA dev: mlx5_0
+[14716] GDS WARN  gds_create_qp() using peer res_domain 0x7fc7f5581090 for QP
+[14716] GDS WARN  gds_create_qp() using peer res_domain 0x7fc7f5581090 for QP
+
+
+********************************************************************************
+***                            HPGMG-FV Benchmark                            ***
+********************************************************************************
+Requested MPI_THREAD_FUNNELED, got MPI_THREAD_FUNNELED
+2 MPI Tasks of 1 threads
+
+
+===== Benchmark setup ==========================================================
+
+attempting to create a 32^3 level from 8 x 16^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+WARNING: disabling GPUDirect Async for communications
+  This level will be run on the GPU
+  Allocating vectors... WARNING: disabling GPUDirect Async for communications
+done
+  Duplicating MPI_COMM_WORLD... done (0.000149 seconds)
+  Calculating boxes per process... target=4.000, max=4
+  Creating Poisson (a=0.000000, b=1.000000) test problem
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+  calculating D^{-1} exactly for level h=3.125000e-02 using 64 colors...  WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+done (0.014049 seconds)
+  estimating  lambda_max... <2.223793917728256e+00
+
+attempting to create a 16^3 level from 8 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000155 seconds)
+  Calculating boxes per process... target=4.000, max=4
+
+attempting to create a 8^3 level from 1 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000329 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 4^3 level from 1 x 4^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000194 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 2^3 level from 1 x 2^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000151 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+  Building restriction and interpolation lists... done
+
+  Building MPI subcommunicator for level 1... done (0.000436 seconds)
+  Building MPI subcommunicator for level 2... done (0.000032 seconds)
+  Building MPI subcommunicator for level 3... done (0.000033 seconds)
+  Building MPI subcommunicator for level 4... done (0.000033 seconds)
+
+  calculating D^{-1} exactly for level h=6.250000e-02 using 64 colors...  done (0.007531 seconds)
+  estimating  lambda_max... <2.226274197285770e+00
+  calculating D^{-1} exactly for level h=1.250000e-01 using 64 colors...  done (0.001629 seconds)
+  estimating  lambda_max... <2.230456209215220e+00
+  calculating D^{-1} exactly for level h=2.500000e-01 using 64 colors...  done (0.000384 seconds)
+  estimating  lambda_max... <2.232895071943511e+00
+  calculating D^{-1} exactly for level h=5.000000e-01 using 8 colors...  done (0.000030 seconds)
+  estimating  lambda_max... <1.375886524822695e+00
+
+
+
+===== Warming up by running 10 solves ==========================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006610 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006418 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006416 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006412 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007951 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006373 seconds)
+
+WARMUP TIME: 0.066272
+
+
+===== Running 100 solves ========================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006357 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006373 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006358 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006399 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006325 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007968 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006353 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006413 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006375 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006378 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006370 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007913 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006416 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006362 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006345 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006380 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006385 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006349 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006353 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007971 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006368 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006357 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006378 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006361 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006385 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006364 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006377 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007967 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006378 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006392 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006375 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006370 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006337 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006367 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006387 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006397 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007959 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006352 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006394 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006377 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006389 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006369 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006389 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006354 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006394 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007891 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006418 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006370 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006376 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006387 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006369 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006362 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006359 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007948 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006361 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006390 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006361 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006363 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006369 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006377 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006409 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006387 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006355 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007988 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006383 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006367 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006369 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006354 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006347 seconds)
+
+EXEC_TIME TIME: 0.655408
+
+
+===== Timing Breakdown =========================================================
+
+
+level                                0              1              2              3              4   
+level dimension                   32^3         16^3          8^3          4^3          2^3 
+use cuda                           1            0            0            0            0   
+box dimension                     16^3          8^3          8^3          4^3          2^3        total
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+smooth                        0.000067     0.001106     0.000378     0.000085     0.000000     0.001636
+residual                      0.000011     0.000158     0.000051     0.000011     0.000004     0.000236
+applyOp                       0.000000     0.000000     0.000000     0.000000     0.000010     0.000010
+BLAS1                         0.000344     0.000007     0.000004     0.000002     0.000032     0.000389
+BLAS3                         0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+Boundary Conditions           0.000143     0.000239     0.000182     0.000133     0.000028     0.000725
+Restriction                   0.000170     0.000031     0.000004     0.000003     0.000000     0.000209
+  local restriction           0.000169     0.000010     0.000003     0.000002     0.000000     0.000185
+  pack MPI buffers            0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  unpack MPI buffers          0.000000     0.000003     0.000000     0.000000     0.000000     0.000003
+  MPI_Isend                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Irecv                   0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+  MPI_Waitall                 0.000000     0.000012     0.000000     0.000000     0.000000     0.000012
+Interpolation                 0.000113     0.000120     0.000029     0.000015     0.000000     0.000276
+  local interpolation         0.000065     0.000049     0.000016     0.000005     0.000000     0.000134
+  pack MPI buffers            0.000000     0.000047     0.000000     0.000000     0.000000     0.000047
+  unpack MPI buffers          0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Isend                   0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+  MPI_Irecv                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Waitall                 0.000000     0.000004     0.000000     0.000000     0.000000     0.000004
+Ghost Zone Exchange           0.002542     0.000460     0.000004     0.000005     0.000003     0.003013
+  local exchange              0.000339     0.000058     0.000000     0.000000     0.000000     0.000397
+  pack MPI buffers            0.000548     0.000051     0.000000     0.000000     0.000000     0.000599
+  unpack MPI buffers          0.000095     0.000048     0.000000     0.000000     0.000000     0.000143
+  MPI_Isend                   0.000037     0.000073     0.000000     0.000000     0.000000     0.000110
+  MPI_Irecv                   0.000025     0.000039     0.000000     0.000000     0.000000     0.000064
+  MPI_Waitall                 0.000047     0.000174     0.000000     0.000000     0.000000     0.000221
+MPI_collectives               0.000019     0.000000     0.000000     0.000000     0.000065     0.000083
+AsyncTimer                    0.000000     0.000000     0.000000     0.000000     0.000000     0.000001
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+Total by level                0.003375     0.002080     0.000644     0.000252     0.000143     0.006495
+
+   Total time in MGBuild      0.017247 seconds
+   Total time in MGSolve      0.006503 seconds
+      number of v-cycles             1
+Bottom solver iterations             8
+
+
+
+
+===== Performance Summary ======================================================
+  h=3.125000000000000e-02  DOF=3.276800000000000e+04  time=0.006503  DOF/s=5.039e+06  MPI=2  OMP=1  ACC=1
+
+
+===== Richardson error analysis ================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007958 seconds)
+  h=3.125000000000000e-02  ||error||=2.425638666068649e-03
+  order=-10.022
+
+
+===== Deallocating memory ======================================================
+attempting to free the restriction and interpolation lists... done
+attempting to free the     2^3 level... done
+attempting to free the     4^3 level... done
+attempting to free the     8^3 level... done
+attempting to free the    16^3 level... done
+attempting to free the    32^3 level... done
+
+
+===== Done =====================================================================
+Use LibMP=1
+Use GPUDirect Async, SA model=0
+Use GPUDirect Async, KI model=0
+
+
+===========================================================================
+
+./run.sh 2 1 0 0 4 8
+[drossetti-ivy2.nvidia.com:14723] Warning: could not find environment variable "MP_ENABLE_WARN"
+
+# drossetti-ivy3.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+
+# drossetti-ivy2.nvidia.com, Local Rank 0, GPU:0/0 CPU:0 HCA:mlx5_0
+[drossetti-ivy3.nvidia.com:18905] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[drossetti-ivy2.nvidia.com:14727] mca: base: component_find: unable to open /opt/openmpi/v1.10.2/cuda7.5/lib/openmpi/mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+rank 0:  Number of visible GPUs:  1
+rank 0:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+rank 1:  Number of visible GPUs:  1
+rank 1:  Selecting device 0 (Tesla K40m)
+WARNING: enabling Comm-based communications
+[18905] [1] MP INFO mp_init() using IB device: mlx5_0 
+[18905] [1] MP INFO mp_init() HCA dev: mlx5_0
+[18905] GDS WARN  gds_create_qp() using peer res_domain 0x7efe9acbb9e0 for QP
+[18905] GDS WARN  gds_create_qp() using peer res_domain 0x7efe9acbb9e0 for QP
+[14727] [0] MP INFO mp_init() using IB device: mlx5_0 
+[14727] [0] MP INFO mp_init() HCA dev: mlx5_0
+[14727] GDS WARN  gds_create_qp() using peer res_domain 0x7fafc8dc0fc0 for QP
+[14727] GDS WARN  gds_create_qp() using peer res_domain 0x7fafc8dc0fc0 for QP
+
+
+********************************************************************************
+***                            HPGMG-FV Benchmark                            ***
+********************************************************************************
+Requested MPI_THREAD_FUNNELED, got MPI_THREAD_FUNNELED
+2 MPI Tasks of 1 threads
+
+
+===== Benchmark setup ==========================================================
+
+attempting to create a 32^3 level from 8 x 16^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+WARNING: disabling GPUDirect Async for communications
+  This level will be run on the GPU
+  Allocating vectors... WARNING: disabling GPUDirect Async for communications
+done
+  Duplicating MPI_COMM_WORLD... done (0.000120 seconds)
+  Calculating boxes per process... target=4.000, max=4
+  Creating Poisson (a=0.000000, b=1.000000) test problem
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+WARNING: disabling GPU-initiated communications
+HPGMG_ENABLE_DEBUG=0
+  calculating D^{-1} exactly for level h=3.125000e-02 using 64 colors...  done (0.014154 seconds)
+  estimating  lambda_max... <2.223793917728256e+00
+
+attempting to create a 16^3 level from 8 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000095 seconds)
+  Calculating boxes per process... target=4.000, max=4
+
+attempting to create a 8^3 level from 1 x 8^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000338 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 4^3 level from 1 x 4^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000175 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+attempting to create a 2^3 level from 1 x 2^3 boxes distributed among 2 tasks...
+  boundary condition = BC_DIRICHLET
+  Decomposing level via Z-mort ordering... done
+  This level will be run on the host
+  Allocating vectors... done
+  Duplicating MPI_COMM_WORLD... done (0.000147 seconds)
+  Calculating boxes per process... target=0.500, max=1
+
+  Building restriction and interpolation lists... done
+
+  Building MPI subcommunicator for level 1... done (0.000435 seconds)
+  Building MPI subcommunicator for level 2... done (0.000032 seconds)
+  Building MPI subcommunicator for level 3... done (0.000030 seconds)
+  Building MPI subcommunicator for level 4... done (0.000029 seconds)
+
+  calculating D^{-1} exactly for level h=6.250000e-02 using 64 colors...  done (0.007539 seconds)
+  estimating  lambda_max... <2.226274197285770e+00
+  calculating D^{-1} exactly for level h=1.250000e-01 using 64 colors...  done (0.001619 seconds)
+  estimating  lambda_max... <2.230456209215220e+00
+  calculating D^{-1} exactly for level h=2.500000e-01 using 64 colors...  done (0.000397 seconds)
+  estimating  lambda_max... <2.232895071943511e+00
+  calculating D^{-1} exactly for level h=5.000000e-01 using 8 colors...  done (0.000031 seconds)
+  estimating  lambda_max... <1.375886524822695e+00
+
+
+
+===== Warming up by running 10 solves ==========================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006566 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006422 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006413 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006431 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006423 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006440 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006410 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.008023 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006396 seconds)
+
+WARMUP TIME: 0.066421
+
+
+===== Running 100 solves ========================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006412 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006389 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006409 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006404 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006396 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006420 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006383 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006413 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006387 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007987 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006408 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006395 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006376 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006369 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006376 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006376 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007905 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006359 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006384 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006417 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006355 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006353 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006386 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006375 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006401 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007962 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006407 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006373 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006366 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006422 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006396 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006422 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006376 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007991 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006404 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006384 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006397 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006353 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006421 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006364 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006423 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007957 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006400 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006393 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006401 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006372 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006363 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006428 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006381 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007917 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006391 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006414 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006351 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006396 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006372 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006403 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006357 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006411 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006389 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007956 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006379 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006382 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006397 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006378 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006405 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006402 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006374 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006388 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006358 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007987 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006357 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006377 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006365 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006376 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006398 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006368 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006404 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006376 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006406 seconds)
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.006423 seconds)
+
+EXEC_TIME TIME: 0.656405
+
+
+===== Timing Breakdown =========================================================
+
+
+level                                0              1              2              3              4   
+level dimension                   32^3         16^3          8^3          4^3          2^3 
+use cuda                           1            0            0            0            0   
+box dimension                     16^3          8^3          8^3          4^3          2^3        total
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+smooth                        0.000065     0.001107     0.000381     0.000085     0.000000     0.001637
+residual                      0.000011     0.000157     0.000051     0.000011     0.000004     0.000235
+applyOp                       0.000000     0.000000     0.000000     0.000000     0.000010     0.000010
+BLAS1                         0.000345     0.000007     0.000003     0.000002     0.000033     0.000390
+BLAS3                         0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+Boundary Conditions           0.000142     0.000239     0.000182     0.000131     0.000029     0.000723
+Restriction                   0.000170     0.000031     0.000004     0.000003     0.000000     0.000209
+  local restriction           0.000169     0.000010     0.000003     0.000002     0.000000     0.000185
+  pack MPI buffers            0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  unpack MPI buffers          0.000000     0.000003     0.000000     0.000000     0.000000     0.000003
+  MPI_Isend                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Irecv                   0.000000     0.000005     0.000000     0.000000     0.000000     0.000005
+  MPI_Waitall                 0.000000     0.000012     0.000000     0.000000     0.000000     0.000012
+Interpolation                 0.000112     0.000119     0.000028     0.000016     0.000000     0.000276
+  local interpolation         0.000065     0.000048     0.000016     0.000005     0.000000     0.000134
+  pack MPI buffers            0.000000     0.000047     0.000000     0.000000     0.000000     0.000047
+  unpack MPI buffers          0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Isend                   0.000000     0.000004     0.000000     0.000000     0.000000     0.000004
+  MPI_Irecv                   0.000000     0.000000     0.000000     0.000000     0.000000     0.000000
+  MPI_Waitall                 0.000000     0.000004     0.000000     0.000000     0.000000     0.000004
+Ghost Zone Exchange           0.002552     0.000456     0.000004     0.000004     0.000003     0.003019
+  local exchange              0.000343     0.000058     0.000000     0.000000     0.000000     0.000401
+  pack MPI buffers            0.000555     0.000049     0.000000     0.000000     0.000000     0.000605
+  unpack MPI buffers          0.000094     0.000047     0.000000     0.000000     0.000000     0.000141
+  MPI_Isend                   0.000037     0.000072     0.000000     0.000000     0.000000     0.000108
+  MPI_Irecv                   0.000026     0.000037     0.000000     0.000000     0.000000     0.000062
+  MPI_Waitall                 0.000047     0.000176     0.000000     0.000000     0.000000     0.000223
+MPI_collectives               0.000019     0.000000     0.000000     0.000000     0.000070     0.000088
+AsyncTimer                    0.000000     0.000000     0.000000     0.000000     0.000000     0.000001
+------------------        ------------ ------------ ------------ ------------ ------------ ------------ 
+Total by level                0.003384     0.002075     0.000646     0.000251     0.000148     0.006504
+
+   Total time in MGBuild      0.017172 seconds
+   Total time in MGSolve      0.006513 seconds
+      number of v-cycles             1
+Bottom solver iterations             8
+
+
+
+
+===== Performance Summary ======================================================
+  h=3.125000000000000e-02  DOF=3.276800000000000e+04  time=0.006513  DOF/s=5.031e+06  MPI=2  OMP=1  ACC=1
+
+
+===== Richardson error analysis ================================================
+FMGSolve... f-cycle     norm=8.412949740640441e-04  rel=9.615951595961463e-04  done (0.007969 seconds)
+  h=3.125000000000000e-02  ||error||=2.425638666068649e-03
+  order=-10.022
+
+
+===== Deallocating memory ======================================================
+attempting to free the restriction and interpolation lists... done
+attempting to free the     2^3 level... done
+attempting to free the     4^3 level... done
+attempting to free the     8^3 level... done
+attempting to free the    16^3 level... done
+attempting to free the    32^3 level... done
+
+
+===== Done =====================================================================
+Use LibMP=1
+Use GPUDirect Async, SA model=0
+Use GPUDirect Async, KI model=0
