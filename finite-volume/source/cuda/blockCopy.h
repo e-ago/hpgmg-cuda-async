@@ -328,7 +328,7 @@ __global__ void fused_copy_block_kernel(level_type level, int id, communicator_t
     int index_send=0;
     
     //Force sequential sends
-    int ordered_send=1;
+    int ordered_send=0;
 
     //First block wait
     if(block == 0)
