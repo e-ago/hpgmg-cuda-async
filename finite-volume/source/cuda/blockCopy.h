@@ -218,8 +218,8 @@ __device__ void copy_block_fuse(level_type level, int id, communicator_type exch
 
 #include "cub/thread/thread_load.cuh"
 #include "cub/thread/thread_store.cuh"
-#include "../comm.h"
 #include <mp/device.cuh>
+#include <comm.h>
 using namespace cub;
 
 #ifndef ACCESS_ONCE
