@@ -91,8 +91,8 @@ CUDA_INCLUDE=" -I$CUDA_HOME/include "
 
 #GPUDirect Async required
 [ -z "$PREFIX" ] && { PREFIX="$HOME/gdasync/Libraries"; }
-GDASYNC_LIB=" -I$PREFIX/lib"
-GDASYNC_INCLUDE=" -L$PREFIX/include"
+GDASYNC_LIB="-L$PREFIX/lib"
+GDASYNC_INCLUDE="-I$PREFIX/include"
 
 OPTS=" $OPTS $CUDA_INCLUDE $MPI_INCLUDE $GDASYNC_INCLUDE "
 
