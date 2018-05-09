@@ -91,15 +91,15 @@ CUDA_INCLUDE=" -I$CUDA_HOME/include "
 
 #GPUDirect Async required
 [ -z "$PREFIX" ] && { PREFIX="$HOME/gdasync/Libraries"; }
-GDASYNC_INCLUDE=" -I$PREFIX/include"
+GDASYNC_LIB=" -I$PREFIX/include"
 GDASYNC_INCLUDE=" -L$PREFIX/lib"
 
-OPTS=" $OPTS $CUDA_INCLUDE $MPI_INCLUDE $MP_INCLUDE "
+OPTS=" $OPTS $CUDA_INCLUDE $MPI_INCLUDE $GDASYNC_INCLUDE "
 
 CFLAGS="-O2 -fopenmp $OPTS"
 CXXFLAGS="-O2 $OPTS"
 NVCCFLAGS="-O2 -lineinfo $OPTS "
-LDFLAGS="$CUDA_LIB $MPI_LIB $GDASYNC_INCLUDE "
+LDFLAGS="$CUDA_LIB $MPI_LIB $GDASYNC_LIB "
 LDLIBS="-lmpcomm -lmp -lgdsync -lgdrapi -lcuda -libverbs "
 
 # GSRB smoother (default)
