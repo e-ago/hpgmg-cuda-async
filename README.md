@@ -1,5 +1,10 @@
 # HPGMG-FV CUDA Async
 
+## Build
+
+In `build.sh` script you need to set the GPUDirect Async path.
+You can download all GPUDirect Async libraries and headers from here [GDAsync suite](https://github.com/e-ago/gdasync)
+
 [HPGMG](https://hpgmg.org) is an HPC benchmarking effort and supercomputing ranking metric based on geometric multigrid methods. NVIDIA reworked the original implementation moving from a CPU implementation to an [hybrid CPU-GPU solution](https://bitbucket.org/nsakharnykh/hpgmg-cuda).
 In this repository, starting from the NVIDIA solution, we leverage the communications with [GPUDirect Async](https://github.com/gpudirect/libgdsync), recently released by NVIDIA.
 
