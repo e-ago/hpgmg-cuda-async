@@ -327,8 +327,8 @@ void interpolation_v2_comm(level_type * level_f, int id_f, double prescale_f, le
   comm_request_t  recv_requests[nMessages];
   comm_request_t  send_requests[nMessages];
   comm_request_t ready_requests[nMessages];
-  int use_async_f = level_f->use_cuda && comm_use_async() && ENABLE_INTERPOLATION_ASYNC;
-  int use_async_c = level_c->use_cuda && comm_use_async() && ENABLE_INTERPOLATION_ASYNC;
+  int use_async_f = level_f->use_cuda && comm_use_model_sa() && ENABLE_INTERPOLATION_ASYNC;
+  int use_async_c = level_c->use_cuda && comm_use_model_sa() && ENABLE_INTERPOLATION_ASYNC;
   int use_async = use_async_f && use_async_c;
 
   // loop through packed list of MPI receives and prepost Irecv's...

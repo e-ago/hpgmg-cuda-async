@@ -188,7 +188,7 @@ void exchange_boundary_comm(level_type * level, int id, int shape){
 	int buffer=0, n;
 	int nMessages = level->exchange_ghosts[shape].num_recvs + level->exchange_ghosts[shape].num_sends;
 	/*
-	Even if comm_use_comm() == 1 and comm_use_async() == 1, if level->use_cuda == 0 means that copy_block operations must be done by CPU.
+	Even if comm_use_comm() == 1 and comm_use_model_sa() == 1, if level->use_cuda == 0 means that copy_block operations must be done by CPU.
 	In this situation, use the async communication is useless because a cudaDeviceSynchronize() must be done before unpack
 	*/
 
@@ -373,13 +373,13 @@ void exchange_boundary_async(level_type * level, int id, int shape){
 	sendStream = level->stream;
 	recvStream = level->stream_rec;
 	/*
-	Even if comm_use_comm() == 1 and comm_use_async() == 1, if level->use_cuda == 0 means that copy_block operations must be done by CPU.
+	Even if comm_use_comm() == 1 and comm_use_model_sa() == 1, if level->use_cuda == 0 means that copy_block operations must be done by CPU.
 	In this situation, use the async communication is useless because a cudaDeviceSynchronize() must be done before unpack
 	*/
 
 	DBG("NMsg=%d recvs=%d sends=%d\n", nMessages, level->exchange_ghosts[shape].num_recvs, level->exchange_ghosts[shape].num_sends);
 
-	assert( comm_use_async() );
+	assert( comm_use_model_sa() );
 	comm_request_t ready_requests[level->exchange_ghosts[shape].num_recvs];
 	comm_request_t  recv_requests[level->exchange_ghosts[shape].num_recvs];
 	comm_request_t  send_requests[level->exchange_ghosts[shape].num_sends];
@@ -519,7 +519,7 @@ void exchange_boundary_comm_fused_copy(level_type * level, int id, int shape){
 	comm_request_t recv_requests[level->exchange_ghosts[shape].num_recvs];
 	comm_request_t send_requests[level->exchange_ghosts[shape].num_sends];
 
-	assert(comm_use_async());
+	assert(comm_use_model_sa());
 	assert(level->use_cuda == 1);
 
 	DBG("NMsg=%d recvs=%d sends=%d\n", nMessages, level->exchange_ghosts[shape].num_recvs, level->exchange_ghosts[shape].num_sends);
@@ -614,12 +614,12 @@ void exchange_boundary(level_type * level, int id, int shape) {
 	if (ENABLE_EXCHANGE_BOUNDARY_COMM && comm_use_comm())
 	{
 		communicator_type *ct = &level->exchange_ghosts[shape];
-		if (comm_use_gpu_comm() && comm_use_async() && level->use_cuda && ct->num_blocks[0] > 0  && ct->num_blocks[1] > 0 && ct->num_blocks[2] > 0)
+		if (comm_use_model_ki() && comm_use_model_sa() && level->use_cuda && ct->num_blocks[0] > 0  && ct->num_blocks[1] > 0 && ct->num_blocks[2] > 0)
 		{
 			PUSH_RANGE("exchange_kernel", OP_COL);
 			exchange_boundary_comm_fused_copy(level, id, shape);
 		}   
-		else if(comm_use_async() && level->use_cuda)
+		else if(comm_use_model_sa() && level->use_cuda)
 		{
 			PUSH_RANGE("exchange_async", OP_COL);
 			//comm_flush();

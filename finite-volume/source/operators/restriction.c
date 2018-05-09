@@ -230,7 +230,7 @@ void restriction_comm(level_type * level_c, int id_c, level_type *level_f, int i
   double _timeStart,_timeEnd;
   int buffer=0;
   int n;  
-  int use_async = level_c->use_cuda && level_f->use_cuda && comm_use_async() && ENABLE_RESTRICTION_ASYNC;
+  int use_async = level_c->use_cuda && level_f->use_cuda && comm_use_model_sa() && ENABLE_RESTRICTION_ASYNC;
 
   // by convention, level_f allocates a combined array of requests for both level_f sends and level_c recvs...
   int nMessages = level_c->restriction[restrictionType].num_recvs + level_f->restriction[restrictionType].num_sends;
@@ -399,7 +399,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
       h   h ??
       h   d IMPOSSIBLE currently
      */
-    //if (level_f->use_cuda || level_c->use_cuda && comm_use_async()) {
+    //if (level_f->use_cuda || level_c->use_cuda && comm_use_model_sa()) {
 /*
     //async
     int HOST_LEVEL_SIZE_THRESHOLD=10000; //default value
@@ -413,7 +413,7 @@ void restriction(level_type * level_c, int id_c, level_type *level_f, int id_f, 
 */      //useless !level_c->use_cuda ??
       
 #if 1
-      if (!level_c->use_cuda || !level_f->use_cuda && comm_use_async()) {
+      if (!level_c->use_cuda || !level_f->use_cuda && comm_use_model_sa()) {
         PUSH_RANGE("Comm flush", COMM_COL);
         comm_flush(); //_new();
         POP_RANGE;
