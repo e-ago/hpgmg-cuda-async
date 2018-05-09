@@ -8,7 +8,6 @@ NVCC=`which nvcc`
 
 # set gpu architectures to compile for
 CUDA_ARCH="-gencode code=sm_35,arch=compute_35 "
-#CUDA_ARCH="$CUDA_ARCH -gencode code=sm_50,arch=compute_50 "
 CUDA_ARCH="$CUDA_ARCH -gencode code=sm_60,arch=compute_60 "
 #CUDA_ARCH="$CUDA_ARCH -gencode code=sm_70,arch=compute_70 "
 
@@ -41,7 +40,6 @@ OPTS=" $OPTS -DCUDA_UM_ZERO_COPY "
 OPTS=" $OPTS -DMPI_ALLOC_ZERO_COPY "
 #cudaMalloc
 #OPTS=" $OPTS -DMPI_ALLOC_PINNED "
-
 
 :<<AUTHOR_COMMENTS
 OPTS=" $OPTS -DMPI_ALLOC_ZERO_COPY " - uses cudaMallocHost to allocate MPI buffers
@@ -85,31 +83,29 @@ FLAGS_TESTS
 
 OPTS=" $OPTS -DPROFILE_NVTX_RANGES "
 
-#PEERSYNC REQUIRED
-[ -z "$PREFIX" ] && { PREFIX="$HOME/peersync"; }
-
 MPI_INCLUDE=" -I$MPI_HOME/include "
 MPI_LIB=" -L$MPI_HOME/lib -L/lib64 -L/lib "
 
 CUDA_LIB=" -L$CUDA_HOME/lib64 -lcudart "
 CUDA_INCLUDE=" -I$CUDA_HOME/include "
 
-MP_INCLUDE=" -I$PREFIX/include"
-MP_LIB=" -L$PREFIX/lib"
+#GPUDirect Async required
+[ -z "$PREFIX" ] && { PREFIX="$HOME/gdasync/Libraries"; }
+GDASYNC_INCLUDE=" -I$PREFIX/include"
+GDASYNC_INCLUDE=" -L$PREFIX/lib"
 
 OPTS=" $OPTS $CUDA_INCLUDE $MPI_INCLUDE $MP_INCLUDE "
 
 CFLAGS="-O2 -fopenmp $OPTS"
 CXXFLAGS="-O2 $OPTS"
 NVCCFLAGS="-O2 -lineinfo $OPTS "
-LDFLAGS="$CUDA_LIB $MPI_LIB $MP_LIB "
-LDLIBS="-lmp -lgdsync -lgdrapi -lcuda -libverbs "
+LDFLAGS="$CUDA_LIB $MPI_LIB $GDASYNC_INCLUDE "
+LDLIBS="-lmpcomm -lmp -lgdsync -lgdrapi -lcuda -libverbs "
 
 # GSRB smoother (default)
 set -x
 ./configure --CC=$CC --NVCC=$NVCC --CXX=$CXX --CFLAGS="$CFLAGS" --CXXFLAGS="$CXXFLAGS" --NVCCFLAGS="$NVCCFLAGS" --CUDAARCH="$CUDA_ARCH" --LDFLAGS="$LDFLAGS" --LDLIBS="$LDLIBS" --no-fe
 
 # Chebyshev smoother: --fv-smoother="cheby"
-
 make clean -C build
 make -j3 -C build V=1

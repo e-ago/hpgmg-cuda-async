@@ -8,9 +8,8 @@ hpgmg-fv-y.c += $(call thisdir, \
 	hpgmg-fv.c \
 	)
 
-hpgmg-fv-y.cc += $(call thisdir, \
-	comm.cc \
-	)
+#Useless in case of libmpcomm.so
+#hpgmg-fv-y.cc += $(call thisdir, comm.cc)
 
 hpgmg-fv-y.cu += $(call thisdir, \
 	cuda/operators.fv4.cu \
